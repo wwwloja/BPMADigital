@@ -2405,8 +2405,16 @@ body{padding-bottom:74px}
   // ===== Impressão =====
   q('#printRelatorioCompleto')?.addEventListener('click',()=>{
   if(window.BPMA_CPU_SYNC_PRINT_VALUES) window.BPMA_CPU_SYNC_PRINT_VALUES();
-  if(window.BPMA_PRINT?.printCurrent) window.BPMA_PRINT.printCurrent();
-  else window.print();
+  if(window.BPMA_PRINT?.printCurrent){
+    window.BPMA_PRINT.printCurrent({
+      selector:'main.wrap',
+      filename:'Relatorio_CPU_BPMA.pdf',
+      prepare:()=>{
+        window.BPMA_CPU_SYNC_PRINT_VALUES?.();
+        window.BPMA_CPU_buildPrintMirrors?.();
+      }
+    });
+  }else window.print();
 });
 
   window.addEventListener('resize',()=>growAll());

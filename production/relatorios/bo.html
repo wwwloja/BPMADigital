@@ -1021,7 +1021,7 @@ function point(e){const r=document.getElementById('sigCanvas').getBoundingClient
 const c=document.getElementById('sigCanvas');['mousedown','touchstart'].forEach(ev=>c.addEventListener(ev,e=>{e.preventDefault();drawing=true;const [x,y]=point(e);ctx.beginPath();ctx.moveTo(x,y)},{passive:false}));['mousemove','touchmove'].forEach(ev=>c.addEventListener(ev,e=>{if(!drawing)return;e.preventDefault();const [x,y]=point(e);ctx.lineTo(x,y);ctx.stroke()},{passive:false}));['mouseup','mouseleave','touchend','touchcancel'].forEach(ev=>c.addEventListener(ev,()=>drawing=false));
 if(!loadDraft()){addGuarnicao(); addPessoa('acusados','Acusado'); addPessoa('vitimas','Vítima'); addPessoa('testemunhas','Testemunha');} refreshSignatures();
 
-window.BO = {addArma,addCartucho,addGuarnicao,addExternalWitness,addPessoa,addResistencia,clearCanvas,clearForm,clearSavedSig,closeSig,go,openSig,prepareAndPrint,refreshSignatures,removeCard,saveSignature,toggleEmpty,toggleObjeto,toggleResistencia,toggleSolicitante};
+window.BO = {addArma,addCartucho,addGuarnicao,addExternalWitness,addPessoa,addResistencia,clearCanvas,clearForm,clearSavedSig,closeSig,go,openSig,prepareAndPrint,preparePrintRender,refreshSignatures,removeCard,saveSignature,toggleEmpty,toggleObjeto,toggleResistencia,toggleSolicitante};
 })();
 </script>
 <script>
@@ -1538,12 +1538,17 @@ window.SERV = {addAnimal,addAtividade,addProcedimento,addRecurso,gerarPDF,go,lim
   }
 
   function printA4(){
-    // Dispara o salvamento sem retirar o gesto do usuário da impressão.
+    // Salva em paralelo. No celular, gera PDF A4 e abre o compartilhamento do sistema.
     if(canEdit()) saveNow(false);
-    if(window.BO && typeof window.BO.prepareAndPrint==='function'){
+    const numero=(record?.numero||'BO').replace(/[^a-zA-Z0-9_-]+/g,'_');
+    if(window.BPMA_PRINT?.printCurrent){
+      window.BPMA_PRINT.printCurrent({
+        selector:'#view-bo',
+        filename:`BO_${numero}.pdf`,
+        prepare:()=>{ window.BO?.preparePrintRender?.(); }
+      });
+    }else if(window.BO && typeof window.BO.prepareAndPrint==='function'){
       window.BO.prepareAndPrint();
-    }else if(window.BPMA_PRINT?.printCurrent){
-      window.BPMA_PRINT.printCurrent();
     }else{
       window.print();
     }
