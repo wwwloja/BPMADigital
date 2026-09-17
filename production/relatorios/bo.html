@@ -1546,6 +1546,7 @@ window.SERV = {addAnimal,addAtividade,addProcedimento,addRecurso,gerarPDF,go,lim
         selector:'#view-bo .print-area',
         wrapperId:'view-bo',
         wrapperClass:'view active',
+        fitSinglePage:true,
         filename:`BO_${numero}.pdf`,
         prepare:()=>{ window.BO?.preparePrintRender?.(); }
       });

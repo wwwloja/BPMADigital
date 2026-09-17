@@ -305,7 +305,7 @@
     const wrapper=document.createElement('div');
     wrapper.id=opts.wrapperId;
     if(opts.wrapperClass) wrapper.className=opts.wrapperClass;
-    wrapper.style.cssText=`display:block!important;width:${CONTENT_W_MM}mm!important;max-width:${CONTENT_W_MM}mm!important;min-width:0!important;min-height:0!important;margin:0!important;padding:0!important;background:#fff!important`;
+    wrapper.style.cssText='display:block!important;width:100%!important;max-width:100%!important;min-width:0!important;min-height:0!important;margin:0!important;padding:0!important;background:#fff!important;box-sizing:border-box!important';
     wrapper.appendChild(clone);
     return wrapper;
   }
@@ -328,8 +328,8 @@
       const clone=source.cloneNode(true);
       syncControls(source,clone);
 
-      clone.style.setProperty('width',`${CONTENT_W_MM}mm`,'important');
-      clone.style.setProperty('max-width',`${CONTENT_W_MM}mm`,'important');
+      clone.style.setProperty('width','100%','important');
+      clone.style.setProperty('max-width','100%','important');
       clone.style.setProperty('min-width','0','important');
       clone.style.setProperty('min-height','0','important');
       clone.style.setProperty('height','auto','important');
@@ -358,7 +358,10 @@
         height:auto!important;
         min-height:0!important;
         margin:0!important;
-        padding:0!important;
+        padding-left:${MARGIN_MM}mm!important;
+        padding-right:${MARGIN_MM}mm!important;
+        padding-top:0!important;
+        padding-bottom:0!important;
         overflow:visible!important;
         background:#fff!important;
         color:#000!important;
@@ -383,46 +386,36 @@
           height:auto!important;
           min-height:0!important;
           margin:0!important;
-          padding:0!important;
+          padding-left:${MARGIN_MM}mm!important;
+          padding-right:${MARGIN_MM}mm!important;
+          padding-top:0!important;
+          padding-bottom:0!important;
           transform:none!important;
           float:none!important;
           background:#fff!important;
+          overflow:visible!important;
         }
         #bpmaPdfStaging > *{
           box-sizing:border-box!important;
-          width:${CONTENT_W_MM}mm!important;
-          max-width:${CONTENT_W_MM}mm!important;
-          min-width:${CONTENT_W_MM}mm!important;
-          height:auto!important;
-          min-height:0!important;
-          margin-left:auto!important;
-          margin-right:auto!important;
-          padding:0!important;
-          transform:none!important;
-          float:none!important;
-        }
-        #bpmaPdfStaging #view-bo{
-          box-sizing:border-box!important;
-          width:${CONTENT_W_MM}mm!important;
-          max-width:${CONTENT_W_MM}mm!important;
-          min-width:${CONTENT_W_MM}mm!important;
-          height:auto!important;
-          min-height:0!important;
-          margin-left:auto!important;
-          margin-right:auto!important;
-          padding:0!important;
-          transform:none!important;
-          float:none!important;
-        }
-        #bpmaPdfStaging #view-bo .print-area{
-          width:${CONTENT_W_MM}mm!important;
-          max-width:${CONTENT_W_MM}mm!important;
+          width:100%!important;
+          max-width:100%!important;
           min-width:0!important;
           height:auto!important;
           min-height:0!important;
           margin:0!important;
           padding:0!important;
-          overflow:visible!important;
+          float:none!important;
+        }
+        #bpmaPdfStaging #view-bo{
+          box-sizing:border-box!important;
+          width:100%!important;
+          max-width:100%!important;
+          min-width:0!important;
+          height:auto!important;
+          min-height:0!important;
+          margin:0!important;
+          padding:0!important;
+          float:none!important;
         }
         #bpmaPdfStaging .no-print,
         #bpmaPdfStaging .toolbar,
@@ -462,12 +455,30 @@
       await inlineImages(renderRoot);
       await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
 
-      const rect=host.getBoundingClientRect();
-      const cssWidth=Math.max(1,Math.ceil(rect.width));
-      const cssHeight=Math.max(
-        1,
-        Math.ceil(Math.max(host.scrollHeight, renderRoot.scrollHeight, renderRoot.getBoundingClientRect().height))
-      );
+      const hostRect=host.getBoundingClientRect();
+      const naturalRect=renderRoot.getBoundingClientRect();
+      const cssWidth=Math.max(1,Math.ceil(hostRect.width));
+      let cssHeight=Math.max(1,Math.ceil(naturalRect.height));
+      let fitScale=1;
+
+      // BO vazio/padrão costuma exceder uma única folha por poucos milímetros.
+      // Se a ultrapassagem for pequena, reduzimos no máximo 7% e mantemos o
+      // conteúdo centralizado. Relatórios realmente longos continuam multipágina.
+      if(opts.fitSinglePage && naturalRect.width>0 && naturalRect.height>0){
+        const naturalHeightMm=(naturalRect.height/naturalRect.width)*CONTENT_W_MM;
+        const usableHeightMm=A4_H_MM-(MARGIN_MM*2);
+        const candidate=usableHeightMm/naturalHeightMm;
+        if(candidate<1 && candidate>=0.93){
+          fitScale=candidate;
+          renderRoot.style.setProperty('transform',`scale(${fitScale})`,'important');
+          renderRoot.style.setProperty('transform-origin','top center','important');
+          await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
+          const scaledRect=renderRoot.getBoundingClientRect();
+          cssHeight=Math.max(1,Math.ceil(scaledRect.height));
+          host.style.setProperty('height',`${cssHeight}px`,'important');
+          host.style.setProperty('overflow','hidden','important');
+        }
+      }
 
       // Proteção: a área A4 útil deve ficar próxima de 196 mm (~741 px em 96 dpi).
       // Nunca mais força viewport de 1200 px como largura da captura.
@@ -493,16 +504,17 @@
           format:'a4',
           orientation:'portrait',
           compress:true
-        }
-        // Sem pagebreak "avoid/legacy": essas heurísticas foram responsáveis
-        // pelos grandes espaços vazios e pela página extra em branco.
+        },
+        pagebreak:{mode:['css']}
+      
       };
 
       console.info('[BPMA PDF A4]',{
         paper:`${A4_W_MM}x${A4_H_MM}mm`,
         margin:`${MARGIN_MM}mm`,
         contentWidthMm:CONTENT_W_MM,
-        leftRightGutterMm:(A4_W_MM-CONTENT_W_MM)/2,
+        leftRightPaddingMm:MARGIN_MM,
+        fitScale,
         captureWidthPx:cssWidth,
         captureHeightPx:cssHeight
       });
