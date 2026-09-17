@@ -352,9 +352,9 @@
         position:fixed!important;
         left:0!important;
         top:0!important;
-        width:${CONTENT_W_MM}mm!important;
-        max-width:${CONTENT_W_MM}mm!important;
-        min-width:${CONTENT_W_MM}mm!important;
+        width:${A4_W_MM}mm!important;
+        max-width:${A4_W_MM}mm!important;
+        min-width:${A4_W_MM}mm!important;
         height:auto!important;
         min-height:0!important;
         margin:0!important;
@@ -375,16 +375,41 @@
         #bpmaPdfStaging{
           font-family:Arial,Helvetica,sans-serif!important;
         }
-        #bpmaPdfStaging,
-        #bpmaPdfStaging > *,
+        #bpmaPdfStaging{
+          box-sizing:border-box!important;
+          width:${A4_W_MM}mm!important;
+          max-width:${A4_W_MM}mm!important;
+          min-width:${A4_W_MM}mm!important;
+          height:auto!important;
+          min-height:0!important;
+          margin:0!important;
+          padding:0!important;
+          transform:none!important;
+          float:none!important;
+          background:#fff!important;
+        }
+        #bpmaPdfStaging > *{
+          box-sizing:border-box!important;
+          width:${CONTENT_W_MM}mm!important;
+          max-width:${CONTENT_W_MM}mm!important;
+          min-width:${CONTENT_W_MM}mm!important;
+          height:auto!important;
+          min-height:0!important;
+          margin-left:auto!important;
+          margin-right:auto!important;
+          padding:0!important;
+          transform:none!important;
+          float:none!important;
+        }
         #bpmaPdfStaging #view-bo{
           box-sizing:border-box!important;
           width:${CONTENT_W_MM}mm!important;
           max-width:${CONTENT_W_MM}mm!important;
-          min-width:0!important;
+          min-width:${CONTENT_W_MM}mm!important;
           height:auto!important;
           min-height:0!important;
-          margin:0!important;
+          margin-left:auto!important;
+          margin-right:auto!important;
           padding:0!important;
           transform:none!important;
           float:none!important;
@@ -437,14 +462,17 @@
       await inlineImages(renderRoot);
       await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
 
-      const rect=renderRoot.getBoundingClientRect();
+      const rect=host.getBoundingClientRect();
       const cssWidth=Math.max(1,Math.ceil(rect.width));
-      const cssHeight=Math.max(1,Math.ceil(renderRoot.scrollHeight || rect.height));
+      const cssHeight=Math.max(
+        1,
+        Math.ceil(Math.max(host.scrollHeight, renderRoot.scrollHeight, renderRoot.getBoundingClientRect().height))
+      );
 
       // Proteção: a área A4 útil deve ficar próxima de 196 mm (~741 px em 96 dpi).
       // Nunca mais força viewport de 1200 px como largura da captura.
       const options={
-        margin:[MARGIN_MM,MARGIN_MM,MARGIN_MM,MARGIN_MM],
+        margin:[MARGIN_MM,0,MARGIN_MM,0],
         filename:safeName(opts.filename||document.title||'BPMA_Digital.pdf'),
         image:{type:'jpeg',quality:0.97},
         html2canvas:{
@@ -474,13 +502,14 @@
         paper:`${A4_W_MM}x${A4_H_MM}mm`,
         margin:`${MARGIN_MM}mm`,
         contentWidthMm:CONTENT_W_MM,
+        leftRightGutterMm:(A4_W_MM-CONTENT_W_MM)/2,
         captureWidthPx:cssWidth,
         captureHeightPx:cssHeight
       });
 
       const worker=window.html2pdf()
         .set(options)
-        .from(renderRoot)
+        .from(host)
         .toPdf();
 
       const blob=await worker.outputPdf('blob');
