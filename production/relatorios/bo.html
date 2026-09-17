@@ -1543,7 +1543,9 @@ window.SERV = {addAnimal,addAtividade,addProcedimento,addRecurso,gerarPDF,go,lim
     const numero=(record?.numero||'BO').replace(/[^a-zA-Z0-9_-]+/g,'_');
     if(window.BPMA_PRINT?.printCurrent){
       window.BPMA_PRINT.printCurrent({
-        selector:'#view-bo',
+        selector:'#view-bo .print-area',
+        wrapperId:'view-bo',
+        wrapperClass:'view active',
         filename:`BO_${numero}.pdf`,
         prepare:()=>{ window.BO?.preparePrintRender?.(); }
       });

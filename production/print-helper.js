@@ -1,5 +1,9 @@
 (() => {
   const PDF_LIB='https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
+  const A4_W_MM=210;
+  const A4_H_MM=297;
+  const MARGIN_MM=7;
+  const CONTENT_W_MM=A4_W_MM-(MARGIN_MM*2); // 196 mm
   let pdfLibPromise=null;
   let currentPdf=null;
   let currentPdfUrl='';
@@ -53,6 +57,7 @@
     pdfLibPromise=new Promise((resolve,reject)=>{
       const existing=document.querySelector('script[data-bpma-html2pdf]');
       if(existing){
+        if(window.html2pdf){ resolve(window.html2pdf); return; }
         existing.addEventListener('load',()=>window.html2pdf?resolve(window.html2pdf):reject(new Error('Gerador PDF indisponível.')),{once:true});
         existing.addEventListener('error',()=>reject(new Error('Não foi possível carregar o gerador de PDF.')),{once:true});
         return;
@@ -101,7 +106,10 @@
   }
 
   function showBusy(){
-    const m=modalBase('Preparando PDF A4','Aguarde alguns segundos. O BPMA Digital está montando o relatório para impressão no celular.');
+    const m=modalBase(
+      'Preparando PDF A4',
+      'Montando o documento em <b>A4 210 × 297 mm</b>, com margens de 7 mm.'
+    );
     const body=m.querySelector('#bpmaPrintModalBody');
     const spin=document.createElement('div');
     spin.style.cssText='width:34px;height:34px;margin:16px auto 4px;border:4px solid #dbe9e4;border-top-color:#08764f;border-radius:50%;animation:bpmaPdfSpin .8s linear infinite';
@@ -130,7 +138,7 @@
         await navigator.share({
           files:[file],
           title:currentPdfName.replace(/\.pdf$/i,''),
-          text:'Relatório BPMA Digital em PDF.'
+          text:'Relatório BPMA Digital em PDF A4.'
         });
         return;
       }
@@ -173,8 +181,8 @@
     currentPdf=blob;
     currentPdfName=safeName(filename);
     const m=modalBase(
-      'PDF pronto',
-      'No celular, use <b>Compartilhar / Imprimir</b>. No iPhone/iPad, escolha <b>Imprimir</b> no menu de compartilhamento. No Android, escolha <b>Imprimir</b> ou abra o PDF para salvar/imprimir.'
+      'PDF A4 pronto',
+      'Documento gerado em <b>210 × 297 mm</b>. No celular, toque em <b>Compartilhar / Imprimir</b>.'
     );
     const actions=m.querySelector('#bpmaPrintModalActions');
 
@@ -199,20 +207,11 @@
     console.error('PDF móvel:',err);
     const m=modalBase(
       'Não foi possível gerar o PDF',
-      'O gerador de PDF não conseguiu concluir esta tentativa. Você ainda pode abrir o compartilhamento do aparelho ou tentar novamente com internet ativa.'
+      'O documento não foi concluído. Verifique a conexão e tente novamente.'
     );
     const actions=m.querySelector('#bpmaPrintModalActions');
 
-    if(navigator.share){
-      const share=button('Compartilhar esta página',true);
-      share.onclick=async()=>{
-        try{await navigator.share({title:document.title,url:location.href})}
-        catch(e){if(e?.name!=='AbortError')console.warn(e)}
-      };
-      actions.appendChild(share);
-    }
-
-    const retry=button('Tentar novamente');
+    const retry=button('Tentar impressão do navegador',true);
     retry.onclick=()=>{removeModal(); nativePrint()};
     actions.appendChild(retry);
 
@@ -287,7 +286,7 @@
   }
 
   function autoSelector(){
-    if(document.querySelector('#view-bo')) return '#view-bo';
+    if(document.querySelector('#view-bo .print-area')) return '#view-bo .print-area';
     if(document.querySelector('.page')) return '.page';
     if(document.querySelector('main.wrap')) return 'main.wrap';
     return 'body';
@@ -299,6 +298,21 @@
       if(window.BPMA_CPU_SYNC_PRINT_VALUES) window.BPMA_CPU_SYNC_PRINT_VALUES();
       if(window.BPMA_CPU_buildPrintMirrors) window.BPMA_CPU_buildPrintMirrors();
     }catch(err){console.warn('Preparação automática PDF:',err)}
+  }
+
+  function makeRenderRoot(source,clone,opts){
+    if(!opts.wrapperId) return clone;
+    const wrapper=document.createElement('div');
+    wrapper.id=opts.wrapperId;
+    if(opts.wrapperClass) wrapper.className=opts.wrapperClass;
+    wrapper.style.cssText=`display:block!important;width:${CONTENT_W_MM}mm!important;max-width:${CONTENT_W_MM}mm!important;min-width:0!important;min-height:0!important;margin:0!important;padding:0!important;background:#fff!important`;
+    wrapper.appendChild(clone);
+    return wrapper;
+  }
+
+  function cleanupStaging(){
+    document.getElementById('bpmaPdfStaging')?.remove();
+    document.getElementById('bpmaPdfPrintRules')?.remove();
   }
 
   async function generateMobilePdf(opts={}){
@@ -314,72 +328,174 @@
       const clone=source.cloneNode(true);
       syncControls(source,clone);
 
+      clone.style.setProperty('width',`${CONTENT_W_MM}mm`,'important');
+      clone.style.setProperty('max-width',`${CONTENT_W_MM}mm`,'important');
+      clone.style.setProperty('min-width','0','important');
+      clone.style.setProperty('min-height','0','important');
+      clone.style.setProperty('height','auto','important');
+      clone.style.setProperty('margin','0','important');
+      clone.style.setProperty('padding','0','important');
+      clone.style.setProperty('box-sizing','border-box','important');
+      clone.style.setProperty('overflow','visible','important');
+      clone.style.setProperty('transform','none','important');
+
+      const renderRoot=makeRenderRoot(source,clone,opts);
+
       const host=document.createElement('div');
       host.id='bpmaPdfStaging';
-      host.style.cssText='position:fixed;left:-12000px;top:0;width:194mm;max-width:none;background:#fff;color:#000;z-index:-10000;pointer-events:none;overflow:visible';
-      clone.style.width='194mm';
-      clone.style.maxWidth='none';
-      clone.style.margin='0';
-      host.appendChild(clone);
+      /*
+       * Importante:
+       * o staging agora começa em 0,0 atrás do aplicativo.
+       * Isso evita que coordenadas externas à folha entrem na captura.
+       */
+      host.style.cssText=`
+        position:fixed!important;
+        left:0!important;
+        top:0!important;
+        width:${CONTENT_W_MM}mm!important;
+        max-width:${CONTENT_W_MM}mm!important;
+        min-width:${CONTENT_W_MM}mm!important;
+        height:auto!important;
+        min-height:0!important;
+        margin:0!important;
+        padding:0!important;
+        overflow:visible!important;
+        background:#fff!important;
+        color:#000!important;
+        z-index:-2147483000!important;
+        pointer-events:none!important;
+        box-sizing:border-box!important;
+      `;
+      host.appendChild(renderRoot);
       document.body.appendChild(host);
 
       const style=document.createElement('style');
       style.id='bpmaPdfPrintRules';
       style.textContent=collectPrintCss()+`
-        #bpmaPdfStaging{font-family:"Times New Roman",Times,serif!important}
+        #bpmaPdfStaging{
+          font-family:Arial,Helvetica,sans-serif!important;
+        }
+        #bpmaPdfStaging,
+        #bpmaPdfStaging > *,
+        #bpmaPdfStaging #view-bo{
+          box-sizing:border-box!important;
+          width:${CONTENT_W_MM}mm!important;
+          max-width:${CONTENT_W_MM}mm!important;
+          min-width:0!important;
+          height:auto!important;
+          min-height:0!important;
+          margin:0!important;
+          padding:0!important;
+          transform:none!important;
+          float:none!important;
+        }
+        #bpmaPdfStaging #view-bo .print-area{
+          width:${CONTENT_W_MM}mm!important;
+          max-width:${CONTENT_W_MM}mm!important;
+          min-width:0!important;
+          height:auto!important;
+          min-height:0!important;
+          margin:0!important;
+          padding:0!important;
+          overflow:visible!important;
+        }
         #bpmaPdfStaging .no-print,
         #bpmaPdfStaging .toolbar,
         #bpmaPdfStaging .bpma-system-toolbar,
         #bpmaPdfStaging .report-final-actions,
         #bpmaPdfStaging .print-actions,
         #bpmaPdfStaging .row-actions,
-        #bpmaPdfStaging button{display:none!important}
-        #bpmaPdfStaging,#bpmaPdfStaging *{
+        #bpmaPdfStaging button{
+          display:none!important
+        }
+        #bpmaPdfStaging,
+        #bpmaPdfStaging *{
           -webkit-print-color-adjust:exact!important;
           print-color-adjust:exact!important;
         }
-        #bpmaPdfStaging textarea{overflow:visible!important;resize:none!important}
+        #bpmaPdfStaging textarea{
+          overflow:visible!important;
+          resize:none!important
+        }
         #bpmaPdfStaging .page,
         #bpmaPdfStaging .wrap,
         #bpmaPdfStaging .main,
-        #bpmaPdfStaging .sheet{max-width:none!important;box-shadow:none!important}
+        #bpmaPdfStaging .sheet,
+        #bpmaPdfStaging .app{
+          width:100%!important;
+          max-width:100%!important;
+          min-width:0!important;
+          min-height:0!important;
+          height:auto!important;
+          margin:0!important;
+          box-shadow:none!important;
+          transform:none!important;
+        }
       `;
       document.head.appendChild(style);
 
-      await inlineImages(clone);
+      await inlineImages(renderRoot);
       await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
 
+      const rect=renderRoot.getBoundingClientRect();
+      const cssWidth=Math.max(1,Math.ceil(rect.width));
+      const cssHeight=Math.max(1,Math.ceil(renderRoot.scrollHeight || rect.height));
+
+      // Proteção: a área A4 útil deve ficar próxima de 196 mm (~741 px em 96 dpi).
+      // Nunca mais força viewport de 1200 px como largura da captura.
       const options={
-        margin:[7,7,7,7],
+        margin:[MARGIN_MM,MARGIN_MM,MARGIN_MM,MARGIN_MM],
         filename:safeName(opts.filename||document.title||'BPMA_Digital.pdf'),
-        image:{type:'jpeg',quality:0.96},
+        image:{type:'jpeg',quality:0.97},
         html2canvas:{
-          scale:1.55,
+          scale:2,
           useCORS:true,
           allowTaint:false,
           logging:false,
           backgroundColor:'#ffffff',
-          windowWidth:1200,
+          width:cssWidth,
+          height:cssHeight,
+          windowWidth:Math.max(900,cssWidth),
+          windowHeight:Math.max(1000,Math.min(cssHeight+40,8000)),
           scrollX:0,
           scrollY:0
         },
-        jsPDF:{unit:'mm',format:'a4',orientation:'portrait',compress:true},
-        pagebreak:{mode:['css','legacy'],avoid:['tr','.card','.sig-card','.photo','.photo-card']}
+        jsPDF:{
+          unit:'mm',
+          format:'a4',
+          orientation:'portrait',
+          compress:true
+        }
+        // Sem pagebreak "avoid/legacy": essas heurísticas foram responsáveis
+        // pelos grandes espaços vazios e pela página extra em branco.
       };
 
-      const worker=window.html2pdf().set(options).from(clone).toPdf();
+      console.info('[BPMA PDF A4]',{
+        paper:`${A4_W_MM}x${A4_H_MM}mm`,
+        margin:`${MARGIN_MM}mm`,
+        contentWidthMm:CONTENT_W_MM,
+        captureWidthPx:cssWidth,
+        captureHeightPx:cssHeight
+      });
+
+      const worker=window.html2pdf()
+        .set(options)
+        .from(renderRoot)
+        .toPdf();
+
       const blob=await worker.outputPdf('blob');
 
-      host.remove();
-      style.remove();
+      cleanupStaging();
       try{window.dispatchEvent(new Event('afterprint'))}catch{}
 
-      if(!(blob instanceof Blob) || blob.size<1000) throw new Error('PDF vazio ou inválido.');
+      if(!(blob instanceof Blob) || blob.size<1000){
+        throw new Error('PDF vazio ou inválido.');
+      }
+
       showReady(blob,options.filename);
       return true;
     }catch(err){
-      document.getElementById('bpmaPdfStaging')?.remove();
-      document.getElementById('bpmaPdfPrintRules')?.remove();
+      cleanupStaging();
       try{window.dispatchEvent(new Event('afterprint'))}catch{}
       showError(err);
       return false;
@@ -405,12 +521,14 @@
   function showFallback(){
     const m=modalBase(
       'Impressão',
-      'No celular, use o PDF móvel. No navegador, você também pode usar o menu do aparelho para compartilhar e imprimir.'
+      'No celular, gere o PDF A4 e use o compartilhamento do aparelho.'
     );
     const actions=m.querySelector('#bpmaPrintModalActions');
-    const pdf=button('Gerar PDF móvel',true);
+
+    const pdf=button('Gerar PDF A4',true);
     pdf.onclick=()=>generateMobilePdf({});
     actions.appendChild(pdf);
+
     const close=button('Fechar');
     close.onclick=removeModal;
     actions.appendChild(close);
@@ -419,16 +537,22 @@
   function installManualPrintBar(){
     const p=params();
     if(p.get('printmode')!=='1' && p.get('print')!=='1') return;
-    if(document.getElementById('bpmaManualPrintBar'))return;
+    if(document.getElementById('bpmaManualPrintBar')) return;
 
     const bar=document.createElement('div');
     bar.id='bpmaManualPrintBar';
     bar.className='no-print';
     bar.style.cssText='position:sticky;top:0;z-index:99998;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 14px;background:#063f34;color:#fff;font:600 14px system-ui;box-shadow:0 2px 10px rgba(0,0,0,.20)';
-    bar.innerHTML='<span>Documento pronto</span><button type="button" id="bpmaManualPrintBtn" style="border:0;border-radius:9px;padding:10px 14px;font-weight:800;background:#fff;color:#063f34">PDF / Imprimir</button>';
+    bar.innerHTML='<span>Documento pronto</span><button type="button" id="bpmaManualPrintBtn" style="border:0;border-radius:9px;padding:10px 14px;font-weight:800;background:#fff;color:#063f34">PDF A4 / Imprimir</button>';
     document.body.prepend(bar);
+
     bar.querySelector('#bpmaManualPrintBtn').onclick=()=>{
-      printCurrent({selector:autoSelector()});
+      const isBo=!!document.querySelector('#view-bo .print-area');
+      printCurrent({
+        selector:autoSelector(),
+        wrapperId:isBo?'view-bo':null,
+        wrapperClass:isBo?'view active':null
+      });
     };
   }
 
