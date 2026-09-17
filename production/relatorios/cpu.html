@@ -1757,7 +1757,7 @@ body{padding-bottom:74px}
     <b>POLÍCIA MILITAR DA PARAÍBA</b>
     <div class="sub">BATALHÃO ESPECIALIZADO EM POLICIAMENTO DO MEIO AMBIENTE</div>
   </div>
-  <div class="right-slot"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/PMPB175px_02.png/500px-PMPB175px_02.png" alt="Brasão PMPB"></div>
+  <div class="right-slot"><img src="../assets/pmpb.jpg" alt="Brasão PMPB"></div>
 </header>
 <div class="title-row"><h1>Relatório de Serviço CPU</h1><span class="status">Relatório completo · Prévia final</span></div>
 
@@ -2403,7 +2403,11 @@ body{padding-bottom:74px}
   });
 
   // ===== Impressão =====
-  q('#printRelatorioCompleto')?.addEventListener('click',()=>window.print());
+  q('#printRelatorioCompleto')?.addEventListener('click',()=>{
+  if(window.BPMA_CPU_SYNC_PRINT_VALUES) window.BPMA_CPU_SYNC_PRINT_VALUES();
+  if(window.BPMA_PRINT?.printCurrent) window.BPMA_PRINT.printCurrent();
+  else window.print();
+});
 
   window.addEventListener('resize',()=>growAll());
 
@@ -2424,6 +2428,7 @@ body{padding-bottom:74px}
 <script src="../supabase-config.js"></script>
 <script src="../supabase-auth.js"></script>
 <script src="../security.js"></script>
+<script src="../print-helper.js"></script>
 <script src="../supabase-cpu.js"></script>
 
 <script id="bpma-cpu-35-integration">
@@ -2719,7 +2724,7 @@ body{padding-bottom:74px}
         localStorage.setItem(templateKey(record.authorId,'CPU'),JSON.stringify(template));
 
         if(showMessage) alert('Relatório CPU finalizado e salvo no Supabase.');
-        location.href='../index.html#cpu';
+        location.replace('../index.html#cpu');
         return true;
       }
 
@@ -2785,6 +2790,34 @@ body{padding-bottom:74px}
     if(clear) clear.disabled=!canEdit();
   }
 
+
+  async function leaveReport(target){
+    if(leaveReport.busy)return;
+    leaveReport.busy=true;
+    clearTimeout(saveTimer);
+    const back=$('#bpmaBack');
+    if(back){back.disabled=true;back.textContent='Salvando...'}
+    let result=true;
+    try{
+      if(canEdit()){
+        result=await Promise.race([
+          persist(record?.status==='Reaberto'?'Reaberto':'Rascunho',false),
+          new Promise(resolve=>setTimeout(()=>resolve(null),4000))
+        ]);
+      }
+    }catch(err){console.warn('Saída do CPU:',err);result=false}
+    if(result===false || result===null){
+      const sair=confirm('Não foi possível confirmar o salvamento agora. Deseja sair mesmo assim?');
+      if(!sair){
+        leaveReport.busy=false;
+        if(back){back.disabled=false;back.textContent='← Voltar'}
+        return;
+      }
+    }
+    window.BPMA_SECURITY?.stop?.();
+    location.replace(target);
+  }
+
   function buildToolbar(){
     const bar=document.createElement('div');
     bar.className='bpma-system-toolbar';
@@ -2801,11 +2834,7 @@ body{padding-bottom:74px}
       </div>`;
     document.body.appendChild(bar);
 
-    $('#bpmaBack').onclick=async()=>{
-      clearTimeout(saveTimer);
-      if(canEdit()) await persist(record?.status==='Reaberto'?'Reaberto':'Rascunho',false);
-      location.href='../index.html#cpu';
-    };
+    $('#bpmaBack').onclick=()=>leaveReport('../index.html#cpu');
     $('#bpmaClear').onclick=clearCurrentReport;
     $('#bpmaSaveDraft').onclick=()=>persist(record?.status==='Reaberto'?'Reaberto':'Rascunho',true);
     $('#bpmaFinalize').onclick=()=>{
@@ -2817,7 +2846,7 @@ body{padding-bottom:74px}
 
   if(!session || session.auth!=='supabase'){
     alert('Faça login no BPMA Digital antes de abrir o Relatório CPU.');
-    location.href='../index.html';
+    location.replace('../index.html');
     return;
   }
 
@@ -2828,13 +2857,13 @@ body{padding-bottom:74px}
     record=await window.BPMA_CPU.get(recordId);
   }catch(err){
     alert(window.BPMA_CPU?.friendlyError?.(err)||err.message||'Não foi possível abrir o Relatório CPU.');
-    location.href='../index.html#cpu';
+    location.replace('../index.html#cpu');
     return;
   }
 
   if(!record || record.tipo!=='CPU'){
     alert('Relatório CPU não encontrado ou sem permissão de acesso.');
-    location.href='../index.html#cpu';
+    location.replace('../index.html#cpu');
     return;
   }
 
@@ -2879,10 +2908,8 @@ body{padding-bottom:74px}
   },true);
 
   if(autoPrint && record.status==='Finalizado'){
-    setTimeout(()=>{
-      if(window.BPMA_CPU_SYNC_PRINT_VALUES) window.BPMA_CPU_SYNC_PRINT_VALUES();
-      window.print();
-    },450);
+    if(window.BPMA_CPU_SYNC_PRINT_VALUES) window.BPMA_CPU_SYNC_PRINT_VALUES();
+    window.BPMA_PRINT?.installManualPrintBar?.();
   }
 })();
 </script>

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>BPMA Digital — Produção · 3.8 FINAL</title>
+<title>BPMA Digital — Produção · 3.8.1</title>
 <meta name="theme-color" content="#064e3b">
 <meta name="application-name" content="BPMA Digital">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -551,6 +551,7 @@ th,td{padding:10px;border-bottom:1px solid #edf1ef;text-align:left;white-space:n
 <script src="supabase-system.js"></script>
 <script src="security.js"></script>
 <script src="pwa.js"></script>
+<script src="print-helper.js"></script>
 <script>
 const USERS_KEY='bpma_local_users_v1';
 const SESSION_KEY='bpma_local_session_v1';
@@ -1642,8 +1643,12 @@ function printReport(id){
   const r=getReports().find(x=>String(x.id)===String(id));
   if(!r || !canPrintRecent(r)) return;
   const path=r.tipo==='RFA'?'relatorios/rfa.html':r.tipo==='CPU'?'relatorios/cpu.html':'relatorios/bo.html';
-  const url=`${path}?record=${encodeURIComponent(r.id)}&print=1`;
-  window.open(url,'_blank','noopener');
+  const url=`${path}?record=${encodeURIComponent(r.id)}`;
+  if(window.BPMA_PRINT?.openReportForPrint){
+    window.BPMA_PRINT.openReportForPrint(url);
+  }else{
+    window.open(`${url}&printmode=1`,'_blank','noopener');
+  }
 }
 
 async function finalizeBO(id){
@@ -1967,6 +1972,18 @@ window.addEventListener('hashchange',()=>{
   if(location.hash.includes('access_token='))return;
   const p=(location.hash||'#dashboard').replace('#','');
   if(session&&allowed(p))showPage(p);
+});
+
+
+window.addEventListener('pageshow',async(e)=>{
+  if(!session)return;
+  try{
+    await loadRemoteReports();
+    const p=(location.hash||'#dashboard').replace('#','');
+    if(allowed(p)) showPage(p);
+  }catch(err){
+    console.warn('Atualização ao retornar ao sistema:',err);
+  }
 });
 
 if(location.protocol==='file:') protocolWarning.classList.remove('hidden');
