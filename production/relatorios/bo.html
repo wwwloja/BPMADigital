@@ -773,7 +773,7 @@ const AUTH_USERS = [
 const SESSION_KEY = 'central_bpma_session';
 
 function getSession(){
-  try{ return JSON.parse(localStorage.getItem(SESSION_KEY) || 'null'); }catch(e){ return null; }
+  try{ return JSON.parse(sessionStorage.getItem(SESSION_KEY) || 'null'); }catch(e){ return null; }
 }
 function applySessionUI(session){
   var lbl = document.getElementById('sessionUserLabel');
@@ -801,14 +801,14 @@ function attemptLogin(ev){
   var err = document.getElementById('loginError');
   if(!found){ if(err) err.textContent = 'Usuário ou senha inválidos.'; return false; }
   if(err) err.textContent = '';
-  localStorage.setItem(SESSION_KEY, JSON.stringify({user:found.user, layer:found.layer}));
+  sessionStorage.setItem(SESSION_KEY, JSON.stringify({user:found.user, layer:found.layer}));
   applySessionUI(found);
   document.getElementById('loginForm')?.reset();
   showView('home');
   return false;
 }
 function logout(){
-  localStorage.removeItem(SESSION_KEY);
+  sessionStorage.removeItem(SESSION_KEY);
   applySessionUI(null);
   showView('login');
 }
@@ -1368,7 +1368,7 @@ window.SERV = {addAnimal,addAtividade,addProcedimento,addRecurso,gerarPDF,go,lim
   const params=new URLSearchParams(location.search);
   const autoPrint=params.get('print')==='1';
   const recordId=params.get('record')||'';
-  const session=JSON.parse(localStorage.getItem(SESSION_KEY)||'null');
+  const session=JSON.parse(sessionStorage.getItem(SESSION_KEY)||'null');
   let record=null;
   let saveTimer=null;
   let saving=false;

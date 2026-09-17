@@ -970,7 +970,7 @@ body{padding-bottom:74px}
   const params=new URLSearchParams(location.search);
   const autoPrint=params.get('print')==='1';
   const recordId=params.get('record')||'';
-  const session=JSON.parse(localStorage.getItem(SESSION_KEY)||'null');
+  const session=JSON.parse(sessionStorage.getItem(SESSION_KEY)||'null');
 
   let record=null;
   let saving=false;

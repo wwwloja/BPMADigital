@@ -1,5 +1,7 @@
 (() => {
   const AUTH_STORAGE_KEY = 'bpma_supabase_auth_v1';
+  // 3.8.3: remove sessão persistente das versões anteriores.
+  try{localStorage.removeItem(AUTH_STORAGE_KEY)}catch{}
 
   function config(){
     const cfg = window.BPMA_SUPABASE_CONFIG || {};
@@ -47,15 +49,15 @@
       expires_at:Date.now()+Number(data.expires_in||3600)*1000,
       user:data.user
     };
-    localStorage.setItem(AUTH_STORAGE_KEY,JSON.stringify(saved));
+    sessionStorage.setItem(AUTH_STORAGE_KEY,JSON.stringify(saved));
     return saved;
   }
 
   function loadSession(){
-    try{return JSON.parse(localStorage.getItem(AUTH_STORAGE_KEY)||'null')}catch{return null}
+    try{return JSON.parse(sessionStorage.getItem(AUTH_STORAGE_KEY)||'null')}catch{return null}
   }
 
-  function clearSession(){localStorage.removeItem(AUTH_STORAGE_KEY)}
+  function clearSession(){sessionStorage.removeItem(AUTH_STORAGE_KEY)}
 
   async function signIn(email,password){
     const data=await request('/auth/v1/token?grant_type=password',{
