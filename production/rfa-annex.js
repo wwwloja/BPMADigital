@@ -252,18 +252,12 @@
   }
 
   function bind(){
-    const camera=$('#annexCameraInput');
-    const scan=$('#annexScanInput');
-    const gallery=$('#annexGalleryInput');
     const files=$('#annexFileInput');
-    $('#annexCameraBtn')?.addEventListener('click',()=>camera?.click());
-    $('#annexScanBtn')?.addEventListener('click',()=>scan?.click());
-    $('#annexGalleryBtn')?.addEventListener('click',()=>gallery?.click());
     $('#annexFileBtn')?.addEventListener('click',()=>files?.click());
-    camera?.addEventListener('change',async()=>{await addFiles(camera.files);camera.value=''});
-    scan?.addEventListener('change',async()=>{await addFiles(scan.files);scan.value=''});
-    gallery?.addEventListener('change',async()=>{await addFiles(gallery.files);gallery.value=''});
-    files?.addEventListener('change',async()=>{await addFiles(files.files);files.value=''});
+    files?.addEventListener('change',async()=>{
+      await addFiles(files.files);
+      files.value='';
+    });
     $('#annexList')?.addEventListener('click',e=>{
       const btn=e.target.closest('.annex-remove'); if(!btn)return;
       btn.closest('.annex-item')?.remove();

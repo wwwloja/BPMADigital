@@ -66,6 +66,34 @@
     return saveSession(data);
   }
 
+
+  async function requestRegistration(payload={}){
+    const email=String(payload.email||'').trim().toLowerCase();
+    const password=String(payload.password||'');
+    const nome=String(payload.nome||'').trim();
+    const matricula=String(payload.matricula||'').trim();
+    const graduacao=String(payload.graduacao||'').trim();
+    const unidade=String(payload.unidade||'BPMA').trim();
+    if(!email||!email.includes('@')) throw new Error('E-mail inválido.');
+    if(password.length<8) throw new Error('A senha deve ter pelo menos 8 caracteres.');
+    if(!nome||!matricula||!graduacao) throw new Error('Preencha nome, matrícula e posto/graduação.');
+    const usuario=matricula || email.split('@')[0];
+    const data=await request('/auth/v1/signup',{
+      method:'POST',
+      body:{
+        email,password,
+        data:{
+          nome,usuario,matricula,graduacao,unidade,
+          role:'operacional',
+          cadastro_pendente:true,
+          origem_cadastro:'auto_cadastro'
+        }
+      }
+    });
+    clearSession();
+    return data;
+  }
+
   async function refresh(saved=loadSession()){
     if(!saved?.refresh_token) return null;
     try{
@@ -145,6 +173,16 @@
     return saved;
   }
 
+  function friendlyRegistrationError(err){
+    const raw=String(err?.message||'').toLowerCase();
+    if(raw.includes('already registered')||raw.includes('user already')||raw.includes('already exists')) return 'Já existe uma conta com este e-mail. Use a tela de login ou a recuperação de senha.';
+    if(raw.includes('signup')&&raw.includes('disabled')) return 'O cadastro de novos usuários está desabilitado no Supabase. Ative o cadastro por e-mail nas configurações de Auth.';
+    if(raw.includes('password')) return 'A senha não atende aos requisitos de segurança.';
+    if(raw.includes('duplicate')||raw.includes('unique')) return 'Já existe um cadastro com estes dados. Procure o Administrador.';
+    if(raw.includes('failed to fetch')||raw.includes('conectar')) return 'Não foi possível conectar ao Supabase. Verifique a internet.';
+    return err?.message||'Não foi possível enviar a solicitação de cadastro.';
+  }
+
   function friendlyError(err){
     const raw=String(err?.message||'').toLowerCase();
     if(raw.includes('invalid login credentials') || raw.includes('invalid_credentials')) return 'E-mail ou senha inválidos.';
@@ -155,5 +193,5 @@
     return err?.message || 'Não foi possível entrar.';
   }
 
-  window.BPMA_AUTH={signIn,restore,profile,signOut,refresh,loadSession,clearSession,sendRecovery,updatePassword,consumeRecoveryFromUrl,friendlyError};
+  window.BPMA_AUTH={signIn,requestRegistration,restore,profile,signOut,refresh,loadSession,clearSession,sendRecovery,updatePassword,consumeRecoveryFromUrl,friendlyError,friendlyRegistrationError};
 })();

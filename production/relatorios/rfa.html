@@ -473,7 +473,7 @@ body{padding-bottom:74px}
 .bpma-system-toolbar{
   position:fixed!important;left:0!important;right:0!important;bottom:0!important;z-index:99999!important;
   display:flex;align-items:center;justify-content:space-between;gap:10px;
-  padding:10px 14px;background:rgba(255,255,255,.97);
+  padding:10px 14px calc(10px + env(safe-area-inset-bottom,0px));background:rgba(255,255,255,.97);
   border-top:1px solid #d8e1dd;box-shadow:0 -8px 24px rgba(0,0,0,.08);
   backdrop-filter:blur(10px);font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
   visibility:visible!important;opacity:1!important
@@ -494,7 +494,7 @@ body{padding-bottom:74px}
   border-bottom:1px solid #ead99c;padding:9px 12px;text-align:center;font-weight:800;font-size:12px
 }
 @media(max-width:720px){
-  body{padding-bottom:126px}
+  body{padding-bottom:calc(154px + env(safe-area-inset-bottom,0px))}
   .bpma-system-toolbar{align-items:flex-start;flex-direction:column}
   .bpma-system-toolbar .bpma-actions{width:100%;display:grid;grid-template-columns:1fr 1fr}
   .bpma-system-toolbar button{width:100%}
@@ -653,6 +653,7 @@ body{padding-bottom:74px}
 .annex-manager{border:2px solid #0b6b4f;margin-bottom:16px}
 .annex-manager .card-head{background:#eff8f4}
 .annex-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.annex-file-main{min-width:210px;padding:11px 18px!important;font-size:13px!important}
 .annex-help{font-size:12px;line-height:1.45;color:#5f6c67;margin:0}
 .annex-status{font-size:12px;font-weight:700;color:#075d49;margin-top:10px}
 .annex-list{display:grid;gap:9px;margin-top:12px}
@@ -737,18 +738,12 @@ body{padding-bottom:74px}
   <div class="card-body">
     <p class="annex-help">Opcional. Adicione imagens ou PDF antes do RFA. Cada imagem e cada página de um PDF será impressa em uma folha A4 própria, mantendo o cabeçalho institucional e sem cortar o documento.</p>
     <div class="annex-actions">
-      <button class="btn primary" type="button" id="annexCameraBtn">📷 Tirar foto</button>
-      <button class="btn" type="button" id="annexScanBtn">📄 Escanear documento</button>
-      <button class="btn" type="button" id="annexGalleryBtn">🖼️ Buscar na galeria</button>
-      <button class="btn" type="button" id="annexFileBtn">📎 Anexar arquivo</button>
+      <button class="btn primary annex-file-main" type="button" id="annexFileBtn">📎 Anexar arquivo</button>
     </div>
-    <div class="annex-help" style="margin-top:9px">Para escanear, use o recurso de scanner do próprio celular e selecione o PDF ou imagem gerado.</div>
+    <div class="annex-help" style="margin-top:9px">Selecione imagem ou PDF. No celular, use a opção disponível no próprio aparelho para escolher o arquivo, foto ou documento escaneado. PDFs com várias páginas serão incorporados página por página.</div>
     <div class="annex-status" id="annexStatus">Nenhum anexo adicionado.</div>
     <div class="annex-list" id="annexList"></div>
-    <input id="annexCameraInput" type="file" accept="image/*" capture="environment" hidden>
-    <input id="annexScanInput" type="file" accept="application/pdf,image/*" hidden>
-    <input id="annexGalleryInput" type="file" accept="image/*" multiple hidden>
-    <input id="annexFileInput" type="file" accept="application/pdf,image/jpeg,image/png,image/webp,image/*" multiple hidden>
+    <input id="annexFileInput" type="file" accept="application/pdf,image/*" multiple hidden>
   </div>
 </section>
 
@@ -899,6 +894,20 @@ body{padding-bottom:74px}
 </div>
 
 </div>
+
+<div class="bpma-system-toolbar no-print" id="bpmaSystemToolbar">
+  <div class="bpma-meta">
+    <b id="bpmaRecordTitle">RFA · Carregando...</b>
+    <small id="bpmaRecordSub">Preparando relatório...</small>
+  </div>
+  <div class="bpma-actions">
+    <button type="button" id="bpmaBack">← Voltar</button>
+    <button type="button" id="bpmaClear">Limpar</button>
+    <button type="button" id="bpmaSaveDraft" class="primary">Salvar rascunho</button>
+    <button type="button" id="bpmaFinalize" class="finalize">Finalizar</button>
+  </div>
+</div>
+
 
 
 
@@ -1344,6 +1353,10 @@ body{padding-bottom:74px}
       }
     }
   }
+  window.BPMA_RFA_PERSIST = persist;
+  window.BPMA_RFA_CAN_EDIT = canEdit;
+  window.BPMA_RFA_GET_RECORD = ()=>record;
+
   function queueSave(){
     if(!canEdit())return;
     userTouched=true;
@@ -1446,25 +1459,33 @@ body{padding-bottom:74px}
   }
 
   function buildToolbar(){
-    const bar=document.createElement('div');
-    bar.className='bpma-system-toolbar';
-    bar.innerHTML=`
-      <div class="bpma-meta">
-        <b id="bpmaRecordTitle">RFA · ${record?.numero||'Novo relatório'}</b>
-        <small id="bpmaRecordSub">${record?.status||'Rascunho'} · ${record?.unidade||''} · ${record?.autor||''}</small>
-      </div>
-      <div class="bpma-actions">
-        <button type="button" id="bpmaBack">← Voltar</button>
-        <button type="button" id="bpmaClear">Limpar</button>
-        <button type="button" id="bpmaSaveDraft" class="primary">Salvar rascunho</button>
-        <button type="button" id="bpmaFinalize" class="finalize">Finalizar</button>
-      </div>`;
-    document.body.appendChild(bar);
+    let bar=$('#bpmaSystemToolbar');
+    if(!bar){
+      bar=document.createElement('div');
+      bar.id='bpmaSystemToolbar';
+      bar.className='bpma-system-toolbar no-print';
+      bar.innerHTML=`
+        <div class="bpma-meta">
+          <b id="bpmaRecordTitle">RFA · Novo relatório</b>
+          <small id="bpmaRecordSub">Preparando relatório...</small>
+        </div>
+        <div class="bpma-actions">
+          <button type="button" id="bpmaBack">← Voltar</button>
+          <button type="button" id="bpmaClear">Limpar</button>
+          <button type="button" id="bpmaSaveDraft" class="primary">Salvar rascunho</button>
+          <button type="button" id="bpmaFinalize" class="finalize">Finalizar</button>
+        </div>`;
+      document.body.appendChild(bar);
+    }
 
-    $('#bpmaBack').onclick=()=>leaveReport('../index.html#rfa');
-    $('#bpmaClear').onclick=clearCurrentReport;
-    $('#bpmaSaveDraft').onclick=()=>persist(record?.status==='Reaberto'?'Reaberto':'Rascunho',true,true);
-    $('#bpmaFinalize').onclick=()=>{
+    const back=$('#bpmaBack');
+    const clear=$('#bpmaClear');
+    const save=$('#bpmaSaveDraft');
+    const finalBtn=$('#bpmaFinalize');
+    if(back) back.onclick=()=>leaveReport('../index.html#rfa');
+    if(clear) clear.onclick=clearCurrentReport;
+    if(save) save.onclick=()=>persist(record?.status==='Reaberto'?'Reaberto':'Rascunho',true,true);
+    if(finalBtn) finalBtn.onclick=()=>{
       if(confirm('Finalizar este RFA? Após finalizar, perfis operacionais não poderão editá-lo.')){
         persist('Finalizado',true,true);
       }
@@ -1529,7 +1550,6 @@ body{padding-bottom:74px}
   buildToolbar();
   updateToolbar();
   setReadonly();
-  $('#printRelatorioCompleto')?.addEventListener('click',printRFA);
 
   document.addEventListener('input',e=>{
     if(e.target.closest('#photos') || e.target.matches('input,textarea,select')) queueSave();
@@ -1546,6 +1566,71 @@ body{padding-bottom:74px}
 })();
 </script>
 
+
+<script id="bpma-rfa-print-resilient">
+(function(){
+  function safeFilename(){
+    const n=document.querySelector('[name="numeroRelatorio"]')?.value?.trim()
+      || window.BPMA_RFA_GET_RECORD?.()?.numero
+      || 'RFA';
+    return `RFA_${String(n).replace(/[^a-zA-Z0-9_-]+/g,'_')}.pdf`;
+  }
+
+  async function printNow(){
+    try{
+      if(window.BPMA_RFA_ANNEX?.isBusy?.()){
+        alert('Aguarde o processamento do Anexo Documental antes de gerar o PDF.');
+        return;
+      }
+
+      window.BPMA_RFA_ANNEX?.rebuildPrintPages?.();
+
+      try{
+        if(window.BPMA_RFA_CAN_EDIT?.()){
+          const rec=window.BPMA_RFA_GET_RECORD?.();
+          window.BPMA_RFA_PERSIST?.(rec?.status==='Reaberto'?'Reaberto':'Rascunho',false);
+        }
+      }catch(err){
+        console.warn('Autosave antes do PDF:',err);
+      }
+
+      if(window.BPMA_PRINT?.printCurrent){
+        window.BPMA_PRINT.printCurrent({
+          selector:'.page',
+          filename:safeFilename()
+        });
+        return;
+      }
+
+      if(typeof window.print==='function'){
+        window.print();
+        return;
+      }
+
+      alert('Não foi possível iniciar a impressão neste navegador.');
+    }catch(err){
+      console.error('Impressão RFA:',err);
+      alert('Não foi possível preparar o PDF A4. Tente novamente.');
+    }
+  }
+
+  window.BPMA_RFA_PRINT_NOW=printNow;
+
+  const bind=()=>{
+    const btn=document.getElementById('printRelatorioCompleto');
+    if(!btn || btn.dataset.bpmaPrintBound==='1')return;
+    btn.dataset.bpmaPrintBound='1';
+    btn.addEventListener('click',e=>{
+      e.preventDefault();
+      e.stopPropagation();
+      printNow();
+    });
+  };
+
+  bind();
+  document.addEventListener('DOMContentLoaded',bind,{once:true});
+})();
+</script>
 
 </body>
 </html>
