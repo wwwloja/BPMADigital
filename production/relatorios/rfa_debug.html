@@ -1070,6 +1070,20 @@ body{padding-bottom:74px}
 <script src="../supabase-rfa.js"></script>
 <script src="../rfa-annex.js"></script>
 
+<script>
+window.BPMA_AUTH={restore: async()=>({user:{id:'u1'}})};
+window.BPMA_SECURITY={start:()=>{},stop:()=>{}};
+window.BPMA_RFA=Object.assign(window.BPMA_RFA||{}, {
+  friendlyError:e=>e?.message||String(e),
+  create: async(session,state)=>({id:'r1',tipo:'RFA',numero:'RFA-1',unidade:session.unit,authorId:session.id,autor:session.name,status:'Rascunho',state}),
+  saveState: async(r,state,numero)=>({...r,state,numero}),
+  finalize: async(r,state,numero)=>({...r,state,numero,status:'Finalizado'}),
+  clear: async(id)=>({id,tipo:'RFA',numero:'RFA-1',unidade:'1ª CPMA',authorId:'u1',autor:'Teste',status:'Rascunho',state:{}}),
+  syncPhotoSet: async()=>{}, syncDocumentSet: async()=>{}, uploadPhoto: async()=> 'photos/x.jpg', uploadDocument: async()=>({path:'docs/x',mime:'image/jpeg',name:'x.jpg'}),
+  signedPhotoUrl: async()=>'', signedFileUrl: async()=>'',
+  get: async(id)=>({id,tipo:'RFA',numero:'RFA-1',unidade:'1ª CPMA',authorId:'u1',autor:'Teste',status:'Rascunho',state:{}})
+});
+</script>
 <script id="bpma-rfa-34-integration">
 (async function(){
   const REPORT_TYPE='RFA';
@@ -1446,8 +1460,7 @@ body{padding-bottom:74px}
       alert('Aguarde o processamento do Anexo Documental antes de gerar o PDF.');
       return;
     }
-    try{ window.BPMA_RFA_ANNEX?.rebuildPrintPages?.(); }
-    catch(err){ console.warn('Anexo documental não pôde ser preparado para impressão:',err); }
+    window.BPMA_RFA_ANNEX?.rebuildPrintPages?.();
     // Autosave em paralelo. No celular, o relatório vira PDF A4 para compartilhar/imprimir.
     if(canEdit()) persist(record?.status==='Reaberto'?'Reaberto':'Rascunho',false);
     const numero=(record?.numero||'RFA').replace(/[^a-zA-Z0-9_-]+/g,'_');
@@ -1537,18 +1550,7 @@ body{padding-bottom:74px}
     return;
   }
 
-  // 3.9.1: os controles essenciais são vinculados antes de restaurar fotos/anexos.
-  // Assim, uma falha isolada em anexo não paralisa Voltar/Limpar/Salvar/Finalizar.
-  buildToolbar();
-  updateToolbar();
-
-  try{
-    await restoreState(record.state);
-  }catch(err){
-    console.error('Falha ao restaurar conteúdo do RFA:',err);
-    // Mantém o formulário operacional mesmo que um anexo antigo não possa ser restaurado.
-    alert('O RFA foi aberto, mas algum conteúdo anexado não pôde ser restaurado agora. Os controles do relatório continuam disponíveis.');
-  }
+  await restoreState(record.state);
 
   if(record.id && record.prefilledFromTemplate){
     const numero=$('[name="numeroRelatorio"]');
@@ -1559,7 +1561,7 @@ body{padding-bottom:74px}
     }catch(err){console.warn(err)}
   }
 
-  // Atualiza novamente os metadados depois da restauração.
+  buildToolbar();
   updateToolbar();
   setReadonly();
 
@@ -1595,8 +1597,7 @@ body{padding-bottom:74px}
         return;
       }
 
-      try{ window.BPMA_RFA_ANNEX?.rebuildPrintPages?.(); }
-      catch(err){ console.warn('Anexo documental não pôde ser preparado para impressão:',err); }
+      window.BPMA_RFA_ANNEX?.rebuildPrintPages?.();
 
       try{
         if(window.BPMA_RFA_CAN_EDIT?.()){

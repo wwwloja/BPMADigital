@@ -4,8 +4,9 @@
   let pdfPromise=null;
   let busy=0;
 
-  const $=(s,r=document)=>r.querySelector(s);
-  const $$=(s,r=document)=>Array.from(r.querySelectorAll(s));
+  const rootOf=(r)=>typeof r==='string'?document.querySelector(r):r;
+  const $=(s,r=document)=>rootOf(r)?.querySelector?.(s)||null;
+  const $$=(s,r=document)=>Array.from(rootOf(r)?.querySelectorAll?.(s)||[]);
 
   function emitChange(){
     document.dispatchEvent(new CustomEvent('bpma:rfa-annex-change'));
