@@ -435,6 +435,26 @@
           overflow:visible!important;
           resize:none!important
         }
+        #bpmaPdfStaging .annex-print-pages{display:block!important}
+        #bpmaPdfStaging .annex-print-sheet{
+          display:flex!important;
+          flex-direction:column!important;
+          width:100%!important;
+          height:283mm!important;
+          min-height:283mm!important;
+          max-height:283mm!important;
+          margin:0!important;
+          padding:0!important;
+          overflow:hidden!important;
+          page-break-after:always!important;
+          break-after:page!important;
+          page-break-inside:avoid!important;
+          break-inside:avoid!important;
+          background:#fff!important;
+        }
+        #bpmaPdfStaging .annex-print-sheet .topbar{flex:0 0 auto!important}
+        #bpmaPdfStaging .annex-document-body{flex:1 1 auto!important;min-height:0!important;display:flex!important;align-items:center!important;justify-content:center!important;overflow:hidden!important}
+        #bpmaPdfStaging .annex-document-body img{max-width:100%!important;max-height:100%!important;width:auto!important;height:auto!important;object-fit:contain!important;margin:auto!important}
         #bpmaPdfStaging .page,
         #bpmaPdfStaging .wrap,
         #bpmaPdfStaging .main,

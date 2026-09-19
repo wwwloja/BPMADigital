@@ -101,7 +101,7 @@
     return normalize(Array.isArray(rows)?rows[0]:rows);
   }
 
-  async function create(session,template=null){
+  async function create(session,initialState=null){
     if(!session?.id) throw new Error('Sessão inválida.');
     const payload={
       tipo:'RFA',
@@ -110,12 +110,13 @@
       unidade:session.unit,
       author_id:session.id,
       dados:{
-        state:template||null,
-        prefilledFromTemplate:!!template,
+        state:initialState||null,
+        prefilledFromTemplate:false,
         meta:{
           autor:session.name,
           usuario:session.user,
-          email:session.email||''
+          email:session.email||'',
+          lazyCreated:true
         }
       }
     };
@@ -195,6 +196,100 @@
     if(mime==='image/webp')return 'webp';
     if(mime==='image/gif')return 'gif';
     return 'jpg';
+  }
+
+
+  function fileMime(file){
+    const declared=String(file?.type||'').toLowerCase();
+    if(declared)return declared;
+    const name=String(file?.name||'').toLowerCase();
+    if(name.endsWith('.pdf'))return 'application/pdf';
+    if(name.endsWith('.png'))return 'image/png';
+    if(name.endsWith('.webp'))return 'image/webp';
+    if(name.endsWith('.gif'))return 'image/gif';
+    return 'image/jpeg';
+  }
+
+  function extForFile(file){
+    const name=String(file?.name||'');
+    const m=name.match(/\.([a-zA-Z0-9]{2,8})$/);
+    if(m)return m[1].toLowerCase();
+    const mime=fileMime(file);
+    if(mime==='application/pdf')return 'pdf';
+    return extForMime(mime);
+  }
+
+  async function uploadDocument(reportId,file){
+    if(!file) throw new Error('Arquivo do anexo não informado.');
+    const mime=fileMime(file);
+    if(!(mime==='application/pdf' || mime.startsWith('image/'))){
+      throw new Error('O Anexo Documental aceita imagens ou PDF.');
+    }
+    const ext=extForFile(file);
+    const path=`${reportId}/anexo_documental/${crypto.randomUUID()}.${ext}`;
+    const encoded=encodeObjectPath(path);
+
+    await request(`/storage/v1/object/${BUCKET}/${encoded}`,{
+      method:'POST',
+      rawBody:file,
+      contentType:mime,
+      extraHeaders:{'x-upsert':'false'}
+    });
+
+    const sess=await auth();
+    await request('/rest/v1/report_files',{
+      method:'POST',
+      body:{
+        report_id:reportId,
+        category:'anexo_documental',
+        storage_path:path,
+        nome_original:String(file.name||`anexo.${ext}`),
+        mime_type:mime,
+        metadata:{tipo:'anexo_documental'},
+        uploaded_by:sess.user.id
+      },
+      prefer:'return=minimal'
+    });
+    return {path,mime,name:String(file.name||`anexo.${ext}`)};
+  }
+
+  async function signedFileUrl(path,expiresIn=7200){
+    return signedPhotoUrl(path,expiresIn);
+  }
+
+  async function listDocumentFiles(reportId){
+    const rows=await request(
+      `/rest/v1/report_files?report_id=eq.${encodeURIComponent(reportId)}&category=eq.anexo_documental&select=id,storage_path,nome_original,mime_type,metadata,created_at&order=created_at.asc`
+    );
+    return Array.isArray(rows)?rows:[];
+  }
+
+  async function deleteDocumentFile(file){
+    if(!file?.storage_path)return;
+    const encoded=encodeObjectPath(file.storage_path);
+    try{
+      await request(`/storage/v1/object/${BUCKET}/${encoded}`,{method:'DELETE'});
+    }catch(err){
+      console.warn('Objeto do Anexo Documental não removido do Storage:',err);
+    }
+    if(file.id){
+      try{
+        await request(`/rest/v1/report_files?id=eq.${encodeURIComponent(file.id)}`,{
+          method:'DELETE',
+          prefer:'return=minimal'
+        });
+      }catch(err){
+        console.warn('Metadado do Anexo Documental não removido:',err);
+      }
+    }
+  }
+
+  async function syncDocumentSet(reportId,desiredPaths){
+    const desired=new Set((desiredPaths||[]).filter(Boolean));
+    const files=await listDocumentFiles(reportId);
+    for(const f of files){
+      if(!desired.has(f.storage_path)) await deleteDocumentFile(f);
+    }
   }
 
   async function uploadPhoto(reportId,dataUrl){
@@ -283,6 +378,8 @@
   async function remove(id){
     const files=await listPhotoFiles(id);
     for(const f of files) await deletePhotoFile(f);
+    const docs=await listDocumentFiles(id);
+    for(const f of docs) await deleteDocumentFile(f);
 
     await request(`/rest/v1/reports?id=eq.${encodeURIComponent(id)}&tipo=eq.RFA`,{
       method:'DELETE',
@@ -303,6 +400,8 @@
 
   window.BPMA_RFA={
     listVisible,get,create,saveState,finalize,clear,reopen,remove,
-    uploadPhoto,signedPhotoUrl,syncPhotoSet,listPhotoFiles,friendlyError
+    uploadPhoto,signedPhotoUrl,syncPhotoSet,listPhotoFiles,
+    uploadDocument,signedFileUrl,syncDocumentSet,listDocumentFiles,deleteDocumentFile,
+    friendlyError
   };
 })();

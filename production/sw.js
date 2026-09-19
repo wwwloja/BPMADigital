@@ -1,4 +1,4 @@
-const CACHE='bpma-digital-3.8.7';
+const CACHE='bpma-digital-3.8.9';
 const SHELL=[
   '/',
   '/index.html',
@@ -7,6 +7,7 @@ const SHELL=[
   '/supabase-users.js',
   '/supabase-bo.js',
   '/supabase-rfa.js',
+  '/rfa-annex.js',
   '/supabase-cpu.js',
   '/supabase-system.js',
   '/security.js',

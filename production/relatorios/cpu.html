@@ -2452,13 +2452,15 @@ body{padding-bottom:74px}
   const $$=(s,r=document)=>Array.from(r.querySelectorAll(s));
   const params=new URLSearchParams(location.search);
   const autoPrint=params.get('print')==='1';
-  const recordId=params.get('record')||'';
+  const newMode=params.get('new')==='1';
+  let recordId=params.get('record')||'';
   const session=JSON.parse(sessionStorage.getItem(SESSION_KEY)||'null');
 
   let record=null;
   let saving=false;
   let pendingSave=false;
   let saveTimer=null;
+  let userTouched=false;
 
   function controls(){
     return $$('input:not([type="file"]), select, textarea').filter(el=>!el.closest('.bpma-system-toolbar'));
@@ -2703,7 +2705,40 @@ body{padding-bottom:74px}
     return stats;
   }
 
-  async function persist(status,showMessage=true){
+  function loadNewTemplate(){
+    try{return JSON.parse(localStorage.getItem(templateKey(session.id,'CPU'))||'null')}catch{return null}
+  }
+
+  function makeUnsavedRecord(){
+    const tpl=loadNewTemplate();
+    return {
+      id:null,tipo:'CPU',numero:'Novo relatório',unidade:session?.unit||'',authorId:session?.id,
+      autor:session?.name||session?.user||'Usuário',status:'Rascunho',state:tpl,stats:null,dados:{state:tpl},
+      prefilledFromTemplate:!!tpl,unsavedNew:true
+    };
+  }
+
+  function setRecordUrl(){
+    if(!record?.id)return;
+    recordId=record.id;
+    const url=new URL(location.href);
+    url.searchParams.delete('new');
+    url.searchParams.delete('force');
+    url.searchParams.set('record',record.id);
+    history.replaceState(null,'',url.pathname+url.search+url.hash);
+  }
+
+  async function ensureRecord(initialState){
+    if(record?.id)return record;
+    record=await window.BPMA_CPU.create(session,initialState||captureState());
+    record.unsavedNew=false;
+    record.prefilledFromTemplate=false;
+    setRecordUrl();
+    updateToolbar();
+    return record;
+  }
+
+  async function persist(status,showMessage=true,force=false){
     if(!record){
       alert('Registro do sistema não encontrado.');
       return false;
@@ -2711,6 +2746,10 @@ body{padding-bottom:74px}
     if(!canEdit()){
       alert('Este relatório está somente para visualização.');
       return false;
+    }
+    if(!record.id && !userTouched && !force && status!=='Finalizado'){
+      if(showMessage) alert('Nenhum campo foi preenchido. Nenhum rascunho foi criado.');
+      return true;
     }
     if(saving){
       pendingSave=true;
@@ -2721,6 +2760,7 @@ body{padding-bottom:74px}
     try{
       const state=captureState();
       const stats=extractCPUStats();
+      if(!record.id) await ensureRecord(state);
       const numero=deriveTitle();
 
       record = status==='Finalizado'
@@ -2751,9 +2791,9 @@ body{padding-bottom:74px}
       }
     }
   }
-
   function queueSave(){
     if(!canEdit())return;
+    userTouched=true;
     clearTimeout(saveTimer);
     saveTimer=setTimeout(()=>persist(record?.status==='Reaberto'?'Reaberto':'Rascunho',false),1200);
   }
@@ -2775,6 +2815,12 @@ body{padding-bottom:74px}
     });
 
     try{
+      if(!record.id){
+        userTouched=false;
+        updateToolbar();
+        alert('Campos limpos. Nenhum rascunho foi criado.');
+        return;
+      }
       const state=captureState();
       const stats=extractCPUStats();
       record=await window.BPMA_CPU.clear(record.id,state,stats);
@@ -2788,8 +2834,10 @@ body{padding-bottom:74px}
   function updateToolbar(){
     const title=$('#bpmaRecordTitle');
     const sub=$('#bpmaRecordSub');
-    if(title) title.textContent=`CPU · ${record?.numero||'Novo relatório'}`;
-    if(sub) sub.textContent=`${record?.status||'Rascunho'} · ${record?.unidade||''} · ${record?.autor||''}`;
+    if(title) title.textContent=record?.id ? `CPU · ${record?.numero||'CPU'}` : 'CPU · Novo relatório';
+    if(sub) sub.textContent=record?.id
+      ? `${record?.status||'Rascunho'} · ${record?.unidade||''} · ${record?.autor||''}`
+      : `Não salvo · o rascunho será criado após o primeiro preenchimento · ${record?.unidade||''}`;
     const save=$('#bpmaSaveDraft');
     const fin=$('#bpmaFinalize');
     const clear=$('#bpmaClear');
@@ -2807,7 +2855,7 @@ body{padding-bottom:74px}
     if(back){back.disabled=true;back.textContent='Salvando...'}
     let result=true;
     try{
-      if(canEdit()){
+      if(canEdit() && (record?.id || userTouched)){
         result=await Promise.race([
           persist(record?.status==='Reaberto'?'Reaberto':'Rascunho',false),
           new Promise(resolve=>setTimeout(()=>resolve(null),4000))
@@ -2844,10 +2892,10 @@ body{padding-bottom:74px}
 
     $('#bpmaBack').onclick=()=>leaveReport('../index.html#cpu');
     $('#bpmaClear').onclick=clearCurrentReport;
-    $('#bpmaSaveDraft').onclick=()=>persist(record?.status==='Reaberto'?'Reaberto':'Rascunho',true);
+    $('#bpmaSaveDraft').onclick=()=>persist(record?.status==='Reaberto'?'Reaberto':'Rascunho',true,true);
     $('#bpmaFinalize').onclick=()=>{
       if(confirm('Finalizar este Relatório CPU? Após finalizar, perfis operacionais não poderão editá-lo.')){
-        persist('Finalizado',true);
+        persist('Finalizado',true,true);
       }
     };
   }
@@ -2862,7 +2910,7 @@ body{padding-bottom:74px}
     const auth=await window.BPMA_AUTH.restore();
     if(!auth) throw new Error('Sessão expirada.');
     window.BPMA_SECURITY?.start?.({minutes:30,redirect:'../index.html?reason=inactivity'});
-    record=await window.BPMA_CPU.get(recordId);
+    record=newMode ? makeUnsavedRecord() : await window.BPMA_CPU.get(recordId);
   }catch(err){
     alert(window.BPMA_CPU?.friendlyError?.(err)||err.message||'Não foi possível abrir o Relatório CPU.');
     location.replace('../index.html#cpu');
@@ -2877,7 +2925,7 @@ body{padding-bottom:74px}
 
   restoreState(record.state);
 
-  if(record.prefilledFromTemplate){
+  if(record.id && record.prefilledFromTemplate){
     record.prefilledFromTemplate=false;
     try{
       record=await window.BPMA_CPU.saveState(
@@ -2891,7 +2939,7 @@ body{padding-bottom:74px}
     }
   }
 
-  if(!record.stats || !record.stats.version){
+  if(record.id && (!record.stats || !record.stats.version)){
     try{
       record=await window.BPMA_CPU.saveState(
         record,

@@ -830,7 +830,7 @@ function setPageMargin(mm){
   el.textContent = '@page{size:A4;margin:' + mm + '}';
 }
 (function initSession(){
-  var hasBPMARecord = !!new URLSearchParams(location.search).get('record');
+  var __bp=new URLSearchParams(location.search); var hasBPMARecord = !!__bp.get('record') || __bp.get('new')==='1';
   if(hasBPMARecord){
     document.querySelectorAll('.view').forEach(function(v){
       v.classList.toggle('active',v.id==='view-bo');
@@ -846,7 +846,7 @@ function setPageMargin(mm){
 <script>
 (function(){
 
-const INTEGRATED_MODE=new URLSearchParams(location.search).has('record');
+const __bpmaParams=new URLSearchParams(location.search); const INTEGRATED_MODE=__bpmaParams.has('record')||__bpmaParams.get('new')==='1';
 const DRAFT_KEY='central_bpma_bo_'+(new URLSearchParams(location.search).get('record')||'sem_registro'); let activeSig=''; let ctx, drawing=false;
 function go(id){document.getElementById(id)?.scrollIntoView({behavior:'smooth',block:'start'})}
 function cloneTpl(id){return document.getElementById(id).content.firstElementChild.cloneNode(true)}
@@ -1026,7 +1026,7 @@ window.BO = {addArma,addCartucho,addGuarnicao,addExternalWitness,addPessoa,addRe
 </script>
 <script>
 (function(){
-if(new URLSearchParams(location.search).has('record')) return;
+{const p=new URLSearchParams(location.search);if(p.has('record')||p.get('new')==='1') return;}
 
 const STORAGE='central_bpma_fiscalizacao';
 let photosData=[];
@@ -1235,7 +1235,7 @@ window.FISC = {addEquipeExtra,addLeg,capturarGPS,go,gerarPDF,limpar,salvar};
 </script>
 <script>
 (function(){
-if(new URLSearchParams(location.search).has('record')) return;
+{const p=new URLSearchParams(location.search);if(p.has('record')||p.get('new')==='1') return;}
 
 const KEY='central_bpma_relatorio_servico_v8';
 const form=document.getElementById('servForm');
@@ -1367,12 +1367,14 @@ window.SERV = {addAnimal,addAtividade,addProcedimento,addRecurso,gerarPDF,go,lim
   const SESSION_KEY='bpma_local_session_v1';
   const params=new URLSearchParams(location.search);
   const autoPrint=params.get('print')==='1';
-  const recordId=params.get('record')||'';
+  const newMode=params.get('new')==='1';
+  let recordId=params.get('record')||'';
   const session=JSON.parse(sessionStorage.getItem(SESSION_KEY)||'null');
   let record=null;
   let saveTimer=null;
   let saving=false;
   let pendingSave=false;
+  let userTouched=false;
 
   const $=(s,r=document)=>r.querySelector(s);
   const $$=(s,r=document)=>Array.from(r.querySelectorAll(s));
@@ -1427,8 +1429,37 @@ window.SERV = {addAnimal,addAtividade,addProcedimento,addRecurso,gerarPDF,go,lim
     }
   }
 
-  async function saveNow(showMessage=false){
+  function makeUnsavedRecord(){
+    return {
+      id:null,tipo:'BO',numero:'Novo BO',unidade:session?.unit||'',authorId:session?.id,
+      autor:session?.name||session?.user||'Usuário',status:'Rascunho',state:null,dados:{state:null},unsavedNew:true
+    };
+  }
+
+  function setRecordUrl(){
+    if(!record?.id)return;
+    recordId=record.id;
+    const url=new URL(location.href);
+    url.searchParams.delete('new');
+    url.searchParams.delete('force');
+    url.searchParams.set('record',record.id);
+    history.replaceState(null,'',url.pathname+url.search+url.hash);
+  }
+
+  async function ensureRecord(initialState){
+    if(record?.id)return record;
+    record=await window.BPMA_BO.create(session,initialState||capture());
+    record.unsavedNew=false;
+    setRecordUrl();
+    return record;
+  }
+
+  async function saveNow(showMessage=false,force=false){
     if(!record || !canEdit()) return false;
+    if(!record.id && !userTouched && !force){
+      if(showMessage) alert('Nenhum campo foi preenchido. Nenhum rascunho foi criado.');
+      return true;
+    }
     if(saving){
       pendingSave=true;
       return false;
@@ -1437,8 +1468,12 @@ window.SERV = {addAnimal,addAtividade,addProcedimento,addRecurso,gerarPDF,go,lim
     saving=true;
     try{
       const state=capture();
-      const updated=await window.BPMA_BO.saveState(record,state);
-      if(updated) record=updated;
+      if(!record.id){
+        await ensureRecord(state);
+      }else{
+        const updated=await window.BPMA_BO.saveState(record,state);
+        if(updated) record=updated;
+      }
       if(showMessage) alert('Rascunho salvo no Supabase.');
       return true;
     }catch(err){
@@ -1453,9 +1488,9 @@ window.SERV = {addAnimal,addAtividade,addProcedimento,addRecurso,gerarPDF,go,lim
       }
     }
   }
-
   function queueSave(){
     if(!canEdit())return;
+    userTouched=true;
     clearTimeout(saveTimer);
     saveTimer=setTimeout(()=>saveNow(false),900);
   }
@@ -1469,6 +1504,7 @@ window.SERV = {addAnimal,addAtividade,addProcedimento,addRecurso,gerarPDF,go,lim
 
     clearTimeout(saveTimer);
     try{
+      await ensureRecord(capture());
       record=await window.BPMA_BO.finalize(record.id,capture());
       alert('Boletim de Ocorrência finalizado e salvo no Supabase.');
       location.replace('../index.html#bo');
@@ -1486,6 +1522,12 @@ window.SERV = {addAnimal,addAtividade,addProcedimento,addRecurso,gerarPDF,go,lim
 
     clearTimeout(saveTimer);
     try{
+      if(!record.id){
+        window.BO?.clearForm?.();
+        userTouched=false;
+        alert('Campos limpos. Nenhum rascunho foi criado.');
+        return;
+      }
       record=await window.BPMA_BO.clear(record.id);
       // Limpa também a cópia auxiliar do formulário original deste registro.
       localStorage.removeItem('central_bpma_bo_'+recordId);
@@ -1520,7 +1562,7 @@ window.SERV = {addAnimal,addAtividade,addProcedimento,addRecurso,gerarPDF,go,lim
     const back=$('#bpmaBoVoltar');
     if(back){back.disabled=true;back.textContent='Salvando...'}
     try{
-      if(canEdit()){
+      if(canEdit() && (record?.id || userTouched)){
         let elapsed=0;
         while(saving && elapsed<1800){
           await new Promise(r=>setTimeout(r,60)); elapsed+=60;
@@ -1567,7 +1609,7 @@ window.SERV = {addAnimal,addAtividade,addProcedimento,addRecurso,gerarPDF,go,lim
     const auth=await window.BPMA_AUTH.restore();
     if(!auth) throw new Error('Sessão expirada.');
     window.BPMA_SECURITY?.start?.({minutes:30,redirect:'../index.html?reason=inactivity'});
-    record=await window.BPMA_BO.get(recordId);
+    record=newMode ? makeUnsavedRecord() : await window.BPMA_BO.get(recordId);
   }catch(err){
     alert(window.BPMA_BO?.friendlyError?.(err)||err.message||'Não foi possível abrir o BO.');
     location.replace('../index.html#bo');
@@ -1591,7 +1633,7 @@ window.SERV = {addAnimal,addAtividade,addProcedimento,addRecurso,gerarPDF,go,lim
 
   $('#bpmaBoVoltar')?.addEventListener('click',()=>leaveReport('../index.html#bo'));
   $('#bpmaBoLimpar')?.addEventListener('click',clearCurrent);
-  $('#bpmaBoSalvar')?.addEventListener('click',()=>saveNow(true));
+  $('#bpmaBoSalvar')?.addEventListener('click',()=>saveNow(true,true));
   $('#bpmaBoFinalizar')?.addEventListener('click',finalize);
   $('#bpmaBoPrintA4')?.addEventListener('click',printA4);
 

@@ -94,7 +94,7 @@
     return normalize(row);
   }
 
-  async function create(session){
+  async function create(session,initialState=null){
     if(!session?.id) throw new Error('Sessão inválida.');
     const payload={
       tipo:'BO',
@@ -103,11 +103,12 @@
       unidade:session.unit,
       author_id:session.id,
       dados:{
-        state:null,
+        state:initialState||null,
         meta:{
           autor:session.name,
           usuario:session.user,
-          email:session.email||''
+          email:session.email||'',
+          lazyCreated:true
         }
       }
     };
