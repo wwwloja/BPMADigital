@@ -237,19 +237,25 @@
     });
 
     const sess=await auth();
-    await request('/rest/v1/report_files',{
-      method:'POST',
-      body:{
-        report_id:reportId,
-        category:'anexo_documental',
-        storage_path:path,
-        nome_original:String(file.name||`anexo.${ext}`),
-        mime_type:mime,
-        metadata:{tipo:'anexo_documental'},
-        uploaded_by:sess.user.id
-      },
-      prefer:'return=minimal'
-    });
+    try{
+      await request('/rest/v1/report_files',{
+        method:'POST',
+        body:{
+          report_id:reportId,
+          category:'anexo_documental',
+          storage_path:path,
+          nome_original:String(file.name||`anexo.${ext}`),
+          mime_type:mime,
+          metadata:{tipo:'anexo_documental'},
+          uploaded_by:sess.user.id
+        },
+        prefer:'return=minimal'
+      });
+    }catch(err){
+      // Evita arquivo órfão caso a política/metadado rejeite a gravação.
+      try{await request(`/storage/v1/object/${BUCKET}/${encoded}`,{method:'DELETE'})}catch{}
+      throw err;
+    }
     return {path,mime,name:String(file.name||`anexo.${ext}`)};
   }
 
@@ -391,7 +397,7 @@
   function friendlyError(err){
     const s=String(err?.message||'');
     const l=s.toLowerCase();
-    if(l.includes('row-level security')||l.includes('permission denied')||l.includes('violates row-level')) return 'Seu perfil não possui permissão para esta operação.';
+    if(l.includes('row-level security')||l.includes('permission denied')||l.includes('violates row-level')) return 'O Supabase bloqueou esta gravação pelas regras de segurança. Execute o patch 3.9.2 do RFA e tente novamente.';
     if(l.includes('payload')||l.includes('too large')) return 'O arquivo é grande demais para envio. Tente uma foto menor.';
     if(l.includes('jwt')||err?.status===401) return 'Sua sessão expirou. Saia e entre novamente.';
     if(l.includes('conectar')||l.includes('failed to fetch')) return 'Não foi possível conectar ao Supabase. Verifique a internet.';

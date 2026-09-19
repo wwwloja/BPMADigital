@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>BPMA Digital — RFA · 3.8.9</title>
+<title>BPMA Digital — RFA · 3.9.2</title>
 <meta name="theme-color" content="#064e3b">
 <link rel="manifest" href="../manifest.webmanifest">
 <link rel="icon" type="image/png" href="https://png.pngtree.com/png-vector/20240531/ourlarge/pngtree-crested-caracara-bird-png-image_12588698.png">
@@ -1319,8 +1319,12 @@ body{padding-bottom:74px}
       const state=captureState();
       const paths=(state.photos||[]).map(p=>p.path).filter(Boolean);
       const annexPaths=(state.annexes||[]).map(a=>a.path).filter(Boolean);
-      await window.BPMA_RFA.syncPhotoSet(record.id,paths);
-      await window.BPMA_RFA.syncDocumentSet(record.id,annexPaths);
+      // A limpeza de arquivos órfãos é manutenção e não pode impedir o salvamento
+      // do relatório. Uploads novos já foram concluídos acima.
+      try{ await window.BPMA_RFA.syncPhotoSet(record.id,paths); }
+      catch(err){ console.warn('Limpeza de fotos pendente:',err); }
+      try{ await window.BPMA_RFA.syncDocumentSet(record.id,annexPaths); }
+      catch(err){ console.warn('Limpeza de anexos pendente:',err); }
 
       const numero=deriveTitle();
       record = status==='Finalizado'
@@ -1451,11 +1455,10 @@ body{padding-bottom:74px}
     // Autosave em paralelo. No celular, o relatório vira PDF A4 para compartilhar/imprimir.
     if(canEdit()) persist(record?.status==='Reaberto'?'Reaberto':'Rascunho',false);
     const numero=(record?.numero||'RFA').replace(/[^a-zA-Z0-9_-]+/g,'_');
-    if(window.BPMA_PRINT?.printCurrent){
-      window.BPMA_PRINT.printCurrent({
-        selector:'.page',
-        filename:`RFA_${numero}.pdf`
-      });
+    if(window.BPMA_PRINT?.printRfa){
+      window.BPMA_PRINT.printRfa({filename:`RFA_${numero}.pdf`});
+    }else if(window.BPMA_PRINT?.printCurrent){
+      window.BPMA_PRINT.printCurrent({selector:'.page',filename:`RFA_${numero}.pdf`});
     }else window.print();
   }
 
@@ -1607,11 +1610,12 @@ body{padding-bottom:74px}
         console.warn('Autosave antes do PDF:',err);
       }
 
+      if(window.BPMA_PRINT?.printRfa){
+        window.BPMA_PRINT.printRfa({filename:safeFilename()});
+        return;
+      }
       if(window.BPMA_PRINT?.printCurrent){
-        window.BPMA_PRINT.printCurrent({
-          selector:'.page',
-          filename:safeFilename()
-        });
+        window.BPMA_PRINT.printCurrent({selector:'.page',filename:safeFilename()});
         return;
       }
 
