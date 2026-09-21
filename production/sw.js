@@ -1,4 +1,4 @@
-const CACHE='bpma-digital-3.9.3.2-rfa-a4';
+const CACHE='bpma-digital-3.9.3.3-rfa-a4-final';
 const SHELL=[
   '/',
   '/index.html',

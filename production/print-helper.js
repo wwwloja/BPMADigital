@@ -631,17 +631,18 @@
       .bpma-rfa-fragment-host .annex-print-sheet .topbar,.bpma-rfa-fragment-host .final-annex-print-sheet .topbar{flex:0 0 auto!important}
       .bpma-rfa-fragment-host .annex-document-body,.bpma-rfa-fragment-host .final-annex-document-body{flex:1 1 auto!important;min-height:0!important;display:flex!important;align-items:center!important;justify-content:center!important;overflow:hidden!important}
       .bpma-rfa-fragment-host .annex-document-body img,.bpma-rfa-fragment-host .final-annex-document-body img{max-width:100%!important;max-height:100%!important;width:auto!important;height:auto!important;object-fit:contain!important;margin:auto!important}
-      .bpma-rfa-fragment-host .bpma-rfa-textarea-print{font-family:"Times New Roman",Times,serif!important;font-size:10pt!important}
+      .bpma-rfa-fragment-host .bpma-rfa-textarea-print{font-family:"Times New Roman",Times,serif!important;font-size:10pt!important;white-space:pre-wrap!important;overflow:visible!important;overflow-wrap:break-word!important;word-break:normal!important;height:auto!important;max-height:none!important}\n      .bpma-rfa-fragment-host .card,.bpma-rfa-fragment-host .card-body,.bpma-rfa-fragment-host .field,.bpma-rfa-fragment-host .fields{overflow:visible!important;max-height:none!important;height:auto!important}\n      .bpma-rfa-fragment-host input,.bpma-rfa-fragment-host select{min-width:0!important;max-width:100%!important}
     `;
     document.head.appendChild(st);
     try{
       await inlineImages(wrap);
+      await Promise.all(Array.from(wrap.querySelectorAll('img')).map(img=>img.complete&&img.naturalWidth?Promise.resolve():new Promise(res=>{const done=()=>res();img.addEventListener('load',done,{once:true});img.addEventListener('error',done,{once:true});setTimeout(done,2500)})));
       await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
       const rect=wrap.getBoundingClientRect();
       const width=Math.max(1,Math.ceil(rect.width));
       const height=Math.max(1,Math.ceil(wrap.scrollHeight||rect.height));
       const worker=window.html2pdf().set({
-        html2canvas:{scale:1.45,useCORS:true,allowTaint:false,logging:false,backgroundColor:'#ffffff',width,height,windowWidth:Math.max(820,width),windowHeight:Math.max(900,Math.min(height+20,6000)),scrollX:0,scrollY:0},
+        html2canvas:{scale:1.45,useCORS:true,allowTaint:false,logging:false,backgroundColor:'#ffffff',width,height,windowWidth:width,windowHeight:Math.max(900,Math.min(height+40,14000)),scrollX:0,scrollY:0},
         jsPDF:{unit:'mm',format:'a4',orientation:'portrait',compress:true}
       }).from(wrap).toCanvas();
       const canvas=await worker.get('canvas');
