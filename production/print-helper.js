@@ -602,7 +602,7 @@
   async function canvasForRfaFragment(element,{annex=false}={}){
     const host=document.createElement('div');
     host.className='bpma-rfa-fragment-host';
-    host.style.cssText=`position:fixed!important;left:0!important;top:0!important;width:${CONTENT_W_MM}mm!important;max-width:${CONTENT_W_MM}mm!important;min-width:${CONTENT_W_MM}mm!important;height:auto!important;margin:0!important;padding:0!important;background:#fff!important;color:#000!important;z-index:1!important;pointer-events:none!important;overflow:visible!important;box-sizing:border-box!important;`;
+    host.style.cssText=`position:fixed!important;left:0!important;top:0!important;width:${CONTENT_W_MM}mm!important;max-width:${CONTENT_W_MM}mm!important;min-width:${CONTENT_W_MM}mm!important;height:auto!important;margin:0!important;padding:0!important;background:#fff!important;color:#000!important;z-index:-2147483647!important;pointer-events:none!important;overflow:visible!important;box-sizing:border-box!important;`;
     const wrap=document.createElement('div');
     wrap.className='page';
     wrap.style.cssText=`width:${CONTENT_W_MM}mm!important;max-width:${CONTENT_W_MM}mm!important;min-width:${CONTENT_W_MM}mm!important;margin:0!important;padding:0!important;background:#fff!important;box-sizing:border-box!important;`;
@@ -713,6 +713,51 @@
     }
   }
 
+  function loadDataImage(src){
+    return new Promise((resolve,reject)=>{
+      const img=new Image();
+      img.onload=()=>resolve(img);
+      img.onerror=()=>reject(new Error('Não foi possível carregar uma imagem do anexo.'));
+      img.src=src;
+    });
+  }
+
+  async function assetDataUrl(path){
+    const absolute=new URL(path,location.href).href;
+    const res=await fetch(absolute,{cache:'no-store',credentials:'omit'});
+    if(!res.ok) throw new Error(`Não foi possível carregar ${path}.`);
+    return toDataUrl(await res.blob());
+  }
+
+  async function addAnnexDirect(pdf,page,logos,{final=false}={}){
+    pdf.addPage('a4','portrait');
+    const left=MARGIN_MM,right=A4_W_MM-MARGIN_MM;
+    const logoY=7,logoH=13;
+    try{ pdf.addImage(logos.bpma,'JPEG',left,logoY,11,logoH,undefined,'FAST'); }catch{}
+    try{ pdf.addImage(logos.pmpb,'JPEG',right-11,logoY,11,logoH,undefined,'FAST'); }catch{}
+    pdf.setFont('times','bold');
+    pdf.setFontSize(11);
+    pdf.text('POLÍCIA MILITAR DA PARAÍBA',A4_W_MM/2,11,{align:'center'});
+    pdf.setFontSize(9.2);
+    pdf.text('BATALHÃO ESPECIALIZADO EM POLICIAMENTO DO MEIO AMBIENTE',A4_W_MM/2,16,{align:'center'});
+    pdf.setDrawColor(190);pdf.setLineWidth(.25);pdf.line(left,23,right,23);
+    pdf.setFontSize(11);
+    const suffix=page.total>1?` (${page.index}/${page.total})`:'';
+    const rawTitle=final?`ANEXO AO RFA — ${page.name||'Anexo'}${suffix}`:'ANEXO DOCUMENTAL';
+    const titleLines=pdf.splitTextToSize(rawTitle,CONTENT_W_MM-8);
+    pdf.text(titleLines,A4_W_MM/2,29,{align:'center'});
+    const titleBottom=29+(titleLines.length-1)*4.2;
+    pdf.setDrawColor(215,205,115);pdf.line(left,titleBottom+3,right,titleBottom+3);
+
+    const img=await loadDataImage(page.src);
+    const boxX=left+2, boxY=titleBottom+8, boxW=CONTENT_W_MM-4, boxH=A4_H_MM-MARGIN_MM-boxY;
+    const ratio=Math.min(boxW/img.naturalWidth,boxH/img.naturalHeight);
+    const w=img.naturalWidth*ratio,h=img.naturalHeight*ratio;
+    const x=boxX+(boxW-w)/2,y=boxY+(boxH-h)/2;
+    const fmt=/^data:image\/png/i.test(page.src)?'PNG':'JPEG';
+    pdf.addImage(page.src,fmt,x,y,w,h,undefined,'FAST');
+  }
+
   async function generateRfaMobilePdf(opts={}){
     showBusy();
     try{
@@ -723,11 +768,15 @@
       const pdf=await newEmptyPdf();
       let pageCount=0;
 
-      // Anexos primeiro, um por página A4.
-      const annexes=Array.from(document.querySelectorAll('#annexPrintPages .annex-print-sheet'));
-      for(const sheet of annexes){
-        const canvas=await canvasForRfaFragment(sheet,{annex:true});
-        addCanvasPage(pdf,canvas,{fit:true});
+      // Anexos documentais atuais: desenho direto no jsPDF para evitar
+      // deslocamento/corte lateral no Safari e Chromium.
+      let annexLogos={bpma:null,pmpb:null};
+      try{
+        [annexLogos.bpma,annexLogos.pmpb]=await Promise.all([assetDataUrl('../assets/bpma.jpg'),assetDataUrl('../assets/pmpb.jpg')]);
+      }catch(err){ console.warn('Brasões dos anexos:',err); }
+      const annexPages=window.BPMA_RFA_ANNEX?.getPages?.()||[];
+      for(const page of annexPages){
+        await addAnnexDirect(pdf,page,annexLogos,{final:false});
         pageCount++;
       }
 
@@ -753,12 +802,17 @@
         }
       }
 
-      // Novos anexos locais: entram SOMENTE no final do PDF, após todo o RFA atual.
-      const finalAnnexes=Array.from(document.querySelectorAll('#finalAnnexPrintPages .final-annex-print-sheet'));
-      for(const sheet of finalAnnexes){
-        const canvas=await canvasForRfaFragment(sheet,{annex:true});
-        addCanvasPage(pdf,canvas,{fit:true});
-        pageCount++;
+      // Novos anexos locais: entram SOMENTE no final do PDF.
+      // 3.9.3.4: não rasteriza mais o HTML oculto no iPhone. Usa os Data URLs
+      // já processados pelo gerenciador e desenha cada página diretamente no jsPDF.
+      // Isso elimina as folhas brancas observadas no Safari/iOS.
+      const finalPages=window.BPMA_RFA_FINAL_ANNEX?.getPages?.()||[];
+      if(finalPages.length){
+        const logos=annexLogos;
+        for(const page of finalPages){
+          await addAnnexDirect(pdf,page,logos,{final:true});
+          pageCount++;
+        }
       }
 
       if((pdf.getNumberOfPages?.()||0)===0) throw new Error('O RFA não possui conteúdo para gerar o PDF.');

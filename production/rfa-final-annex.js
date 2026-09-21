@@ -22,5 +22,17 @@
   function clear(){const l=$('#finalAnnexList'),p=$('#finalAnnexPrintPages');if(l)l.innerHTML='';if(p)p.innerHTML='';update()}
   function bind(){const input=$('#finalAnnexFileInput');$('#finalAnnexFileBtn')?.addEventListener('click',()=>input?.click());input?.addEventListener('change',async()=>{await addFiles(input.files);input.value=''});$('#finalAnnexList')?.addEventListener('click',e=>{const b=e.target.closest('.final-annex-remove');if(!b)return;b.closest('.final-annex-item')?.remove();rebuildPrintPages();update()});update()}
   document.addEventListener('DOMContentLoaded',bind);
-  window.BPMA_RFA_FINAL_ANNEX={addFiles,clear,rebuildPrintPages,isBusy};
+  function getPages(){
+    const pages=[];
+    $$('.final-annex-item',$('#finalAnnexList')).forEach(card=>{
+      (card._printPages||[]).forEach((src,index)=>pages.push({
+        src,
+        name:card.dataset.originalName||'Anexo',
+        index:index+1,
+        total:(card._printPages||[]).length
+      }));
+    });
+    return pages;
+  }
+  window.BPMA_RFA_FINAL_ANNEX={addFiles,clear,rebuildPrintPages,isBusy,getPages};
 })();

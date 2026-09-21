@@ -272,8 +272,19 @@
   }
 
   document.addEventListener('DOMContentLoaded',bind);
+  function getPages(){
+    const pages=[];
+    $$('.annex-item','#annexList').forEach(card=>{
+      (card._printPages||[]).forEach((src,index)=>pages.push({
+        src, name:card.dataset.originalName||'Anexo', index:index+1,
+        total:(card._printPages||[]).length
+      }));
+    });
+    return pages;
+  }
+
   window.BPMA_RFA_ANNEX={
     addFiles,restore,captureState,syncUploads,desiredPaths,clear,
-    rebuildPrintPages,isBusy,setReadonly
+    rebuildPrintPages,isBusy,setReadonly,getPages
   };
 })();
