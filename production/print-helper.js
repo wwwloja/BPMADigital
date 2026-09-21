@@ -365,7 +365,7 @@
         overflow:visible!important;
         background:#fff!important;
         color:#000!important;
-        z-index:-2147483000!important;
+        z-index:1!important;
         pointer-events:none!important;
         box-sizing:border-box!important;
       `;
@@ -602,7 +602,7 @@
   async function canvasForRfaFragment(element,{annex=false}={}){
     const host=document.createElement('div');
     host.className='bpma-rfa-fragment-host';
-    host.style.cssText=`position:fixed!important;left:0!important;top:0!important;width:${CONTENT_W_MM}mm!important;max-width:${CONTENT_W_MM}mm!important;min-width:${CONTENT_W_MM}mm!important;height:auto!important;margin:0!important;padding:0!important;background:#fff!important;color:#000!important;z-index:-2147483000!important;pointer-events:none!important;overflow:visible!important;box-sizing:border-box!important;`;
+    host.style.cssText=`position:fixed!important;left:0!important;top:0!important;width:${CONTENT_W_MM}mm!important;max-width:${CONTENT_W_MM}mm!important;min-width:${CONTENT_W_MM}mm!important;height:auto!important;margin:0!important;padding:0!important;background:#fff!important;color:#000!important;z-index:1!important;pointer-events:none!important;overflow:visible!important;box-sizing:border-box!important;`;
     const wrap=document.createElement('div');
     wrap.className='page';
     wrap.style.cssText=`width:${CONTENT_W_MM}mm!important;max-width:${CONTENT_W_MM}mm!important;min-width:${CONTENT_W_MM}mm!important;margin:0!important;padding:0!important;background:#fff!important;box-sizing:border-box!important;`;
@@ -773,13 +773,12 @@
   }
 
   function printRfa(input){
+    // Um único gerador A4 em desktop, iPhone e Android.
+    // Evita divergências do window.print (Safari/iOS) e garante que textareas
+    // longos sejam convertidos em blocos completos antes da paginação.
     const opts=normalizeOptions(input);
-    if(isMobile()){
-      generateRfaMobilePdf(opts);
-      return true;
-    }
-    prepareSafe(opts.prepare);
-    return nativePrint();
+    generateRfaMobilePdf(opts);
+    return true;
   }
 
   function normalizeOptions(input){

@@ -1,4 +1,4 @@
-const CACHE='bpma-digital-3.9.3';
+const CACHE='bpma-digital-3.9.3.2-rfa-a4';
 const SHELL=[
   '/',
   '/index.html',
@@ -13,6 +13,7 @@ const SHELL=[
   '/security.js',
   '/pwa.js',
   '/print-helper.js',
+  '/text-input-fix.js',
   '/manifest.webmanifest',
   '/assets/bpma.jpg',
   '/assets/pmpb.jpg',
