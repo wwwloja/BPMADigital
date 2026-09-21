@@ -107,6 +107,7 @@
     if(l.includes('already been registered')||l.includes('already exists')||l.includes('duplicate')) return 'Já existe um usuário com esse e-mail ou nome de usuário.';
     if(l.includes('not authorized')||l.includes('forbidden')||err?.status===403) return 'Somente o Admin pode executar esta operação.';
     if(l.includes('jwt')||err?.status===401) return 'Sua sessão expirou. Saia e entre novamente.';
+    if(l.includes('password cannot be longer than 72')) return 'A Edge Function de usuários está desatualizada. Publique a versão 3.9.3 do admin-users e tente novamente.';
     return s||'Não foi possível concluir a operação.';
   }
 
