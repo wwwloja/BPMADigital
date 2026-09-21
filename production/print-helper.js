@@ -576,6 +576,8 @@
     syncControls(source,clone);
     clone.querySelector('#annexPrintPages')?.remove();
     clone.querySelector('#annexManager')?.remove();
+    clone.querySelector('#finalAnnexPrintPages')?.remove();
+    clone.querySelector('#finalAnnexManager')?.remove();
     clone.querySelectorAll('.no-print,.print-actions,script').forEach(el=>el.remove());
 
     // Textareas em canvas/Safari podem mostrar apenas a parte visível.
@@ -594,7 +596,7 @@
       d.style.cssText='border:1px solid #999;padding:2px 3px;min-height:18px;background:#fff;color:#000;line-height:1.15;';
       el.replaceWith(d);
     });
-    return Array.from(clone.children).filter(el=>!el.matches('#annexPrintPages,#annexManager,.no-print,.print-actions'));
+    return Array.from(clone.children).filter(el=>!el.matches('#annexPrintPages,#annexManager,#finalAnnexPrintPages,#finalAnnexManager,.no-print,.print-actions'));
   }
 
   async function canvasForRfaFragment(element,{annex=false}={}){
@@ -625,10 +627,10 @@
       .bpma-rfa-fragment-host,.bpma-rfa-fragment-host *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;box-sizing:border-box!important}
       .bpma-rfa-fragment-host .page{width:${CONTENT_W_MM}mm!important;max-width:${CONTENT_W_MM}mm!important;min-width:${CONTENT_W_MM}mm!important;margin:0!important;padding:0!important;transform:none!important}
       .bpma-rfa-fragment-host .no-print,.bpma-rfa-fragment-host button{display:none!important}
-      .bpma-rfa-fragment-host .annex-print-sheet{display:flex!important;flex-direction:column!important;width:100%!important;height:${A4_H_MM-(MARGIN_MM*2)}mm!important;min-height:${A4_H_MM-(MARGIN_MM*2)}mm!important;max-height:${A4_H_MM-(MARGIN_MM*2)}mm!important;margin:0!important;padding:0!important;overflow:hidden!important;background:#fff!important}
-      .bpma-rfa-fragment-host .annex-print-sheet .topbar{flex:0 0 auto!important}
-      .bpma-rfa-fragment-host .annex-document-body{flex:1 1 auto!important;min-height:0!important;display:flex!important;align-items:center!important;justify-content:center!important;overflow:hidden!important}
-      .bpma-rfa-fragment-host .annex-document-body img{max-width:100%!important;max-height:100%!important;width:auto!important;height:auto!important;object-fit:contain!important;margin:auto!important}
+      .bpma-rfa-fragment-host .annex-print-sheet,.bpma-rfa-fragment-host .final-annex-print-sheet{display:flex!important;flex-direction:column!important;width:100%!important;height:${A4_H_MM-(MARGIN_MM*2)}mm!important;min-height:${A4_H_MM-(MARGIN_MM*2)}mm!important;max-height:${A4_H_MM-(MARGIN_MM*2)}mm!important;margin:0!important;padding:0!important;overflow:hidden!important;background:#fff!important}
+      .bpma-rfa-fragment-host .annex-print-sheet .topbar,.bpma-rfa-fragment-host .final-annex-print-sheet .topbar{flex:0 0 auto!important}
+      .bpma-rfa-fragment-host .annex-document-body,.bpma-rfa-fragment-host .final-annex-document-body{flex:1 1 auto!important;min-height:0!important;display:flex!important;align-items:center!important;justify-content:center!important;overflow:hidden!important}
+      .bpma-rfa-fragment-host .annex-document-body img,.bpma-rfa-fragment-host .final-annex-document-body img{max-width:100%!important;max-height:100%!important;width:auto!important;height:auto!important;object-fit:contain!important;margin:auto!important}
       .bpma-rfa-fragment-host .bpma-rfa-textarea-print{font-family:"Times New Roman",Times,serif!important;font-size:10pt!important}
     `;
     document.head.appendChild(st);
@@ -715,6 +717,7 @@
     try{
       prepareSafe(opts.prepare);
       try{window.BPMA_RFA_ANNEX?.rebuildPrintPages?.()}catch{}
+      try{window.BPMA_RFA_FINAL_ANNEX?.rebuildPrintPages?.()}catch{}
       await ensurePdfLib();
       const pdf=await newEmptyPdf();
       let pageCount=0;
@@ -747,6 +750,14 @@
           const after=pdf.getNumberOfPages?.()||before;
           pageCount+=Math.max(0,after-before);
         }
+      }
+
+      // Novos anexos locais: entram SOMENTE no final do PDF, após todo o RFA atual.
+      const finalAnnexes=Array.from(document.querySelectorAll('#finalAnnexPrintPages .final-annex-print-sheet'));
+      for(const sheet of finalAnnexes){
+        const canvas=await canvasForRfaFragment(sheet,{annex:true});
+        addCanvasPage(pdf,canvas,{fit:true});
+        pageCount++;
       }
 
       if((pdf.getNumberOfPages?.()||0)===0) throw new Error('O RFA não possui conteúdo para gerar o PDF.');
