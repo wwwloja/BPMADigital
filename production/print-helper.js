@@ -607,6 +607,20 @@
     wrap.className='page';
     wrap.style.cssText=`width:${CONTENT_W_MM}mm!important;max-width:${CONTENT_W_MM}mm!important;min-width:${CONTENT_W_MM}mm!important;margin:0!important;padding:0!important;background:#fff!important;box-sizing:border-box!important;`;
     const node=element.cloneNode(true);
+    // 3.9.3.6 — normaliza a geometria do bloco antes do html2canvas.
+    // Alguns navegadores desktop preservavam offsets/limites do layout da tela
+    // no clone, deslocando todo o RFA para a esquerda dentro do canvas.
+    node.style.setProperty('position','relative','important');
+    node.style.setProperty('left','0','important');
+    node.style.setProperty('right','auto','important');
+    node.style.setProperty('top','0','important');
+    node.style.setProperty('width','100%','important');
+    node.style.setProperty('max-width','100%','important');
+    node.style.setProperty('min-width','0','important');
+    node.style.setProperty('margin-left','0','important');
+    node.style.setProperty('margin-right','0','important');
+    node.style.setProperty('transform','none','important');
+    node.style.setProperty('translate','none','important');
     if(annex){
       node.style.setProperty('display','flex','important');
       node.style.setProperty('width','100%','important');
@@ -626,7 +640,7 @@
     st.textContent=collectPrintCss()+`
       .bpma-rfa-fragment-host,.bpma-rfa-fragment-host *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;box-sizing:border-box!important}
       .bpma-rfa-fragment-host .page{position:relative!important;left:0!important;right:auto!important;width:${CONTENT_W_MM}mm!important;max-width:${CONTENT_W_MM}mm!important;min-width:${CONTENT_W_MM}mm!important;margin:0!important;padding:0!important;transform:none!important;translate:none!important}
-      .bpma-rfa-fragment-host .page>*,.bpma-rfa-fragment-host .card,.bpma-rfa-fragment-host .topbar,.bpma-rfa-fragment-host .title-row{left:auto!important;right:auto!important;transform:none!important;translate:none!important;max-width:100%!important}
+      .bpma-rfa-fragment-host .page>*,.bpma-rfa-fragment-host .card,.bpma-rfa-fragment-host .topbar,.bpma-rfa-fragment-host .title-row{position:relative!important;left:0!important;right:auto!important;transform:none!important;translate:none!important;width:100%!important;max-width:100%!important;min-width:0!important;margin-left:0!important;margin-right:0!important}
       .bpma-rfa-fragment-host .no-print,.bpma-rfa-fragment-host button{display:none!important}
       .bpma-rfa-fragment-host .annex-print-sheet,.bpma-rfa-fragment-host .final-annex-print-sheet{display:flex!important;flex-direction:column!important;width:100%!important;height:${A4_H_MM-(MARGIN_MM*2)}mm!important;min-height:${A4_H_MM-(MARGIN_MM*2)}mm!important;max-height:${A4_H_MM-(MARGIN_MM*2)}mm!important;margin:0!important;padding:0!important;overflow:hidden!important;background:#fff!important}
       .bpma-rfa-fragment-host .annex-print-sheet .topbar,.bpma-rfa-fragment-host .final-annex-print-sheet .topbar{flex:0 0 auto!important}
@@ -643,7 +657,7 @@
       const width=Math.max(1,Math.ceil(rect.width));
       const height=Math.max(1,Math.ceil(wrap.scrollHeight||rect.height));
       const worker=window.html2pdf().set({
-        html2canvas:{scale:1.45,useCORS:true,allowTaint:false,logging:false,backgroundColor:'#ffffff',width,height,windowWidth:Math.max(width,1200),windowHeight:Math.max(900,Math.min(height+40,14000)),scrollX:0,scrollY:0},
+        html2canvas:{scale:1.45,useCORS:true,allowTaint:false,logging:false,backgroundColor:'#ffffff',width,height,windowWidth:width,windowHeight:Math.max(height+40,900),scrollX:0,scrollY:0,x:0,y:0},
         jsPDF:{unit:'mm',format:'a4',orientation:'portrait',compress:true}
       }).from(wrap).toCanvas();
       const canvas=await worker.get('canvas');
@@ -744,14 +758,14 @@
     pdf.setDrawColor(190);pdf.setLineWidth(.25);pdf.line(left,23,right,23);
     pdf.setFontSize(11);
     const suffix=page.total>1?` (${page.index}/${page.total})`:'';
-    const rawTitle=final?`ANEXO AO RFA — ${page.name||'Anexo'}${suffix}`:'ANEXO DOCUMENTAL';
+    const rawTitle=final?`ANEXO AO RFA${suffix}`:'ANEXO DOCUMENTAL';
     const titleLines=pdf.splitTextToSize(rawTitle,CONTENT_W_MM-8);
     pdf.text(titleLines,A4_W_MM/2,29,{align:'center'});
     const titleBottom=29+(titleLines.length-1)*4.2;
     pdf.setDrawColor(215,205,115);pdf.line(left,titleBottom+3,right,titleBottom+3);
 
     const img=await loadDataImage(page.src);
-    const boxX=left+2, boxY=titleBottom+8, boxW=CONTENT_W_MM-4, boxH=A4_H_MM-MARGIN_MM-boxY;
+    const boxX=left, boxY=titleBottom+5, boxW=CONTENT_W_MM, boxH=A4_H_MM-MARGIN_MM-boxY;
     const ratio=Math.min(boxW/img.naturalWidth,boxH/img.naturalHeight);
     const w=img.naturalWidth*ratio,h=img.naturalHeight*ratio;
     const x=boxX+(boxW-w)/2,y=boxY+(boxH-h)/2;
