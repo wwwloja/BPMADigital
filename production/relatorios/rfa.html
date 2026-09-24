@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>BPMA Digital — RFA · 3.9.3.6</title>
+<title>BPMA Digital — RFA · 3.9.4</title>
 <meta name="theme-color" content="#064e3b">
 <link rel="manifest" href="../manifest.webmanifest">
 <link rel="icon" type="image/png" href="https://png.pngtree.com/png-vector/20240531/ourlarge/pngtree-crested-caracara-bird-png-image_12588698.png">
@@ -726,43 +726,6 @@ body{padding-bottom:74px}
 
 </style>
 
-
-<style id="bpma-rfa-final-annex-style">
-/* Anexos locais adicionados exclusivamente ao FINAL do PDF do RFA. */
-.final-annex-manager{border:2px solid #184f8c;margin:0 0 16px}
-.final-annex-manager .card-head{background:#eef5fc}
-.final-annex-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
-.final-annex-help{font-size:12px;line-height:1.45;color:#5f6c67;margin:0}
-.final-annex-status{font-size:12px;font-weight:700;color:#184f8c;margin-top:10px}
-.final-annex-list{display:grid;gap:9px;margin-top:12px}
-.final-annex-item{display:grid;grid-template-columns:76px minmax(0,1fr) auto;gap:10px;align-items:center;border:1px solid #d8e2de;border-radius:10px;padding:8px;background:#fff}
-.final-annex-thumb{width:76px;height:92px;border:1px solid #d9e1de;background:#f5f7f6;display:grid;place-items:center;overflow:hidden;border-radius:7px}
-.final-annex-thumb img{width:100%;height:100%;object-fit:contain;background:#fff}
-.final-annex-placeholder{font-size:12px;font-weight:900;color:#50605a}
-.final-annex-info{min-width:0;display:flex;flex-direction:column;gap:4px}
-.final-annex-info b{font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.final-annex-info span{font-size:11px;color:#6b7772}
-.final-annex-print-pages{display:none}
-@media(max-width:650px){.final-annex-item{grid-template-columns:64px minmax(0,1fr)}.final-annex-thumb{width:64px;height:80px}.final-annex-remove{grid-column:1/-1;width:100%}}
-@media print{
- #finalAnnexManager{display:none!important}
- #finalAnnexPrintPages{display:block!important}
- .final-annex-print-sheet{display:flex!important;flex-direction:column!important;width:100%!important;height:281mm!important;min-height:281mm!important;max-height:281mm!important;margin:0!important;padding:0!important;overflow:hidden!important;page-break-before:always!important;break-before:page!important;page-break-after:always!important;break-after:page!important;background:#fff!important}
- .final-annex-print-sheet .topbar{flex:0 0 auto!important}
- .final-annex-document-title{flex:0 0 auto!important;margin:4mm 0 3mm!important;padding:0 0 2mm!important;border-bottom:.5pt solid #ddd27a!important;text-align:center!important;font-family:"Times New Roman",Times,serif!important;font-size:12pt!important;font-weight:700!important}
- .final-annex-document-body{flex:1 1 auto!important;min-height:0!important;width:100%!important;display:flex!important;align-items:center!important;justify-content:center!important;overflow:hidden!important;background:#fff!important}
- .final-annex-document-body img{display:block!important;max-width:100%!important;max-height:100%!important;width:auto!important;height:auto!important;object-fit:contain!important;margin:auto!important}
-}
-</style>
-
-<style id="bpma-rfa-3933-print-fix">
-@media print {
-  html,body,.page{width:100%!important;max-width:100%!important;overflow:visible!important}
-  .card,.card-body,.fields,.field{max-height:none!important;height:auto!important;overflow:visible!important}
-  textarea{white-space:pre-wrap!important;overflow:visible!important;max-height:none!important;height:auto!important;word-break:normal!important;overflow-wrap:break-word!important}
-  input,select,textarea{max-width:100%!important;min-width:0!important}
-}
-</style>
 </head>
 <body>
 <div class="page">
@@ -926,20 +889,6 @@ body{padding-bottom:74px}
   </div>
 </section>
 
-
-<section class="card final-annex-manager no-print" id="finalAnnexManager">
-  <div class="card-head">ANEXOS AO FINAL DO RFA</div>
-  <div class="card-body">
-    <p class="final-annex-help">Opcional. Adicione vários PDFs ou imagens para serem incluídos somente no final do PDF, sem alterar o RFA, os anexos atuais ou o relatório fotográfico.</p>
-    <div class="final-annex-actions"><button class="btn primary" type="button" id="finalAnnexFileBtn">📎 + Anexar arquivo no final</button></div>
-    <div class="final-annex-help" style="margin-top:9px">Cada imagem e cada página de PDF será colocada em uma nova folha A4, com cabeçalho, título e brasões, ocupando o maior espaço útil possível sem cortar o documento.</div>
-    <div class="final-annex-status" id="finalAnnexStatus">Nenhum anexo final adicionado.</div>
-    <div class="final-annex-list" id="finalAnnexList"></div>
-    <input id="finalAnnexFileInput" type="file" accept="application/pdf,image/*" multiple hidden>
-  </div>
-</section>
-<div id="finalAnnexPrintPages" class="final-annex-print-pages" aria-hidden="true"></div>
-
 <div class="print-actions no-print">
   <button type="button" id="printRelatorioCompleto">Imprimir / Salvar PDF A4</button>
 </div>
@@ -954,8 +903,6 @@ body{padding-bottom:74px}
   <div class="bpma-actions">
     <button type="button" id="bpmaBack">← Voltar</button>
     <button type="button" id="bpmaClear">Limpar</button>
-    <button type="button" id="bpmaSaveDraft" class="primary">Salvar rascunho</button>
-    <button type="button" id="bpmaFinalize" class="finalize">Finalizar</button>
   </div>
 </div>
 
@@ -1117,11 +1064,10 @@ body{padding-bottom:74px}
 <script src="../supabase-config.js"></script>
 <script src="../supabase-auth.js"></script>
 <script src="../security.js"></script>
-<script src="../text-input-fix.js"></script>
 <script src="../print-helper.js"></script>
+<script src="../local-report-store.js"></script>
 <script src="../supabase-rfa.js"></script>
 <script src="../rfa-annex.js"></script>
-<script src="../rfa-final-annex.js"></script>
 
 <script id="bpma-rfa-34-integration">
 (async function(){
@@ -1178,11 +1124,14 @@ body{padding-bottom:74px}
 
     const photos=photoCards().map(card=>{
       const img=card.querySelector('img');
+      const path=img?.dataset.storagePath||'';
+      const src=!path && /^data:image\//i.test(String(img?.src||'')) ? String(img.src) : '';
       return {
-        path:img?.dataset.storagePath||'',
+        path,
+        src,
         caption:card.querySelector('textarea')?.value||''
       };
-    }).filter(x=>x.path);
+    }).filter(x=>x.path||x.src);
 
     const annexes=window.BPMA_RFA_ANNEX?.captureState?.()||[];
     return {dynamic,values,photos,annexes};
@@ -1218,6 +1167,27 @@ body{padding-bottom:74px}
     }
   }
 
+  async function buildLocalPhoto(src,caption=''){
+    const photos=$('#photos');
+    if(!photos||!src)return;
+
+    const div=document.createElement('div');
+    div.className='photo';
+    div.innerHTML=`
+      <div class="photo-image-wrap">
+        <img alt="Foto da fiscalização">
+        <button class="no-print" type="button" title="Excluir">×</button>
+      </div>
+      <div class="photo-caption">
+        <span class="photo-index"></span>
+        <textarea placeholder="Legenda: local, situação constatada, objeto, animal, material ou informação relevante."></textarea>
+      </div>`;
+    div.querySelector('img').src=src;
+    div.querySelector('textarea').value=caption||'';
+    photos.appendChild(div);
+    renumberPhotos();
+  }
+
   async function restoreState(state){
     if(!state)return;
 
@@ -1241,12 +1211,14 @@ body{padding-bottom:74px}
     const photos=$('#photos');
     if(photos) photos.innerHTML='';
     for(const p of (state.photos||[])){
-      if(p?.path) await buildStoredPhoto(p.path,p.caption||'');
+      if(p?.src) await buildLocalPhoto(p.src,p.caption||'');
+      else if(p?.path) await buildStoredPhoto(p.path,p.caption||'');
     }
     await window.BPMA_RFA_ANNEX?.restore?.(state.annexes||[]);
   }
 
   async function syncPhotoUploads(){
+    if(window.BPMA_RFA?.LOCAL_ONLY) return;
     const cards=photoCards();
     for(const card of cards){
       const img=card.querySelector('img');
@@ -1367,17 +1339,19 @@ body{padding-bottom:74px}
       if(!record.id){
         await ensureRecord(captureState());
       }
-      await syncPhotoUploads();
-      await window.BPMA_RFA_ANNEX?.syncUploads?.(record.id);
+      if(!window.BPMA_RFA?.LOCAL_ONLY){
+        await syncPhotoUploads();
+        await window.BPMA_RFA_ANNEX?.syncUploads?.(record.id);
+      }
       const state=captureState();
-      const paths=(state.photos||[]).map(p=>p.path).filter(Boolean);
-      const annexPaths=(state.annexes||[]).map(a=>a.path).filter(Boolean);
-      // A limpeza de arquivos órfãos é manutenção e não pode impedir o salvamento
-      // do relatório. Uploads novos já foram concluídos acima.
-      try{ await window.BPMA_RFA.syncPhotoSet(record.id,paths); }
-      catch(err){ console.warn('Limpeza de fotos pendente:',err); }
-      try{ await window.BPMA_RFA.syncDocumentSet(record.id,annexPaths); }
-      catch(err){ console.warn('Limpeza de anexos pendente:',err); }
+      if(!window.BPMA_RFA?.LOCAL_ONLY){
+        const paths=(state.photos||[]).map(p=>p.path).filter(Boolean);
+        const annexPaths=(state.annexes||[]).map(a=>a.path).filter(Boolean);
+        try{ await window.BPMA_RFA.syncPhotoSet(record.id,paths); }
+        catch(err){ console.warn('Limpeza de fotos pendente:',err); }
+        try{ await window.BPMA_RFA.syncDocumentSet(record.id,annexPaths); }
+        catch(err){ console.warn('Limpeza de anexos pendente:',err); }
+      }
 
       const numero=deriveTitle();
       record = status==='Finalizado'
@@ -1390,13 +1364,13 @@ body{padding-bottom:74px}
         delete template.annexes;
         localStorage.setItem(templateKey(record.authorId,'RFA'),JSON.stringify(template));
 
-        if(showMessage) alert('RFA finalizado e salvo no Supabase.');
+        if(showMessage) alert('RFA finalizado neste aparelho. Use Imprimir / Salvar PDF A4 para guardar ou compartilhar. O RFA não é enviado ao banco do Supabase.');
         location.replace('../index.html#rfa');
         return true;
       }
 
       updateToolbar();
-      if(showMessage) alert('Rascunho salvo no Supabase.');
+      if(showMessage) alert('Rascunho salvo somente neste aparelho.');
       return true;
     }catch(err){
       if(showMessage) alert(window.BPMA_RFA.friendlyError(err));
@@ -1436,8 +1410,10 @@ body{padding-bottom:74px}
         alert('Campos, fotos e anexos limpos. Nenhum rascunho foi criado.');
         return;
       }
-      await window.BPMA_RFA.syncPhotoSet(record.id,[]);
-      await window.BPMA_RFA.syncDocumentSet(record.id,[]);
+      if(!window.BPMA_RFA?.LOCAL_ONLY){
+        await window.BPMA_RFA.syncPhotoSet(record.id,[]);
+        await window.BPMA_RFA.syncDocumentSet(record.id,[]);
+      }
       record=await window.BPMA_RFA.clear(record.id);
 
       controls().forEach(el=>{
@@ -1499,7 +1475,7 @@ body{padding-bottom:74px}
   }
 
   function printRFA(){
-    if(window.BPMA_RFA_ANNEX?.isBusy?.() || window.BPMA_RFA_FINAL_ANNEX?.isBusy?.()){
+    if(window.BPMA_RFA_ANNEX?.isBusy?.()){
       alert('Aguarde o processamento do Anexo Documental antes de gerar o PDF.');
       return;
     }
@@ -1529,28 +1505,18 @@ body{padding-bottom:74px}
         <div class="bpma-actions">
           <button type="button" id="bpmaBack">← Voltar</button>
           <button type="button" id="bpmaClear">Limpar</button>
-          <button type="button" id="bpmaSaveDraft" class="primary">Salvar rascunho</button>
-          <button type="button" id="bpmaFinalize" class="finalize">Finalizar</button>
         </div>`;
       document.body.appendChild(bar);
     }
 
     const back=$('#bpmaBack');
     const clear=$('#bpmaClear');
-    const save=$('#bpmaSaveDraft');
-    const finalBtn=$('#bpmaFinalize');
     if(back) back.onclick=()=>leaveReport('../index.html#rfa');
     if(clear) clear.onclick=clearCurrentReport;
-    if(save) save.onclick=()=>persist(record?.status==='Reaberto'?'Reaberto':'Rascunho',true,true);
-    if(finalBtn) finalBtn.onclick=()=>{
-      if(confirm('Finalizar este RFA? Após finalizar, perfis operacionais não poderão editá-lo.')){
-        persist('Finalizado',true,true);
-      }
-    };
   }
 
   async function waitForImages(){
-    const images=$$('#photos img, #annexPrintPages img, #finalAnnexPrintPages img');
+    const images=$$('#photos img, #annexPrintPages img');
     await Promise.all(images.map(img=>{
       if(img.complete)return Promise.resolve();
       return new Promise(resolve=>{
@@ -1594,7 +1560,7 @@ body{padding-bottom:74px}
   }
 
   // 3.9.1: os controles essenciais são vinculados antes de restaurar fotos/anexos.
-  // Assim, uma falha isolada em anexo não paralisa Voltar/Limpar/Salvar/Finalizar.
+  // Assim, uma falha isolada em anexo não paralisa Voltar/Limpar nem o salvamento automático.
   buildToolbar();
   updateToolbar();
 
@@ -1646,7 +1612,7 @@ body{padding-bottom:74px}
 
   async function printNow(){
     try{
-      if(window.BPMA_RFA_ANNEX?.isBusy?.() || window.BPMA_RFA_FINAL_ANNEX?.isBusy?.()){
+      if(window.BPMA_RFA_ANNEX?.isBusy?.()){
         alert('Aguarde o processamento do Anexo Documental antes de gerar o PDF.');
         return;
       }

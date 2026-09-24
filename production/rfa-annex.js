@@ -218,21 +218,38 @@
     }finally{setBusy(-1)}
   }
 
+  async function buildLocalSerialized(item){
+    const pages=Array.isArray(item?.pages)?item.pages.filter(Boolean):[];
+    if(!pages.length)return;
+    const mime=String(item?.mime||'').toLowerCase() || 'image/jpeg';
+    const card=makeCard({name:item?.name||'Anexo',mime,path:''});
+    card._printPages=pages;
+    setCardPreview(card,pages[0],pages.length);
+  }
+
   async function restore(items){
     clear(false);
-    for(const item of (items||[])) await buildStored(item);
+    for(const item of (items||[])){
+      if(item?.path) await buildStored(item);
+      else if(Array.isArray(item?.pages) && item.pages.length) await buildLocalSerialized(item);
+    }
     rebuildPrintPages();
   }
 
   function captureState(){
-    return $$('.annex-item','#annexList').map(card=>({
-      path:card.dataset.storagePath||'',
-      mime:card.dataset.mimeType||'',
-      name:card.dataset.originalName||'Anexo'
-    })).filter(x=>x.path);
+    return $$('.annex-item','#annexList').map(card=>{
+      const path=card.dataset.storagePath||'';
+      return {
+        path,
+        mime:card.dataset.mimeType||'',
+        name:card.dataset.originalName||'Anexo',
+        pages:path?[]:Array.from(card._printPages||[])
+      };
+    }).filter(x=>x.path||x.pages.length);
   }
 
   async function syncUploads(reportId){
+    if(window.BPMA_RFA?.LOCAL_ONLY) return;
     for(const card of $$('.annex-item','#annexList')){
       if(card.dataset.storagePath || !card._file)continue;
       const saved=await window.BPMA_RFA.uploadDocument(reportId,card._file);
@@ -272,19 +289,8 @@
   }
 
   document.addEventListener('DOMContentLoaded',bind);
-  function getPages(){
-    const pages=[];
-    $$('.annex-item','#annexList').forEach(card=>{
-      (card._printPages||[]).forEach((src,index)=>pages.push({
-        src, name:card.dataset.originalName||'Anexo', index:index+1,
-        total:(card._printPages||[]).length
-      }));
-    });
-    return pages;
-  }
-
   window.BPMA_RFA_ANNEX={
     addFiles,restore,captureState,syncUploads,desiredPaths,clear,
-    rebuildPrintPages,isBusy,setReadonly,getPages
+    rebuildPrintPages,isBusy,setReadonly
   };
 })();

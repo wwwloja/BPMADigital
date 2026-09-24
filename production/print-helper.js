@@ -316,7 +316,7 @@
   }
 
   async function generateMobilePdf(opts={}){
-    showBusy();
+    if(!opts.silent) showBusy();
     try{
       prepareSafe(opts.prepare);
       autoPrepare();
@@ -365,7 +365,7 @@
         overflow:visible!important;
         background:#fff!important;
         color:#000!important;
-        z-index:1!important;
+        z-index:-2147483000!important;
         pointer-events:none!important;
         box-sizing:border-box!important;
       `;
@@ -553,12 +553,13 @@
         throw new Error('PDF vazio ou inválido.');
       }
 
-      showReady(blob,options.filename);
-      return true;
+      if(!opts.silent) showReady(blob,options.filename);
+      return opts.returnBlob ? blob : true;
     }catch(err){
       cleanupStaging();
       try{window.dispatchEvent(new Event('afterprint'))}catch{}
-      showError(err);
+      if(opts.returnBlob) throw err;
+      if(!opts.silent) showError(err);
       return false;
     }
   }
@@ -576,8 +577,6 @@
     syncControls(source,clone);
     clone.querySelector('#annexPrintPages')?.remove();
     clone.querySelector('#annexManager')?.remove();
-    clone.querySelector('#finalAnnexPrintPages')?.remove();
-    clone.querySelector('#finalAnnexManager')?.remove();
     clone.querySelectorAll('.no-print,.print-actions,script').forEach(el=>el.remove());
 
     // Textareas em canvas/Safari podem mostrar apenas a parte visível.
@@ -596,31 +595,17 @@
       d.style.cssText='border:1px solid #999;padding:2px 3px;min-height:18px;background:#fff;color:#000;line-height:1.15;';
       el.replaceWith(d);
     });
-    return Array.from(clone.children).filter(el=>!el.matches('#annexPrintPages,#annexManager,#finalAnnexPrintPages,#finalAnnexManager,.no-print,.print-actions'));
+    return Array.from(clone.children).filter(el=>!el.matches('#annexPrintPages,#annexManager,.no-print,.print-actions'));
   }
 
   async function canvasForRfaFragment(element,{annex=false}={}){
     const host=document.createElement('div');
     host.className='bpma-rfa-fragment-host';
-    host.style.cssText=`position:absolute!important;left:0!important;top:0!important;width:${CONTENT_W_MM}mm!important;max-width:${CONTENT_W_MM}mm!important;min-width:${CONTENT_W_MM}mm!important;height:auto!important;margin:0!important;padding:0!important;background:#fff!important;color:#000!important;z-index:-2147483647!important;pointer-events:none!important;overflow:visible!important;box-sizing:border-box!important;`;
+    host.style.cssText=`position:fixed!important;left:0!important;top:0!important;width:${CONTENT_W_MM}mm!important;max-width:${CONTENT_W_MM}mm!important;min-width:${CONTENT_W_MM}mm!important;height:auto!important;margin:0!important;padding:0!important;background:#fff!important;color:#000!important;z-index:-2147483000!important;pointer-events:none!important;overflow:visible!important;box-sizing:border-box!important;`;
     const wrap=document.createElement('div');
     wrap.className='page';
     wrap.style.cssText=`width:${CONTENT_W_MM}mm!important;max-width:${CONTENT_W_MM}mm!important;min-width:${CONTENT_W_MM}mm!important;margin:0!important;padding:0!important;background:#fff!important;box-sizing:border-box!important;`;
     const node=element.cloneNode(true);
-    // 3.9.3.6 — normaliza a geometria do bloco antes do html2canvas.
-    // Alguns navegadores desktop preservavam offsets/limites do layout da tela
-    // no clone, deslocando todo o RFA para a esquerda dentro do canvas.
-    node.style.setProperty('position','relative','important');
-    node.style.setProperty('left','0','important');
-    node.style.setProperty('right','auto','important');
-    node.style.setProperty('top','0','important');
-    node.style.setProperty('width','100%','important');
-    node.style.setProperty('max-width','100%','important');
-    node.style.setProperty('min-width','0','important');
-    node.style.setProperty('margin-left','0','important');
-    node.style.setProperty('margin-right','0','important');
-    node.style.setProperty('transform','none','important');
-    node.style.setProperty('translate','none','important');
     if(annex){
       node.style.setProperty('display','flex','important');
       node.style.setProperty('width','100%','important');
@@ -639,25 +624,23 @@
     st.className='bpma-rfa-fragment-style';
     st.textContent=collectPrintCss()+`
       .bpma-rfa-fragment-host,.bpma-rfa-fragment-host *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;box-sizing:border-box!important}
-      .bpma-rfa-fragment-host .page{position:relative!important;left:0!important;right:auto!important;width:${CONTENT_W_MM}mm!important;max-width:${CONTENT_W_MM}mm!important;min-width:${CONTENT_W_MM}mm!important;margin:0!important;padding:0!important;transform:none!important;translate:none!important}
-      .bpma-rfa-fragment-host .page>*,.bpma-rfa-fragment-host .card,.bpma-rfa-fragment-host .topbar,.bpma-rfa-fragment-host .title-row{position:relative!important;left:0!important;right:auto!important;transform:none!important;translate:none!important;width:100%!important;max-width:100%!important;min-width:0!important;margin-left:0!important;margin-right:0!important}
+      .bpma-rfa-fragment-host .page{width:${CONTENT_W_MM}mm!important;max-width:${CONTENT_W_MM}mm!important;min-width:${CONTENT_W_MM}mm!important;margin:0!important;padding:0!important;transform:none!important}
       .bpma-rfa-fragment-host .no-print,.bpma-rfa-fragment-host button{display:none!important}
-      .bpma-rfa-fragment-host .annex-print-sheet,.bpma-rfa-fragment-host .final-annex-print-sheet{display:flex!important;flex-direction:column!important;width:100%!important;height:${A4_H_MM-(MARGIN_MM*2)}mm!important;min-height:${A4_H_MM-(MARGIN_MM*2)}mm!important;max-height:${A4_H_MM-(MARGIN_MM*2)}mm!important;margin:0!important;padding:0!important;overflow:hidden!important;background:#fff!important}
-      .bpma-rfa-fragment-host .annex-print-sheet .topbar,.bpma-rfa-fragment-host .final-annex-print-sheet .topbar{flex:0 0 auto!important}
-      .bpma-rfa-fragment-host .annex-document-body,.bpma-rfa-fragment-host .final-annex-document-body{flex:1 1 auto!important;min-height:0!important;display:flex!important;align-items:center!important;justify-content:center!important;overflow:hidden!important}
-      .bpma-rfa-fragment-host .annex-document-body img,.bpma-rfa-fragment-host .final-annex-document-body img{max-width:100%!important;max-height:100%!important;width:auto!important;height:auto!important;object-fit:contain!important;margin:auto!important}
-      .bpma-rfa-fragment-host .bpma-rfa-textarea-print{font-family:"Times New Roman",Times,serif!important;font-size:10pt!important;white-space:pre-wrap!important;overflow:visible!important;overflow-wrap:break-word!important;word-break:normal!important;height:auto!important;max-height:none!important}\n      .bpma-rfa-fragment-host .card,.bpma-rfa-fragment-host .card-body,.bpma-rfa-fragment-host .field,.bpma-rfa-fragment-host .fields{overflow:visible!important;max-height:none!important;height:auto!important}\n      .bpma-rfa-fragment-host input,.bpma-rfa-fragment-host select{min-width:0!important;max-width:100%!important}
+      .bpma-rfa-fragment-host .annex-print-sheet{display:flex!important;flex-direction:column!important;width:100%!important;height:${A4_H_MM-(MARGIN_MM*2)}mm!important;min-height:${A4_H_MM-(MARGIN_MM*2)}mm!important;max-height:${A4_H_MM-(MARGIN_MM*2)}mm!important;margin:0!important;padding:0!important;overflow:hidden!important;background:#fff!important}
+      .bpma-rfa-fragment-host .annex-print-sheet .topbar{flex:0 0 auto!important}
+      .bpma-rfa-fragment-host .annex-document-body{flex:1 1 auto!important;min-height:0!important;display:flex!important;align-items:center!important;justify-content:center!important;overflow:hidden!important}
+      .bpma-rfa-fragment-host .annex-document-body img{max-width:100%!important;max-height:100%!important;width:auto!important;height:auto!important;object-fit:contain!important;margin:auto!important}
+      .bpma-rfa-fragment-host .bpma-rfa-textarea-print{font-family:"Times New Roman",Times,serif!important;font-size:10pt!important}
     `;
     document.head.appendChild(st);
     try{
       await inlineImages(wrap);
-      await Promise.all(Array.from(wrap.querySelectorAll('img')).map(img=>img.complete&&img.naturalWidth?Promise.resolve():new Promise(res=>{const done=()=>res();img.addEventListener('load',done,{once:true});img.addEventListener('error',done,{once:true});setTimeout(done,2500)})));
       await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
       const rect=wrap.getBoundingClientRect();
       const width=Math.max(1,Math.ceil(rect.width));
       const height=Math.max(1,Math.ceil(wrap.scrollHeight||rect.height));
       const worker=window.html2pdf().set({
-        html2canvas:{scale:1.45,useCORS:true,allowTaint:false,logging:false,backgroundColor:'#ffffff',width,height,windowWidth:width,windowHeight:Math.max(height+40,900),scrollX:0,scrollY:0,x:0,y:0},
+        html2canvas:{scale:1.45,useCORS:true,allowTaint:false,logging:false,backgroundColor:'#ffffff',width,height,windowWidth:Math.max(820,width),windowHeight:Math.max(900,Math.min(height+20,6000)),scrollX:0,scrollY:0},
         jsPDF:{unit:'mm',format:'a4',orientation:'portrait',compress:true}
       }).from(wrap).toCanvas();
       const canvas=await worker.get('canvas');
@@ -728,70 +711,20 @@
     }
   }
 
-  function loadDataImage(src){
-    return new Promise((resolve,reject)=>{
-      const img=new Image();
-      img.onload=()=>resolve(img);
-      img.onerror=()=>reject(new Error('Não foi possível carregar uma imagem do anexo.'));
-      img.src=src;
-    });
-  }
-
-  async function assetDataUrl(path){
-    const absolute=new URL(path,location.href).href;
-    const res=await fetch(absolute,{cache:'no-store',credentials:'omit'});
-    if(!res.ok) throw new Error(`Não foi possível carregar ${path}.`);
-    return toDataUrl(await res.blob());
-  }
-
-  async function addAnnexDirect(pdf,page,logos,{final=false}={}){
-    pdf.addPage('a4','portrait');
-    const left=MARGIN_MM,right=A4_W_MM-MARGIN_MM;
-    const logoY=7,logoH=13;
-    try{ pdf.addImage(logos.bpma,'JPEG',left,logoY,11,logoH,undefined,'FAST'); }catch{}
-    try{ pdf.addImage(logos.pmpb,'JPEG',right-11,logoY,11,logoH,undefined,'FAST'); }catch{}
-    pdf.setFont('times','bold');
-    pdf.setFontSize(11);
-    pdf.text('POLÍCIA MILITAR DA PARAÍBA',A4_W_MM/2,11,{align:'center'});
-    pdf.setFontSize(9.2);
-    pdf.text('BATALHÃO ESPECIALIZADO EM POLICIAMENTO DO MEIO AMBIENTE',A4_W_MM/2,16,{align:'center'});
-    pdf.setDrawColor(190);pdf.setLineWidth(.25);pdf.line(left,23,right,23);
-    pdf.setFontSize(11);
-    const suffix=page.total>1?` (${page.index}/${page.total})`:'';
-    const rawTitle=final?`ANEXO AO RFA${suffix}`:'ANEXO DOCUMENTAL';
-    const titleLines=pdf.splitTextToSize(rawTitle,CONTENT_W_MM-8);
-    pdf.text(titleLines,A4_W_MM/2,29,{align:'center'});
-    const titleBottom=29+(titleLines.length-1)*4.2;
-    pdf.setDrawColor(215,205,115);pdf.line(left,titleBottom+3,right,titleBottom+3);
-
-    const img=await loadDataImage(page.src);
-    const boxX=left, boxY=titleBottom+5, boxW=CONTENT_W_MM, boxH=A4_H_MM-MARGIN_MM-boxY;
-    const ratio=Math.min(boxW/img.naturalWidth,boxH/img.naturalHeight);
-    const w=img.naturalWidth*ratio,h=img.naturalHeight*ratio;
-    const x=boxX+(boxW-w)/2,y=boxY+(boxH-h)/2;
-    const fmt=/^data:image\/png/i.test(page.src)?'PNG':'JPEG';
-    pdf.addImage(page.src,fmt,x,y,w,h,undefined,'FAST');
-  }
-
   async function generateRfaMobilePdf(opts={}){
     showBusy();
     try{
       prepareSafe(opts.prepare);
       try{window.BPMA_RFA_ANNEX?.rebuildPrintPages?.()}catch{}
-      try{window.BPMA_RFA_FINAL_ANNEX?.rebuildPrintPages?.()}catch{}
       await ensurePdfLib();
       const pdf=await newEmptyPdf();
       let pageCount=0;
 
-      // Anexos documentais atuais: desenho direto no jsPDF para evitar
-      // deslocamento/corte lateral no Safari e Chromium.
-      let annexLogos={bpma:null,pmpb:null};
-      try{
-        [annexLogos.bpma,annexLogos.pmpb]=await Promise.all([assetDataUrl('../assets/bpma.jpg'),assetDataUrl('../assets/pmpb.jpg')]);
-      }catch(err){ console.warn('Brasões dos anexos:',err); }
-      const annexPages=window.BPMA_RFA_ANNEX?.getPages?.()||[];
-      for(const page of annexPages){
-        await addAnnexDirect(pdf,page,annexLogos,{final:false});
+      // Anexos primeiro, um por página A4.
+      const annexes=Array.from(document.querySelectorAll('#annexPrintPages .annex-print-sheet'));
+      for(const sheet of annexes){
+        const canvas=await canvasForRfaFragment(sheet,{annex:true});
+        addCanvasPage(pdf,canvas,{fit:true});
         pageCount++;
       }
 
@@ -817,19 +750,6 @@
         }
       }
 
-      // Novos anexos locais: entram SOMENTE no final do PDF.
-      // 3.9.3.4: não rasteriza mais o HTML oculto no iPhone. Usa os Data URLs
-      // já processados pelo gerenciador e desenha cada página diretamente no jsPDF.
-      // Isso elimina as folhas brancas observadas no Safari/iOS.
-      const finalPages=window.BPMA_RFA_FINAL_ANNEX?.getPages?.()||[];
-      if(finalPages.length){
-        const logos=annexLogos;
-        for(const page of finalPages){
-          await addAnnexDirect(pdf,page,logos,{final:true});
-          pageCount++;
-        }
-      }
-
       if((pdf.getNumberOfPages?.()||0)===0) throw new Error('O RFA não possui conteúdo para gerar o PDF.');
       const blob=pdf.output('blob');
       if(!(blob instanceof Blob)||blob.size<1000) throw new Error('PDF vazio ou inválido.');
@@ -843,12 +763,13 @@
   }
 
   function printRfa(input){
-    // Um único gerador A4 em desktop, iPhone e Android.
-    // Evita divergências do window.print (Safari/iOS) e garante que textareas
-    // longos sejam convertidos em blocos completos antes da paginação.
     const opts=normalizeOptions(input);
-    generateRfaMobilePdf(opts);
-    return true;
+    if(isMobile()){
+      generateRfaMobilePdf(opts);
+      return true;
+    }
+    prepareSafe(opts.prepare);
+    return nativePrint();
   }
 
   function normalizeOptions(input){
