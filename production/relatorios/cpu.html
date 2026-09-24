@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>BPMA Digital — CPU · 3.9.4</title>
+<title>BPMA Digital — CPU · 3.8 FINAL</title>
 <meta name="theme-color" content="#064e3b">
 <link rel="manifest" href="../manifest.webmanifest">
 <link rel="icon" type="image/png" href="https://png.pngtree.com/png-vector/20240531/ourlarge/pngtree-crested-caracara-bird-png-image_12588698.png">
@@ -2436,6 +2436,7 @@ body{padding-bottom:74px}
 <script src="../supabase-config.js"></script>
 <script src="../supabase-auth.js"></script>
 <script src="../security.js"></script>
+<script src="../text-input-fix.js"></script>
 <script src="../print-helper.js"></script>
 <script src="../supabase-cpu.js"></script>
 
@@ -2771,37 +2772,7 @@ body{padding-bottom:74px}
         const template=JSON.parse(JSON.stringify(state||{}));
         localStorage.setItem(templateKey(record.authorId,'CPU'),JSON.stringify(template));
 
-        let pdfArchived=false;
-        let pdfArchiveError=null;
-        try{
-          const safeNumero=String(record?.numero||'CPU').replace(/[^a-zA-Z0-9_-]+/g,'_');
-          const filename=`CPU_${safeNumero}.pdf`;
-          const blob=await window.BPMA_PRINT?.generateMobilePdf?.({
-            selector:'.page',
-            filename,
-            silent:true,
-            returnBlob:true,
-            prepare:()=>{
-              window.BPMA_CPU_SYNC_PRINT_VALUES?.();
-              window.BPMA_CPU_buildPrintMirrors?.();
-            }
-          });
-          if(blob instanceof Blob){
-            record=await window.BPMA_CPU.archivePdf(record,blob,filename);
-            pdfArchived=true;
-          }
-        }catch(err){
-          pdfArchiveError=err;
-          console.warn('CPU finalizado, mas o PDF temporário não pôde ser arquivado:',err);
-        }
-
-        if(showMessage){
-          if(pdfArchived){
-            alert('Relatório CPU finalizado. Dados e estatísticas salvos no Supabase e PDF arquivado por 365 dias.');
-          }else{
-            alert('Relatório CPU finalizado e dados salvos no Supabase. O PDF temporário não pôde ser arquivado agora; use Imprimir / Salvar PDF A4 para guardar uma cópia.'+(pdfArchiveError?'':' '));
-          }
-        }
+        if(showMessage) alert('Relatório CPU finalizado e salvo no Supabase.');
         location.replace('../index.html#cpu');
         return true;
       }
@@ -2915,11 +2886,19 @@ body{padding-bottom:74px}
       <div class="bpma-actions">
         <button type="button" id="bpmaBack">← Voltar</button>
         <button type="button" id="bpmaClear">Limpar</button>
+        <button type="button" id="bpmaSaveDraft" class="primary">Salvar rascunho</button>
+        <button type="button" id="bpmaFinalize" class="finalize">Finalizar</button>
       </div>`;
     document.body.appendChild(bar);
 
     $('#bpmaBack').onclick=()=>leaveReport('../index.html#cpu');
     $('#bpmaClear').onclick=clearCurrentReport;
+    $('#bpmaSaveDraft').onclick=()=>persist(record?.status==='Reaberto'?'Reaberto':'Rascunho',true,true);
+    $('#bpmaFinalize').onclick=()=>{
+      if(confirm('Finalizar este Relatório CPU? Após finalizar, perfis operacionais não poderão editá-lo.')){
+        persist('Finalizado',true,true);
+      }
+    };
   }
 
   if(!session || session.auth!=='supabase'){
