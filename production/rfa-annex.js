@@ -12,17 +12,17 @@
     document.dispatchEvent(new CustomEvent('bpma:rfa-annex-change'));
   }
 
+  function allCards(){return $$('.annex-item','#annexBeforeList').concat($$('.annex-item','#annexList'));}
   function updateStatus(){
-    const box=$('#annexStatus');
-    const print=$('#printRelatorioCompleto');
-    const cards=$$('.annex-item','#annexList');
-    if(box){
-      if(busy>0) box.textContent='Processando anexo...';
-      else if(!cards.length) box.textContent='Nenhum anexo adicionado.';
-      else box.textContent=`${cards.length} arquivo${cards.length===1?'':'s'} anexado${cards.length===1?'':'s'}.`;
+    for(const [listId,statusId,label] of [['#annexBeforeList','#annexBeforeStatus','inicial'],['#annexList','#annexStatus','final']]){
+      const cards=$$('.annex-item',listId),box=$(statusId);
+      if(box)box.textContent=busy>0?'Processando anexo...':cards.length
+        ? `${cards.length} arquivo${cards.length===1?'':'s'} anexado${cards.length===1?'':'s'} ao campo ${label}.`
+        :`Nenhum anexo ${label} adicionado.`;
     }
-    if(print && busy>0) print.disabled=true;
-    else if(print && !print.dataset.forceDisabled) print.disabled=false;
+    const print=$('#printRelatorioCompleto');
+    if(print && busy>0)print.disabled=true;
+    else if(print && !print.dataset.forceDisabled)print.disabled=false;
   }
 
   function setBusy(delta){ busy=Math.max(0,busy+delta); updateStatus(); }
@@ -108,34 +108,27 @@
   }
 
   function rebuildPrintPages(){
-    const target=$('#annexPrintPages');
-    if(!target)return;
-    target.innerHTML='';
-    $$('.annex-item','#annexList').forEach(card=>{
-      const pages=card._printPages||[];
-      pages.forEach(src=>{
-        const sheet=document.createElement('section');
-        sheet.className='annex-print-sheet';
-        const header=cloneHeader();
-        header.classList.add('annex-header');
-        const title=document.createElement('div');
-        title.className='annex-document-title';
-        title.textContent='ANEXO DOCUMENTAL';
-        const body=document.createElement('div');
-        body.className='annex-document-body';
-        const img=document.createElement('img');
-        img.alt='Anexo documental';
-        img.src=src;
-        body.appendChild(img);
-        sheet.append(header,title,body);
-        target.appendChild(sheet);
+    for(const [listId,targetId,label] of [['#annexBeforeList','#annexPrintBefore','ANEXO INICIAL'],['#annexList','#annexPrintPages','ANEXO FINAL']]){
+      const target=$(targetId);
+      if(!target)continue;
+      target.innerHTML='';
+      $$('.annex-item',listId).forEach(card=>{
+        (card._printPages||[]).forEach(src=>{
+          const sheet=document.createElement('section');sheet.className='annex-print-sheet';
+          const header=cloneHeader();header.classList.add('annex-header');
+          const title=document.createElement('div');title.className='annex-document-title';title.textContent=label;
+          const body=document.createElement('div');body.className='annex-document-body';
+          const img=document.createElement('img');img.alt=label;img.src=src;body.appendChild(img);
+          sheet.append(header,title,body);target.appendChild(sheet);
+        });
       });
-    });
+    }
   }
 
-  function makeCard({name,mime,path='',file=null}){
+  function makeCard({name,mime,path='',file=null,position='before'}){
     const card=document.createElement('div');
     card.className='annex-item';
+    card.dataset.position=position;
     card.dataset.storagePath=path||'';
     card.dataset.mimeType=mime||'';
     card.dataset.originalName=name||'anexo';
@@ -145,7 +138,7 @@
       <div class="annex-thumb"><span class="annex-placeholder">${mime==='application/pdf'?'PDF':'IMG'}</span></div>
       <div class="annex-info"><b>${safeText(name||'Anexo')}</b><span class="annex-kind">${mime==='application/pdf'?'PDF':'Imagem'} · preparando...</span></div>
       <button type="button" class="btn danger annex-remove">Excluir</button>`;
-    $('#annexList')?.appendChild(card);
+    $(position==='after'?'#annexList':'#annexBeforeList')?.appendChild(card);
     updateStatus();
     return card;
   }
@@ -164,13 +157,13 @@
       : 'Imagem · 1 página';
   }
 
-  async function prepareNewFile(file){
+  async function prepareNewFile(file,position){
     if(!accepted(file)){
       alert(`Arquivo não aceito: ${file.name||'sem nome'}. Use imagem ou PDF.`);
       return;
     }
     const mime=mimeOf(file);
-    const card=makeCard({name:file.name||'anexo',mime,file});
+    const card=makeCard({name:file.name||'anexo',mime,file,position});
     setBusy(1);
     try{
       if(mime==='application/pdf'){
@@ -190,14 +183,14 @@
     }finally{setBusy(-1)}
   }
 
-  async function addFiles(files){
-    for(const file of Array.from(files||[])) await prepareNewFile(file);
+  async function addFiles(files,position='before'){
+    for(const file of Array.from(files||[])) await prepareNewFile(file,position);
   }
 
   async function buildStored(item){
     if(!item?.path)return;
     const mime=String(item.mime||'').toLowerCase() || (String(item.name||'').toLowerCase().endsWith('.pdf')?'application/pdf':'image/jpeg');
-    const card=makeCard({name:item.name||'Anexo',mime,path:item.path});
+    const card=makeCard({name:item.name||'Anexo',mime,path:item.path,position:item.position||'before'});
     setBusy(1);
     try{
       const url=await window.BPMA_RFA.signedFileUrl(item.path,7200);
@@ -222,7 +215,7 @@
     const pages=Array.isArray(item?.pages)?item.pages.filter(Boolean):[];
     if(!pages.length)return;
     const mime=String(item?.mime||'').toLowerCase() || 'image/jpeg';
-    const card=makeCard({name:item?.name||'Anexo',mime,path:''});
+    const card=makeCard({name:item?.name||'Anexo',mime,path:'',position:item.position||'before'});
     card._printPages=pages;
     setCardPreview(card,pages[0],pages.length);
   }
@@ -237,10 +230,11 @@
   }
 
   function captureState(){
-    return $$('.annex-item','#annexList').map(card=>{
+    return allCards().map(card=>{
       const path=card.dataset.storagePath||'';
       return {
         path,
+        position:card.dataset.position||'before',
         mime:card.dataset.mimeType||'',
         name:card.dataset.originalName||'Anexo',
         pages:path?[]:Array.from(card._printPages||[])
@@ -250,7 +244,7 @@
 
   async function syncUploads(reportId){
     if(window.BPMA_RFA?.LOCAL_ONLY) return;
-    for(const card of $$('.annex-item','#annexList')){
+    for(const card of allCards()){
       if(card.dataset.storagePath || !card._file)continue;
       const saved=await window.BPMA_RFA.uploadDocument(reportId,card._file);
       card.dataset.storagePath=saved.path;
@@ -263,29 +257,30 @@
   function desiredPaths(){ return captureState().map(x=>x.path).filter(Boolean); }
 
   function clear(notify=true){
-    const list=$('#annexList'); if(list)list.innerHTML='';
-    const print=$('#annexPrintPages'); if(print)print.innerHTML='';
-    updateStatus();
-    if(notify)emitChange();
+    for(const id of ['#annexBeforeList','#annexList','#annexPrintBefore','#annexPrintPages']){
+      const el=$(id);if(el)el.innerHTML='';
+    }
+    updateStatus();if(notify)emitChange();
   }
 
   function bind(){
-    const files=$('#annexFileInput');
-    $('#annexFileBtn')?.addEventListener('click',()=>files?.click());
-    files?.addEventListener('change',async()=>{
-      await addFiles(files.files);
-      files.value='';
-    });
-    $('#annexList')?.addEventListener('click',e=>{
-      const btn=e.target.closest('.annex-remove'); if(!btn)return;
-      btn.closest('.annex-item')?.remove();
-      rebuildPrintPages(); updateStatus(); emitChange();
-    });
+    for(const [position,btnId,inputId,listId] of [
+      ['before','#annexBeforeBtn','#annexBeforeInput','#annexBeforeList'],
+      ['after','#annexFileBtn','#annexFileInput','#annexList']
+    ]){
+      const files=$(inputId);
+      $(btnId)?.addEventListener('click',()=>files?.click());
+      files?.addEventListener('change',async()=>{await addFiles(files.files,position);files.value='';});
+      $(listId)?.addEventListener('click',e=>{
+        const btn=e.target.closest('.annex-remove');if(!btn)return;
+        btn.closest('.annex-item')?.remove();rebuildPrintPages();updateStatus();emitChange();
+      });
+    }
     updateStatus();
   }
 
   function setReadonly(readonly){
-    $$('#annexManager button, #annexManager input').forEach(el=>el.disabled=!!readonly);
+    $$('#annexManager button,#annexManager input,#annexBeforeManager button,#annexBeforeManager input').forEach(el=>el.disabled=!!readonly);
   }
 
   document.addEventListener('DOMContentLoaded',bind);

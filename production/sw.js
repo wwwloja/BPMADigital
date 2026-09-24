@@ -1,4 +1,4 @@
-const CACHE='bpma-digital-3.9.5.2-home-app';
+const CACHE='bpma-digital-3.9.9-two-annex-fields';
 const SHELL=[
   '/',
   '/index.html',

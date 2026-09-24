@@ -1094,6 +1094,7 @@ function showPage(page){
     pageSubtitle.textContent=defs[page][1];
   }
   document.body.classList.toggle('home-screen',page==='dashboard');
+  document.body.classList.toggle('work-screen',page!=='dashboard');
   content.innerHTML=renderPage(page);bindPage(page);sidebar.classList.remove('open');
   refreshRemoteReportsPage(page);
 }

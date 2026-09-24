@@ -14,7 +14,7 @@ function renderAppHome(reps){
       ${allowed('bo')?card('bo','Boletim de ocorrência','Registrar uma ocorrência','bo'):''}
       ${allowed('rfa')?card('rfa','Fiscalização ambiental','Preencher relatório de fiscalização','rfa'):''}
       ${allowed('cpu')?card('cpu','Serviço CPU','Organizar os dados do serviço','cpu'):''}
-      ${operational?`<button class="home-module home-term" data-external-url="${escAttr(TERM_FORM_URL)}"><span class="home-icon">${homeIcon('term')}</span><strong>Número de termo</strong><span>Acessar formulário externo ↗</span><span class="home-card-arrow">${homeIcon('arrow')}</span></button>`:''}
+      <a class="home-module home-term" href="${escAttr(TERM_FORM_URL)}" target="_blank" rel="noopener noreferrer"><span class="home-icon">${homeIcon('term')}</span><strong>Número de termo</strong><span>Acessar formulário externo ↗</span><span class="home-card-arrow">${homeIcon('arrow')}</span></a>
     </div></section>
     <div class="home-activity">${session.role==='cpu'?renderSharedBOToday():''}${renderDraftsInProgress()}${renderRecent(reps.slice(0,3))}</div>
     ${adminLinks.length?`<section class="home-tools" aria-labelledby="home-tools-title"><div class="home-section-title"><h2 id="home-tools-title">${operational?'Mais opções':'Gestão e ferramentas'}</h2></div><div class="home-tools-grid">${adminLinks.map(([key,label,icon])=>`<button data-go="${key}">${homeIcon(icon)}<span>${label}</span>${homeIcon('arrow')}</button>`).join('')}</div></section>`:''}
