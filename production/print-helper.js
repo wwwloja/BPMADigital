@@ -708,7 +708,7 @@
         pdf.addPage('a4','portrait');
         state.y=MARGIN_MM;
       }
-      pdf.addImage(part.toDataURL('image/jpeg',0.95),'JPEG',MARGIN_MM,state.y,maxW,hmm,undefined,'FAST');
+      pdf.addImage(part.toDataURL('image/jpeg',0.88),'JPEG',MARGIN_MM,state.y,maxW,hmm,undefined,'FAST');
       state.y+=hmm+1.2;
       if(sy+slicePx<canvas.height){
         state.pageOpen=false;
@@ -755,7 +755,7 @@
       const width=Math.max(1,Math.ceil(rect.width));
       const height=Math.max(1,Math.ceil(wrap.scrollHeight||rect.height));
       const worker=window.html2pdf().set({
-        html2canvas:{scale:1.35,useCORS:true,allowTaint:false,logging:false,backgroundColor:'#ffffff',width,height,windowWidth:Math.max(820,width),windowHeight:Math.max(900,Math.min(height+20,6000)),scrollX:0,scrollY:0},
+        html2canvas:{scale:1,useCORS:true,allowTaint:false,logging:false,backgroundColor:'#ffffff',width,height,windowWidth:Math.max(760,width),scrollX:0,scrollY:0,removeContainer:true,imageTimeout:8000},
         jsPDF:{unit:'mm',format:'a4',orientation:'portrait',compress:true}
       }).from(wrap).toCanvas();
       return await worker.get('canvas');
@@ -772,7 +772,9 @@
       const pdf=await newEmptyPdf();
       const state={pageOpen:false,y:MARGIN_MM};
       for(const child of cpuMainChildren()){
+        await new Promise(resolve=>requestAnimationFrame(resolve));
         const canvas=await canvasForCpuFragment(child);
+        if(!canvas || canvas.width<2 || canvas.height<2)continue;
         addCanvasSlices(pdf,canvas,state);
       }
       if((pdf.getNumberOfPages?.()||0)===0)throw new Error('O CPU não possui conteúdo para gerar o PDF.');

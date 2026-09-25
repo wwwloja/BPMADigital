@@ -1,4 +1,4 @@
-const CACHE='bpma-digital-3.9.15-final';
+const CACHE='bpma-digital-3.9.16-planejamento';
 const SHELL=[
   '/',
   '/index.html',

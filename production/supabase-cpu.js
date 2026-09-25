@@ -178,7 +178,9 @@
       ...(record?.dados||{}),
       state,
       prefilledFromTemplate:false,
-      version:{number,history}
+      version:{number,history},
+      serviceIdentity: record?.dados?.serviceIdentity || {dataServico:stats?.dataServico||'',createdAt:record?.createdAt||now},
+      audit:{...(record?.dados?.audit||{}),lastFinalizedAt:now,corrections:Math.max(0,number-1)}
     };
     const body={
       dados,
@@ -211,7 +213,7 @@
     if(!current) throw new Error('Relatório CPU não encontrado.');
     if(current.status!=='Finalizado')return current;
     const version=current.dados?.version||{number:1,history:[{number:1,at:current.finalizedAt||current.updatedAt}]};
-    const dados={...(current.dados||{}),pdf:null,version};
+    const dados={...(current.dados||{}),pdf:null,version,audit:{...(current.dados?.audit||{}),lastRevisionStartedAt:new Date().toISOString()}};
     const updated=await patch(id,{status:'Em revisão',finalized_at:null,dados});
     if(current.pdf?.path) await deletePdfObject(current.pdf.path);
     return updated;
@@ -269,6 +271,15 @@
     return signed.startsWith('/storage/v1') ? url+signed : `${url}/storage/v1${signed.startsWith('/')?'':'/'}${signed}`;
   }
 
+  async function cancel(id,reason=''){
+    const current=await get(id); if(!current)throw new Error('Relatório CPU não encontrado.');
+    if(current.status!=='Finalizado' && current.status!=='Em revisão')throw new Error('Somente relatório finalizado pode ser cancelado.');
+    const now=new Date().toISOString();
+    const dados={...(current.dados||{}),cancelamento:{at:now,reason:String(reason||'').slice(0,500)}};
+    if(current.pdf?.path) await deletePdfObject(current.pdf.path);
+    return patch(id,{status:'Cancelado',dados,finalized_at:null});
+  }
+
   async function remove(id){
     const current=await get(id);
     if(current?.pdf?.path) await deletePdfObject(current.pdf.path);
@@ -290,7 +301,7 @@
   }
 
   window.BPMA_CPU={
-    listVisible,get,create,saveState,finalize,clear,reopen,startRevision,remove,
+    listVisible,get,create,saveState,finalize,clear,reopen,startRevision,cancel,remove,
     archivePdf,signedPdfUrl,PDF_RETENTION_DAYS,friendlyError
   };
 })();

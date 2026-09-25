@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>BPMA Digital — CPU · 3.9.4</title>
+<title>BPMA Digital — CPU · 3.9.16</title>
 <meta name="theme-color" content="#064e3b">
 <link rel="manifest" href="../manifest.webmanifest">
 <link rel="icon" type="image/png" href="https://png.pngtree.com/png-vector/20240531/ourlarge/pngtree-crested-caracara-bird-png-image_12588698.png">
@@ -1550,6 +1550,9 @@ body{padding-bottom:74px}
   .bpma-system-toolbar,.bpma-readonly-notice{display:none!important}
 }
 
+
+.combo-stack{display:grid;gap:4px}.combo-stack select,.combo-stack input{width:100%;min-width:0}.desfechos{display:flex;flex-wrap:wrap;gap:3px 7px;margin:0 0 4px;font-size:10px}.desfechos label{display:inline-flex;align-items:center;gap:3px;white-space:nowrap}.desfechos input[type="checkbox"]{width:auto!important;min-width:0!important;margin:0}.stats-tag{font-size:9px;color:#31584c}
+@media print{.combo-stack{gap:2px}.desfechos{font-size:8pt;gap:2px 5px}}
 </style>
 
 <style id="bpma-cpu-2113-legibilidade">
@@ -1946,7 +1949,7 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
         </thead>
         <tbody id="ativBody">
           <tr>
-            <td><textarea rows="2" aria-label="Ações" placeholder="Ex.: Policiamento, fiscalização, apoio, operação..."></textarea></td>
+            <td><div class="combo-stack"><select class="atividade-tipo" aria-label="Tipo de ação"><option value="">Selecione</option><option>Operação</option><option>Fiscalização</option><option>Patrulhamento</option><option>Apoio</option><option>Unidade de Conservação</option><option>Ação educativa</option><option>Outros</option></select><input class="atividade-outro" aria-label="Outra ação" placeholder="Outra ação" hidden></div></td>
             <td><textarea rows="2" aria-label="Local ou município" placeholder="Local, bairro e município"></textarea></td>
             <td><textarea rows="2" aria-label="Descrição da atividade" placeholder="Descreva a atividade desempenhada, resultado e informações relevantes."></textarea></td>
             <td><input aria-label="Número da ordem" placeholder="Nº da ordem"></td>
@@ -2098,8 +2101,8 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
           <tbody id="procBody">
             <tr>
               <td><textarea rows="2" aria-label="VTR ou guarnição autuante" placeholder="VTR/GU e autuante"></textarea></td>
-              <td><textarea rows="2" aria-label="Natureza da infração" placeholder="Descreva a natureza da infração"></textarea></td>
-              <td><textarea rows="2" aria-label="Conclusão do procedimento" placeholder="Resultado, nº do termo/auto, providências adotadas..."></textarea></td>
+              <td><div class="combo-stack"><select class="natureza-cat" aria-label="Categoria ambiental"><option value="">Natureza</option><option>Fauna</option><option>Flora</option><option>Poluição</option><option>Mineração</option><option>Pesca</option><option>Recursos Hídricos</option><option>Unidade de Conservação</option><option>Queimada/Incêndio</option><option>Licenciamento Ambiental</option><option>Outros</option></select><select class="natureza-sub" aria-label="Subnatureza"><option value="">Subnatureza</option></select><input class="natureza-outro" placeholder="Outra natureza" hidden></div></td>
+              <td><div class="desfechos" aria-label="Desfechos"><label><input type="checkbox" value="TCO"> TCO</label><label><input type="checkbox" value="APF"> APF</label><label><input type="checkbox" value="Procedimento administrativo"> Proc. adm.</label><label><input type="checkbox" value="Apreensão"> Apreensão</label><label><input type="checkbox" value="Encaminhamento"> Encaminhamento</label></div><textarea rows="2" aria-label="Conclusão do procedimento" placeholder="Resultado, nº do termo/auto, providências adotadas..."></textarea></td>
               <td><textarea rows="2" aria-label="Itens apreendidos" placeholder="Animais, veículos ou materiais apreendidos"></textarea></td>
               <td class="no-print" style="text-align:center;vertical-align:middle"><button type="button" class="btn-del" data-del-proc>Excluir</button></td>
             </tr>
@@ -2384,7 +2387,7 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
 
   function atividadeRow(){
     return `<tr>
-      <td><textarea rows="2" placeholder="Ex.: Policiamento, fiscalização, apoio, operação..."></textarea></td>
+      <td><div class="combo-stack"><select class="atividade-tipo"><option value="">Selecione</option><option>Operação</option><option>Fiscalização</option><option>Patrulhamento</option><option>Apoio</option><option>Unidade de Conservação</option><option>Ação educativa</option><option>Outros</option></select><input class="atividade-outro" placeholder="Outra ação" hidden></div></td>
       <td><textarea rows="2" placeholder="Local, bairro e município"></textarea></td>
       <td><textarea rows="2" placeholder="Descreva a atividade desempenhada, resultado e informações relevantes."></textarea></td>
       <td><input placeholder="Nº da ordem"></td>
@@ -2395,6 +2398,7 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
   addAtividade?.addEventListener('click',()=>{
     ativBody.insertAdjacentHTML('beforeend',atividadeRow());
     growAll(ativBody.rows[ativBody.rows.length-1]);
+    syncAtividadeCombo(ativBody.rows[ativBody.rows.length-1]);
   });
 
   ativBody?.addEventListener('click',e=>{
@@ -2407,6 +2411,66 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
     }else tr.remove();
   });
 
+  const SUBNATUREZAS={
+    'Fauna':['Cativeiro','Maus-tratos','Caça','Transporte','Comércio','Outros'],
+    'Flora':['Desmatamento','Corte/Supressão','Produto florestal','Outros'],
+    'Poluição':['Sonora','Resíduos','Efluentes','Atmosférica','Outros'],
+    'Mineração':['Extração de areia','Extração mineral','Outros'],
+    'Pesca':['Pesca irregular','Petrechos','Período/local proibido','Outros'],
+    'Recursos Hídricos':['Intervenção em corpo hídrico','Degradação','Outros'],
+    'Unidade de Conservação':['Intervenção irregular','Uso irregular','Outros'],
+    'Queimada/Incêndio':['Queimada','Incêndio em vegetação','Outros'],
+    'Licenciamento Ambiental':['Sem licença','Licença irregular','Outros'],
+    'Outros':['Outros']
+  };
+  function syncAtividadeCombo(row){
+    const sel=row?.querySelector('.atividade-tipo'), other=row?.querySelector('.atividade-outro');
+    if(!sel||!other)return; other.hidden=sel.value!=='Outros'; if(other.hidden)other.value='';
+  }
+  function syncNaturezaCombo(row,preserve=true){
+    const cat=row?.querySelector('.natureza-cat'), sub=row?.querySelector('.natureza-sub'), other=row?.querySelector('.natureza-outro');
+    if(!cat||!sub||!other)return; const prev=preserve?sub.value:'';
+    const opts=SUBNATUREZAS[cat.value]||[]; sub.innerHTML='<option value="">Subnatureza</option>'+opts.map(v=>`<option>${v}</option>`).join('');
+    if(opts.includes(prev))sub.value=prev; other.hidden=cat.value!=='Outros'; if(other.hidden)other.value='';
+  }
+  function guessAtividade(text){
+    const v=String(text||'').toLowerCase();
+    if(v.includes('fiscaliza'))return 'Fiscalização'; if(v.includes('patrulh'))return 'Patrulhamento';
+    if(v.includes('apoio'))return 'Apoio'; if(v.includes('operaç')||v.includes('operac'))return 'Operação';
+    if(v.includes('unidade de conserva')||v.includes(' uc '))return 'Unidade de Conservação';
+    if(v.includes('educa')||v.includes('palestra')||v.includes('orienta'))return 'Ação educativa'; return 'Outros';
+  }
+  function guessNatureza(text){
+    const v=String(text||'').toLowerCase();
+    if(/fauna|animal|ave|pássaro|passaro/.test(v))return 'Fauna'; if(/flora|desmat|madeira|veget/.test(v))return 'Flora';
+    if(/polui|sonor|resíduo|residuo|efluente/.test(v))return 'Poluição'; if(/minera|extração de areia|extracao de areia/.test(v))return 'Mineração';
+    if(/pesca|pescado|petrecho/.test(v))return 'Pesca'; if(/hídr|hidr|rio|açude|acude|nascente/.test(v))return 'Recursos Hídricos';
+    if(/unidade de conserva|parque|reserva/.test(v))return 'Unidade de Conservação'; if(/queimada|incêndio|incendio|fogo/.test(v))return 'Queimada/Incêndio';
+    if(/licença|licenca|licenciamento/.test(v))return 'Licenciamento Ambiental'; return 'Outros';
+  }
+  function upgradeLegacyRows(){
+    $$('#ativBody tr').forEach(row=>{
+      if(row.querySelector('.atividade-tipo'))return;
+      const cell=row.cells?.[0], old=cell?.querySelector('textarea,input')?.value||''; if(!cell)return;
+      cell.innerHTML='<div class="combo-stack"><select class="atividade-tipo"><option value="">Selecione</option><option>Operação</option><option>Fiscalização</option><option>Patrulhamento</option><option>Apoio</option><option>Unidade de Conservação</option><option>Ação educativa</option><option>Outros</option></select><input class="atividade-outro" placeholder="Outra ação" hidden></div>';
+      const type=guessAtividade(old); cell.querySelector('.atividade-tipo').value=type; syncAtividadeCombo(row); if(type==='Outros')cell.querySelector('.atividade-outro').value=old;
+    });
+    $$('#procBody tr').forEach(row=>{
+      if(row.querySelector('.natureza-cat'))return;
+      const natCell=row.cells?.[1], concCell=row.cells?.[2]; if(!natCell||!concCell)return;
+      const oldNat=natCell.querySelector('textarea,input')?.value||'', oldConc=concCell.querySelector('textarea')?.value||'';
+      natCell.innerHTML='<div class="combo-stack"><select class="natureza-cat"><option value="">Natureza</option><option>Fauna</option><option>Flora</option><option>Poluição</option><option>Mineração</option><option>Pesca</option><option>Recursos Hídricos</option><option>Unidade de Conservação</option><option>Queimada/Incêndio</option><option>Licenciamento Ambiental</option><option>Outros</option></select><select class="natureza-sub"><option value="">Subnatureza</option></select><input class="natureza-outro" placeholder="Outra natureza" hidden></div>';
+      const cat=guessNatureza(oldNat); natCell.querySelector('.natureza-cat').value=cat; syncNaturezaCombo(row,false); if(cat==='Outros')natCell.querySelector('.natureza-outro').value=oldNat;
+      concCell.innerHTML='<div class="desfechos"><label><input type="checkbox" value="TCO"> TCO</label><label><input type="checkbox" value="APF"> APF</label><label><input type="checkbox" value="Procedimento administrativo"> Proc. adm.</label><label><input type="checkbox" value="Apreensão"> Apreensão</label><label><input type="checkbox" value="Encaminhamento"> Encaminhamento</label></div><textarea rows="2" placeholder="Resultado, nº do termo/auto, providências adotadas..."></textarea>';
+      concCell.querySelector('textarea').value=oldConc; const lc=oldConc.toLowerCase();
+      if(/\btco\b/.test(lc))concCell.querySelector('input[value="TCO"]').checked=true; if(/\bapf\b|auto de prisão|auto de prisao|flagrante/.test(lc))concCell.querySelector('input[value="APF"]').checked=true;
+      if(/apreens/.test(lc))concCell.querySelector('input[value="Apreensão"]').checked=true; if(/encaminh/.test(lc))concCell.querySelector('input[value="Encaminhamento"]').checked=true;
+    });
+  }
+  document.addEventListener('change',e=>{
+    if(e.target.matches('.atividade-tipo'))syncAtividadeCombo(e.target.closest('tr'));
+    if(e.target.matches('.natureza-cat'))syncNaturezaCombo(e.target.closest('tr'),false);
+  });
   // ===== Ações ambientais =====
   const procBody=q('#procBody');
   const animalBody=q('#animalBody');
@@ -2416,8 +2480,8 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
   function procRow(){
     return `<tr>
       <td><textarea rows="2" placeholder="VTR/GU e autuante"></textarea></td>
-      <td><textarea rows="2" placeholder="Descreva a natureza da infração"></textarea></td>
-      <td><textarea rows="2" placeholder="Resultado, nº do termo/auto, providências adotadas..."></textarea></td>
+      <td><div class="combo-stack"><select class="natureza-cat"><option value="">Natureza</option><option>Fauna</option><option>Flora</option><option>Poluição</option><option>Mineração</option><option>Pesca</option><option>Recursos Hídricos</option><option>Unidade de Conservação</option><option>Queimada/Incêndio</option><option>Licenciamento Ambiental</option><option>Outros</option></select><select class="natureza-sub"><option value="">Subnatureza</option></select><input class="natureza-outro" placeholder="Outra natureza" hidden></div></td>
+      <td><div class="desfechos"><label><input type="checkbox" value="TCO"> TCO</label><label><input type="checkbox" value="APF"> APF</label><label><input type="checkbox" value="Procedimento administrativo"> Proc. adm.</label><label><input type="checkbox" value="Apreensão"> Apreensão</label><label><input type="checkbox" value="Encaminhamento"> Encaminhamento</label></div><textarea rows="2" placeholder="Resultado, nº do termo/auto, providências adotadas..."></textarea></td>
       <td><textarea rows="2" placeholder="Animais, veículos ou materiais apreendidos"></textarea></td>
       <td class="no-print" style="text-align:center;vertical-align:middle"><button type="button" class="btn-del" data-del-proc>Excluir</button></td>
     </tr>`;
@@ -2439,6 +2503,7 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
   addProc?.addEventListener('click',()=>{
     procBody.insertAdjacentHTML('beforeend',procRow());
     growAll(procBody.rows[procBody.rows.length-1]);
+    syncNaturezaCombo(procBody.rows[procBody.rows.length-1],false);
   });
 
   addAnimal?.addEventListener('click',()=>{
@@ -2672,7 +2737,10 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
       if(el.type==='checkbox' || el.type==='radio') el.checked=!!v.checked;
       else el.value=v.value ?? '';
     });
+    upgradeLegacyRows();
     setCoordinatorSignature(state.coordinatorSignature||'');
+    $$('#ativBody tr').forEach(syncAtividadeCombo);
+    $$('#procBody tr').forEach(row=>syncNaturezaCombo(row,true));
 
     $$('textarea').forEach(el=>el.dispatchEvent(new Event('input',{bubbles:true})));
     $('#recursosBody input')?.dispatchEvent(new Event('input',{bubbles:true}));
@@ -2792,14 +2860,14 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
 
   function extractCPUStats(){
     const stats={
-      version:1,
+      version:2,
       dataServico:$('[name="inicioData"]')?.value || String(record?.updatedAt||'').slice(0,10),
       recursos:{
         vtrEquipes:0,efetivoDia:0,ordinarioDia:0,porDia:0,
         efetivoNoite:0,ordinarioNoite:0,porNoite:0
       },
       alteracoes:{faltas:0,permutas:0,atestados:0,dispensas:0},
-      atividades:{total:0},
+      atividades:{total:0,operacoes:0,fiscalizacoes:0,patrulhamentos:0,apoios:0,uc:0,educativas:0,outros:0},
       ordemPublica:{
         adultoFlagrante:0,adultoMandado:0,menorFlagrante:0,menorApreensao:0,
         tcoAdultoFlagrante:0,tcoAdultoMandado:0,tcoMenorFlagrante:0,tcoMenorApreensao:0,
@@ -2808,7 +2876,9 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
         objetosApreendidos:0,objetosRecuperados:0
       },
       ambientais:{
-        procedimentos:0,animaisTotal:0,
+        procedimentos:0,tco:0,apf:0,semProcedimento:0,
+        natureza:{fauna:0,flora:0,poluicao:0,mineracao:0,pesca:0,recursosHidricos:0,uc:0,queimadaIncendio:0,licenciamento:0,outros:0},
+        animaisTotal:0,
         resgateQtd:0,entregaQtd:0,apreensaoQtd:0,
         resgateRegistros:0,entregaRegistros:0,apreensaoRegistros:0
       },
@@ -2835,8 +2905,13 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
     stats.alteracoes.atestados=numValue(altRows[2]?.querySelector('input'));
     stats.alteracoes.dispensas=numValue(altRows[3]?.querySelector('input'));
 
-    // 3. Atividades desempenhadas
-    stats.atividades.total=$$('#ativBody tr').filter(rowHasContent).length;
+    // 3. Atividades desempenhadas — classificação direta pelos filtros combinados.
+    $$('#ativBody tr').filter(rowHasContent).forEach(row=>{
+      stats.atividades.total++;
+      const tipo=row.querySelector('.atividade-tipo')?.value||'';
+      const map={'Operação':'operacoes','Fiscalização':'fiscalizacoes','Patrulhamento':'patrulhamentos','Apoio':'apoios','Unidade de Conservação':'uc','Ação educativa':'educativas'};
+      stats.atividades[map[tipo]||'outros']++;
+    });
 
     // 4A. Prisões / apreensões e TCO
     const prisaoRows=$$('#tblPrisoesPreview tbody tr');
@@ -2868,8 +2943,17 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
     stats.ordemPublica.objetosApreendidos=objText[0]?.value.trim()?1:0;
     stats.ordemPublica.objetosRecuperados=objText[1]?.value.trim()?1:0;
 
-    // 5A. Procedimentos administrativos ambientais
-    stats.ambientais.procedimentos=$$('#procBody tr').filter(rowHasContent).length;
+    // 5A. Procedimentos ambientais — natureza e desfechos estruturados.
+    $$('#procBody tr').filter(rowHasContent).forEach(row=>{
+      stats.ambientais.procedimentos++;
+      const cat=row.querySelector('.natureza-cat')?.value||'';
+      const map={'Fauna':'fauna','Flora':'flora','Poluição':'poluicao','Mineração':'mineracao','Pesca':'pesca','Recursos Hídricos':'recursosHidricos','Unidade de Conservação':'uc','Queimada/Incêndio':'queimadaIncendio','Licenciamento Ambiental':'licenciamento'};
+      stats.ambientais.natureza[map[cat]||'outros']++;
+      const outcomes=[...row.querySelectorAll('.desfechos input:checked')].map(x=>x.value);
+      if(outcomes.includes('TCO'))stats.ambientais.tco++;
+      if(outcomes.includes('APF'))stats.ambientais.apf++;
+      if(!outcomes.includes('TCO')&&!outcomes.includes('APF'))stats.ambientais.semProcedimento++;
+    });
 
     // 5B. Animais por origem e quantidade
     $$('#animalBody tr').forEach(row=>{
@@ -2907,7 +2991,7 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
   }
 
   function makeUnsavedRecord(){
-    const tpl=loadNewTemplate();
+    const tpl=null; // Novo CPU sempre nasce limpo; reaproveitamento só por “Usar como modelo”.
     return {
       id:null,tipo:'CPU',numero:'Novo relatório',unidade:session?.unit||'',authorId:session?.id,
       autor:session?.name||session?.user||'Usuário',status:'Rascunho',state:tpl,stats:null,dados:{state:tpl},
@@ -2957,6 +3041,11 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
     try{
       const state=captureState();
       const stats=extractCPUStats();
+      if(record?.dados?.serviceIdentity?.dataServico && stats.dataServico!==record.dados.serviceIdentity.dataServico){
+        alert(`A data-base deste serviço é ${record.dados.serviceIdentity.dataServico}. Para outro dia, use “Usar como modelo” e crie um novo relatório.`);
+        const dataEl=$('[name="inicioData"]'); if(dataEl)dataEl.value=record.dados.serviceIdentity.dataServico;
+        return false;
+      }
       if(!record.id) await ensureRecord(state);
       const numero=deriveTitle();
 
@@ -3176,7 +3265,7 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
       </div>
       <div class="bpma-actions">
         <button type="button" id="bpmaBack">← Voltar</button>
-        <button type="button" id="bpmaEdit" hidden>Editar relatório</button>
+        <button type="button" id="bpmaEdit" hidden>✏️ Corrigir relatório</button>
         <button type="button" id="bpmaClear">← Limpar</button>
       </div>`;
     document.body.appendChild(bar);
@@ -3210,6 +3299,21 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
   }
 
   restoreState(record.state);
+
+  // “Usar como modelo” cria um NOVO relatório, nunca altera a identidade do serviço anterior.
+  const modelId=params.get('model');
+  if(newMode && modelId){
+    try{
+      const source=await window.BPMA_CPU.get(modelId);
+      if(source?.state){
+        restoreState(JSON.parse(JSON.stringify(source.state)));
+        const ini=$('[name="inicioData"]'), fim=$('[name="terminoData"]');
+        if(ini)ini.value=''; if(fim)fim.value='';
+        setCoordinatorSignature('');
+        record.state=captureState(); record.dados.state=record.state; record.prefilledFromTemplate=true;
+      }
+    }catch(err){console.warn('Modelo CPU não carregado:',err)}
+  }
 
   if(record.id && record.prefilledFromTemplate){
     record.prefilledFromTemplate=false;
