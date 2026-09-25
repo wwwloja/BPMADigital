@@ -256,7 +256,8 @@
     if(window.BPMA_RFA?.LOCAL_ONLY) return;
     for(const card of $$('.annex-item',listSel)){
       if(card.dataset.storagePath || !card._file)continue;
-      const saved=await window.BPMA_RFA.uploadDocument(reportId,card._file);
+      const uploadFile=await window.BPMA_STORAGE_IMAGE?.optimizeForStorage?.(card._file) || card._file;
+      const saved=await window.BPMA_RFA.uploadDocument(reportId,uploadFile);
       card.dataset.storagePath=saved.path;
       card.dataset.mimeType=saved.mime;
       card.dataset.originalName=saved.name;

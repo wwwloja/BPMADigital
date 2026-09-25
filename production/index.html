@@ -582,8 +582,8 @@ th,td{padding:10px;border-bottom:1px solid #edf1ef;text-align:left;white-space:n
     </div>
 
     <div class="form-row">
-      <label for="loginUser">E-mail</label>
-      <input id="loginUser" type="email" autocomplete="email" inputmode="email" placeholder="Digite seu e-mail">
+      <label for="loginUser">Matrícula</label>
+      <input id="loginUser" type="text" autocomplete="username" inputmode="numeric" placeholder="Digite sua matrícula">
     </div>
 
     <div class="form-row">
@@ -597,7 +597,7 @@ th,td{padding:10px;border-bottom:1px solid #edf1ef;text-align:left;white-space:n
     <div id="capsWarning" class="caps-warning">Caps Lock está ativado.</div>
 
     <button class="btn-primary" id="loginBtn" type="button">Entrar</button>
-    <button class="login-secondary" id="forgotPassBtn" type="button">Esqueci minha senha</button>
+    <button class="login-secondary" id="forgotPassBtn" type="button">Recuperar acesso</button>
     <button class="login-secondary signup-open" id="signupOpenBtn" type="button">Solicitar cadastro</button>
     <div id="loginMsg" class="login-msg"></div>
     <div class="login-footer">BPMA Digital · Acesso restrito a usuários autorizados</div>
@@ -614,15 +614,15 @@ th,td{padding:10px;border-bottom:1px solid #edf1ef;text-align:left;white-space:n
       </div>
       <div class="signup-body">
         <div class="signup-grid">
-          <div class="signup-field full"><label for="signupName">Nome completo</label><input id="signupName" autocomplete="name" placeholder="Digite seu nome completo"></div>
-          <div class="signup-field"><label for="signupEmail">E-mail</label><input id="signupEmail" type="email" autocomplete="email" inputmode="email" placeholder="seuemail@exemplo.com"></div>
-          <div class="signup-field"><label for="signupMatricula">Matrícula</label><input id="signupMatricula" inputmode="numeric" autocomplete="off" placeholder="Digite sua matrícula"></div>
-          <div class="signup-field"><label for="signupGraduacao">Posto / Graduação</label><input id="signupGraduacao" autocomplete="off" placeholder="Ex.: 3º Sargento"></div>
-          <div class="signup-field"><label for="signupUnit">Unidade</label><select id="signupUnit"><option>BPMA</option><option>BPMA/P3</option><option>1ª CPMA</option><option>2ª CPMA</option><option>3ª CPMA</option><option>DIFI</option></select></div>
+          <div class="signup-field"><label for="signupMatricula">Matrícula</label><input id="signupMatricula" inputmode="numeric" autocomplete="username" placeholder="Digite sua matrícula"></div>
+          <div class="signup-field"><label for="signupGraduacao">Posto / Graduação</label><select id="signupGraduacao"><option value="">Selecione</option><option>CEL</option><option>TC</option><option>MAJ</option><option>CAP</option><option>1º TEN</option><option>2º TEN</option><option>SUBTEN</option><option>1º SGT</option><option>2º SGT</option><option>3º SGT</option><option>CB</option><option>SD</option></select></div>
+          <div class="signup-field"><label for="signupName">Nome de guerra</label><input id="signupName" autocomplete="name" placeholder="Ex.: RAMOS"></div>
+          <div class="signup-field"><label for="signupPhone">Telefone / WhatsApp</label><input id="signupPhone" type="tel" autocomplete="tel" inputmode="tel" placeholder="(83) 99999-9999"></div>
+          <div class="signup-field full"><label for="signupUnit">Unidade</label><select id="signupUnit"><option>BPMA</option><option>BPMA/P3</option><option>1ª CPMA</option><option>2ª CPMA</option><option>3ª CPMA</option><option>DIFI</option></select></div>
           <div class="signup-field"><label for="signupPass">Senha</label><input id="signupPass" type="password" autocomplete="new-password" placeholder="Mínimo de 8 caracteres"></div>
           <div class="signup-field"><label for="signupPass2">Confirmar senha</label><input id="signupPass2" type="password" autocomplete="new-password" placeholder="Repita a senha"></div>
         </div>
-        <div class="signup-note">O perfil inicial solicitado será <b>Operacional</b>. O Administrador poderá confirmar a unidade e ajustar as permissões antes ou depois da aprovação.</div>
+        <div class="signup-note">O cadastro ficará <b>pendente</b>. O Administrador confirmará a unidade e definirá o perfil de acesso antes da liberação.</div>
         <div id="signupMsg" class="signup-msg"></div>
         <div class="signup-actions">
           <button type="button" id="signupCancelBtn">Cancelar</button>
@@ -923,17 +923,17 @@ function canPrintRecent(r){
 }
 
 async function login(){
-  const email=loginUser.value.trim().toLowerCase(),pass=loginPass.value;
+  const identifier=loginUser.value.trim(),pass=loginPass.value;
   const btn=loginBtn,card=document.getElementById('loginCard');
 
   loginMsg.textContent='';
   loginMsg.className='login-msg';
 
-  if(!email||!pass){
+  if(!identifier||!pass){
     loginMsg.textContent='Preencha e-mail e senha.';
     loginMsg.classList.add('error');
     card.classList.remove('shake'); void card.offsetWidth; card.classList.add('shake');
-    (!email?loginUser:loginPass).focus();
+    (!identifier?loginUser:loginPass).focus();
     return;
   }
 
@@ -942,7 +942,7 @@ async function login(){
   btn.textContent='Entrando';
 
   try{
-    const auth=await window.BPMA_AUTH.signIn(email,pass);
+    const auth=await window.BPMA_AUTH.signIn(identifier,pass);
     const profile=await window.BPMA_AUTH.profile(auth);
 
     if(!profile){
@@ -965,9 +965,9 @@ async function login(){
 
     session={
       id:profile.id,
-      user:profile.usuario||email,
-      email,
-      name:profile.nome||profile.usuario||email,
+      user:profile.usuario||identifier,
+      email:auth?.user?.email||'',
+      name:profile.nome||profile.usuario||identifier,
       role:profile.role,
       unit:profile.unidade||'BPMA',
       auth:'supabase'
@@ -1121,7 +1121,7 @@ function renderPage(page){
     <div class="final-grid">
       <div class="final-card span4">
         <h4>Conta</h4>
-        <p>Usuário: <b>${esc(session.name)}</b><br>E-mail: ${esc(session.email||'—')}<br>Perfil: ${esc(roleLabels[session.role])}</p>
+        <p>Usuário: <b>${esc(session.name)}</b><br>Matrícula: ${esc(session.user||'—')}<br>Perfil: ${esc(roleLabels[session.role])}</p>
         <label style="font-size:10px;font-weight:800">Nova senha</label>
         <input id="cfgNewPass" type="password" autocomplete="new-password" style="width:100%;padding:9px;border:1px solid var(--border);border-radius:8px;margin:5px 0">
         <input id="cfgConfirmPass" type="password" autocomplete="new-password" placeholder="Confirmar nova senha" style="width:100%;padding:9px;border:1px solid var(--border);border-radius:8px;margin-bottom:8px">
@@ -1583,8 +1583,8 @@ function renderSupabaseUserRows(users){
     const statusClass=pending?'pendente':(u.ativo?'ativo':'inativo');
     const details=[u.graduacao||'',u.matricula?`Mat. ${u.matricula}`:''].filter(Boolean).join(' · ');
     return `<tr>
-      <td><b>${esc(u.usuario||'—')}</b><div class="user-email">${esc(u.email||'—')}</div></td>
-      <td>${esc(u.nome||'—')}${details?`<div class="user-email">${esc(details)}</div>`:''}</td>
+      <td><b>${esc(u.matricula||u.usuario||'—')}</b></td>
+      <td>${esc([u.graduacao,u.nome].filter(Boolean).join(' ')||'—')}${u.telefone?`<div class="user-email">${esc(u.telefone)}</div>`:''}</td>
       <td>${esc(roleLabels[u.role]||u.role||'—')}</td>
       <td>${esc(u.unidade||'—')}</td>
       <td><span class="status ${statusClass}">${statusLabel}</span></td>
@@ -1630,8 +1630,9 @@ function openSupabaseUserEditor(id){
   const dlg=document.getElementById('userEditDialog');
   if(!u||!dlg)return;
   editUserId.value=u.id;
-  editEmail.value=u.email||'';
-  editUsername.value=u.usuario||'';
+  editMatricula.value=u.matricula||u.usuario||'';
+  editGraduacao.value=u.graduacao||'';
+  editTelefone.value=u.telefone||'';
   editName.value=u.nome||'';
   editRole.value=u.role||'operacional';
   editUnit.value=u.unidade||'BPMA';
@@ -1645,15 +1646,16 @@ async function saveSupabaseUserEdit(){
   const id=editUserId.value;
   const payload={
     id,
-    email:editEmail.value.trim().toLowerCase(),
-    usuario:editUsername.value.trim(),
-    nome:editName.value.trim(),
+    matricula:editMatricula.value.trim(),
+    graduacao:editGraduacao.value.trim(),
+    telefone:editTelefone.value.trim(),
+    nome:editName.value.trim().toUpperCase(),
     role:editRole.value,
     unidade:editUnit.value,
     password:editPassword.value
   };
-  if(!payload.email||!payload.usuario||!payload.nome){
-    editUserMsg.textContent='Preencha e-mail, usuário e nome.';
+  if(!payload.matricula||!payload.graduacao||!payload.nome){
+    editUserMsg.textContent='Preencha matrícula, posto/graduação e nome de guerra.';
     return;
   }
   userManagementBusy=true;
@@ -1714,10 +1716,11 @@ function renderUsers(){
       As contas criadas aqui são usuários reais do Supabase Auth. A senha inicial pode ser alterada posteriormente pelo Admin.
     </div>
     <div class="user-admin-grid">
-      <div class="f s6"><label>E-mail</label><input id="uEmail" type="email" placeholder="usuario@exemplo.com"></div>
-      <div class="f s6"><label>Senha inicial</label><input id="uPass" type="password" placeholder="Mínimo recomendado: 8 caracteres"></div>
-      <div class="f"><label>Usuário</label><input id="uUser" placeholder="Ex.: cpu01"></div>
-      <div class="f s6"><label>Nome</label><input id="uName" placeholder="Nome completo"></div>
+      <div class="f s6"><label>Matrícula</label><input id="uMatricula" inputmode="numeric" placeholder="Matrícula"></div>
+      <div class="f s6"><label>Senha inicial</label><input id="uPass" type="password" placeholder="Mínimo: 8 caracteres"></div>
+      <div class="f"><label>Posto / Graduação</label><input id="uGraduacao" placeholder="Ex.: 3º SGT"></div>
+      <div class="f s6"><label>Nome de guerra</label><input id="uName" placeholder="Ex.: RAMOS"></div>
+      <div class="f s6"><label>Telefone / WhatsApp</label><input id="uTelefone" type="tel" placeholder="(83) 99999-9999"></div>
       <div class="f"><label>Perfil</label>
         <select id="uRole">
           <option value="admin">Admin</option>
@@ -1741,7 +1744,7 @@ function renderUsers(){
     <h3>Usuários do BPMA Digital</h3>
     <div class="table-wrap">
       <table>
-        <thead><tr><th>Usuário / E-mail</th><th>Nome</th><th>Perfil</th><th>Unidade</th><th>Status</th><th>Último acesso</th><th>Ações</th></tr></thead>
+        <thead><tr><th>Matrícula</th><th>Militar</th><th>Perfil</th><th>Unidade</th><th>Status</th><th>Último acesso</th><th>Ações</th></tr></thead>
         <tbody id="supabaseUsersBody"><tr><td colspan="7" class="supabase-user-loading">Carregando...</td></tr></tbody>
       </table>
     </div>
@@ -1757,10 +1760,11 @@ function renderUsers(){
     <div class="dlg-body">
       <input type="hidden" id="editUserId">
       <div class="user-admin-grid">
-        <div class="f s6"><label>E-mail</label><input id="editEmail" type="email"></div>
+        <div class="f s6"><label>Matrícula</label><input id="editMatricula" inputmode="numeric"></div>
         <div class="f s6"><label>Nova senha (opcional)</label><input id="editPassword" type="password" placeholder="Deixe vazio para manter"></div>
-        <div class="f"><label>Usuário</label><input id="editUsername"></div>
-        <div class="f s6"><label>Nome</label><input id="editName"></div>
+        <div class="f"><label>Posto / Graduação</label><input id="editGraduacao"></div>
+        <div class="f s6"><label>Nome de guerra</label><input id="editName"></div>
+        <div class="f s6"><label>Telefone / WhatsApp</label><input id="editTelefone" type="tel"></div>
         <div class="f"><label>Perfil</label>
           <select id="editRole">
             <option value="admin">Admin</option><option value="p3">BPMA/P3</option><option value="gestor">Gestores</option><option value="cpu">CPU</option><option value="operacional">Operacional</option>
@@ -2026,15 +2030,16 @@ function bindPage(page){
     if(createBtn) createBtn.onclick=async()=>{
       if(userManagementBusy)return;
       const payload={
-        email:uEmail.value.trim().toLowerCase(),
+        matricula:uMatricula.value.trim(),
         password:uPass.value,
-        usuario:uUser.value.trim(),
-        nome:uName.value.trim(),
+        graduacao:uGraduacao.value.trim(),
+        telefone:uTelefone.value.trim(),
+        nome:uName.value.trim().toUpperCase(),
         role:uRole.value,
         unidade:uUnit.value
       };
-      if(!payload.email||!payload.password||!payload.usuario||!payload.nome){
-        userMsg.textContent='Preencha e-mail, senha, usuário e nome.';
+      if(!payload.matricula||!payload.password||!payload.graduacao||!payload.nome){
+        userMsg.textContent='Preencha matrícula, senha, posto/graduação e nome de guerra.';
         return;
       }
       if(payload.password.length<8){
@@ -2047,7 +2052,7 @@ function bindPage(page){
       try{
         await window.BPMA_USERS.create(payload);
         userMsg.textContent='Usuário criado com sucesso.';
-        uEmail.value='';uPass.value='';uUser.value='';uName.value='';
+        uMatricula.value='';uPass.value='';uGraduacao.value='';uTelefone.value='';uName.value='';
         await refreshSupabaseUsers();
       }catch(err){
         userMsg.textContent=window.BPMA_USERS.friendlyError(err);
@@ -2113,10 +2118,10 @@ function escAttr(s){return esc(s).replace(/`/g,'&#096;')}
   const setMsg=(text,type='')=>{msg.textContent=text||'';msg.className='signup-msg'+(type?' '+type:'')};
   const close=()=>{modal.classList.add('hidden');setMsg('')};
   const open=()=>{
-    field('signupEmail').value=(loginUser.value||'').trim();
+    field('signupMatricula').value=(loginUser.value||'').trim();
     modal.classList.remove('hidden');
     setMsg('');
-    setTimeout(()=>field('signupName')?.focus(),50);
+    setTimeout(()=>field('signupMatricula')?.focus(),50);
   };
   openBtn.onclick=open;
   closeBtn.onclick=close;
@@ -2126,18 +2131,17 @@ function escAttr(s){return esc(s).replace(/`/g,'&#096;')}
 
   submitBtn.onclick=async()=>{
     const payload={
-      nome:field('signupName').value.trim(),
-      email:field('signupEmail').value.trim().toLowerCase(),
+      nome:field('signupName').value.trim().toUpperCase(),
       matricula:field('signupMatricula').value.trim(),
       graduacao:field('signupGraduacao').value.trim(),
+      telefone:field('signupPhone').value.trim(),
       unidade:field('signupUnit').value,
       password:field('signupPass').value,
       password2:field('signupPass2').value
     };
-    if(!payload.nome||!payload.email||!payload.matricula||!payload.graduacao||!payload.unidade||!payload.password||!payload.password2){
+    if(!payload.nome||!payload.matricula||!payload.graduacao||!payload.telefone||!payload.unidade||!payload.password||!payload.password2){
       setMsg('Preencha todos os campos.','error');return;
     }
-    if(!payload.email.includes('@')){setMsg('Digite um e-mail válido.','error');return}
     if(payload.password.length<8){setMsg('A senha deve ter pelo menos 8 caracteres.','error');return}
     if(payload.password!==payload.password2){setMsg('As senhas não coincidem.','error');return}
 
@@ -2146,7 +2150,7 @@ function escAttr(s){return esc(s).replace(/`/g,'&#096;')}
     setMsg('Enviando solicitação...');
     try{
       await window.BPMA_AUTH.requestRegistration(payload);
-      loginUser.value=payload.email;
+      loginUser.value=payload.matricula;
       field('signupPass').value='';field('signupPass2').value='';
       setMsg('Solicitação enviada. Aguarde a aprovação do Administrador para acessar o BPMA Digital.','success');
     }catch(err){
@@ -2158,20 +2162,9 @@ function escAttr(s){return esc(s).replace(/`/g,'&#096;')}
   };
 })();
 
-forgotPassBtn.onclick=async()=>{
-  let email=loginUser.value.trim().toLowerCase();
-  if(!email) email=(prompt('Digite o e-mail cadastrado no BPMA Digital:')||'').trim().toLowerCase();
-  if(!email)return;
-  forgotPassBtn.disabled=true;
-  try{
-    const redirect=`${location.origin}${location.pathname}?recovery=1`;
-    await window.BPMA_AUTH.sendRecovery(email,redirect);
-    loginMsg.textContent='Se o e-mail estiver cadastrado, você receberá o link para redefinir a senha.';
-    loginMsg.className='login-msg success';
-  }catch(err){
-    loginMsg.textContent=window.BPMA_AUTH.friendlyError(err);
-    loginMsg.className='login-msg error';
-  }finally{forgotPassBtn.disabled=false}
+forgotPassBtn.onclick=()=>{
+  loginMsg.textContent='Para recuperar o acesso, informe sua matrícula ao Administrador. O Admin pode definir uma nova senha sem envio de e-mail.';
+  loginMsg.className='login-msg success';
 };
 
 cancelResetPassword.onclick=async()=>{
@@ -2290,9 +2283,9 @@ async function restoreSupabaseLogin(){
     const email=auth.user?.email||'';
     session={
       id:profile.id,
-      user:profile.usuario||email,
-      email,
-      name:profile.nome||profile.usuario||email,
+      user:profile.usuario||identifier,
+      email:auth?.user?.email||'',
+      name:profile.nome||profile.usuario||identifier,
       role:profile.role,
       unit:profile.unidade||'BPMA',
       auth:'supabase'

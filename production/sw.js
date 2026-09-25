@@ -1,4 +1,4 @@
-const CACHE='bpma-digital-3.9.14-cpu-pdf-assinatura';
+const CACHE='bpma-digital-3.9.15-final';
 const SHELL=[
   '/',
   '/index.html',
@@ -15,6 +15,7 @@ const SHELL=[
   '/supabase-bo.js',
   '/supabase-rfa.js',
   '/rfa-annex.js',
+  '/storage-image-opt.js',
   '/supabase-cpu.js',
   '/supabase-system.js',
   '/security.js',

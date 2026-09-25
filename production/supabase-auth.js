@@ -59,37 +59,54 @@
 
   function clearSession(){sessionStorage.removeItem(AUTH_STORAGE_KEY)}
 
-  async function signIn(email,password){
-    const data=await request('/auth/v1/token?grant_type=password',{
-      method:'POST', body:{email,password}
-    });
-    return saveSession(data);
+  function normalizeMatricula(value){ return String(value||'').trim().replace(/[^0-9A-Za-z_-]/g,''); }
+  function authEmail(identifier){
+    const raw=String(identifier||'').trim().toLowerCase();
+    if(raw.includes('@')) return raw; // compatibilidade temporária com contas antigas/Admin
+    const matricula=normalizeMatricula(raw);
+    if(!matricula) throw new Error('Informe a matrícula.');
+    return `${matricula}@bpma.local`;
+  }
+
+  async function signIn(identifier,password){
+    const raw=String(identifier||'').trim();
+    const email=authEmail(raw);
+    try{
+      const data=await request('/auth/v1/token?grant_type=password',{method:'POST',body:{email,password}});
+      return saveSession(data);
+    }catch(firstErr){
+      if(raw.includes('@')) throw firstErr;
+      // Compatibilidade com contas antigas cujo Auth ainda usa o e-mail real.
+      const {url,key}=config();
+      const response=await fetch(url+'/functions/v1/login-by-matricula',{method:'POST',headers:{apikey:key,'Content-Type':'application/json'},body:JSON.stringify({matricula:normalizeMatricula(raw),password})});
+      const text=await response.text(); let data={}; try{data=text?JSON.parse(text):{}}catch{}
+      if(!response.ok||!data?.access_token) throw firstErr;
+      return saveSession(data);
+    }
   }
 
 
   async function requestRegistration(payload={}){
-    const email=String(payload.email||'').trim().toLowerCase();
     const password=String(payload.password||'');
-    const nome=String(payload.nome||'').trim();
-    const matricula=String(payload.matricula||'').trim();
+    const nome=String(payload.nome||'').trim().toUpperCase();
+    const matricula=normalizeMatricula(payload.matricula);
     const graduacao=String(payload.graduacao||'').trim();
+    const telefone=String(payload.telefone||'').trim();
     const unidade=String(payload.unidade||'BPMA').trim();
-    if(!email||!email.includes('@')) throw new Error('E-mail inválido.');
     if(password.length<8) throw new Error('A senha deve ter pelo menos 8 caracteres.');
-    if(!nome||!matricula||!graduacao) throw new Error('Preencha nome, matrícula e posto/graduação.');
-    const usuario=matricula || email.split('@')[0];
-    const data=await request('/auth/v1/signup',{
-      method:'POST',
-      body:{
-        email,password,
-        data:{
-          nome,usuario,matricula,graduacao,unidade,
-          role:'operacional',
-          cadastro_pendente:true,
-          origem_cadastro:'auto_cadastro'
-        }
-      }
-    });
+    if(!nome||!matricula||!graduacao||!telefone) throw new Error('Preencha matrícula, posto/graduação, nome de guerra e telefone.');
+    const {url,key}=config();
+    let response;
+    try{
+      response=await fetch(url+'/functions/v1/register-user',{
+        method:'POST',
+        headers:{apikey:key,'Content-Type':'application/json'},
+        body:JSON.stringify({matricula,graduacao,nome,telefone,unidade,password})
+      });
+    }catch{ throw new Error('Não foi possível conectar ao Supabase. Verifique a internet.'); }
+    const text=await response.text();
+    let data={}; try{data=text?JSON.parse(text):{}}catch{data={message:text}}
+    if(!response.ok||data?.ok===false) throw new Error(data?.error||data?.message||`Erro ${response.status}`);
     clearSession();
     return data;
   }
@@ -175,8 +192,8 @@
 
   function friendlyRegistrationError(err){
     const raw=String(err?.message||'').toLowerCase();
-    if(raw.includes('already registered')||raw.includes('user already')||raw.includes('already exists')) return 'Já existe uma conta com este e-mail. Use a tela de login ou a recuperação de senha.';
-    if(raw.includes('signup')&&raw.includes('disabled')) return 'O cadastro de novos usuários está desabilitado no Supabase. Ative o cadastro por e-mail nas configurações de Auth.';
+    if(raw.includes('already registered')||raw.includes('user already')||raw.includes('already exists')||raw.includes('duplicate')) return 'Já existe um cadastro para esta matrícula. Procure o Administrador.';
+    if(raw.includes('register-user')) return 'O serviço de solicitação de cadastro precisa ser publicado no Supabase.';
     if(raw.includes('password')) return 'A senha não atende aos requisitos de segurança.';
     if(raw.includes('duplicate')||raw.includes('unique')) return 'Já existe um cadastro com estes dados. Procure o Administrador.';
     if(raw.includes('failed to fetch')||raw.includes('conectar')) return 'Não foi possível conectar ao Supabase. Verifique a internet.';
@@ -185,7 +202,7 @@
 
   function friendlyError(err){
     const raw=String(err?.message||'').toLowerCase();
-    if(raw.includes('invalid login credentials') || raw.includes('invalid_credentials')) return 'E-mail ou senha inválidos.';
+    if(raw.includes('invalid login credentials') || raw.includes('invalid_credentials')) return 'Matrícula ou senha inválidos.';
     if(raw.includes('email not confirmed')) return 'O e-mail ainda não foi confirmado.';
     if(raw.includes('password') && raw.includes('weak')) return 'A nova senha não atende aos requisitos de segurança.';
     if(raw.includes('expired')) return 'O link ou a sessão expirou. Solicite novamente.';
