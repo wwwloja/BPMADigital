@@ -1,4 +1,4 @@
-const CACHE='bpma-digital-3.9.10-edicao-apos-finalizar';
+const CACHE='bpma-digital-3.9.12-testemunha-bo';
 const SHELL=[
   '/',
   '/index.html',

@@ -178,6 +178,14 @@ html{scroll-behavior:smooth}
   background:#fff!important;color:#174d3b!important;border:1px solid #cfd9d5!important
 }
 #view-bo #bpmaBoEditar[hidden]{display:none!important}
+#view-bo #sigModal.open{z-index:10050}
+body.bpma-signing #view-bo .toolbar{display:none!important}
+@media(max-width:900px){
+  #view-bo #sigModal .modal-card{box-sizing:border-box;grid-template-rows:auto minmax(0,1fr) auto;padding-bottom:max(12px,env(safe-area-inset-bottom))}
+  #view-bo #sigModal .sig-save-desktop{display:none!important}
+  #view-bo #sigModal .sig-confirm-mobile{display:inline-flex!important;flex:1;justify-content:center;min-height:48px}
+}
+@media(min-width:901px){#view-bo #sigModal .sig-confirm-mobile{display:none!important}}
 #view-bo .toolbar .tbtn-limpar{
   background:#b4232c!important;color:#fff!important;border:1px solid #9b1d26!important
 }
@@ -208,6 +216,9 @@ html{scroll-behavior:smooth}
 
 
 <style id="bpma-bo-29-signatures">
+@media print{
+  #view-bo .sig-role-detail,#view-bo .sig-placeholder{display:none!important}
+}
 #view-bo .signature-help{
   margin:7px 0 2px;
   padding:9px 11px;
@@ -368,7 +379,7 @@ html{scroll-behavior:smooth}
   Motorista e Patrulheiro da guarnição são incluídos automaticamente como testemunhas para assinatura. O Comandante da guarnição não é incluído.
 </div>
 <div class="controls no-print">
-  <button type="button" class="small success" onclick="BO.addExternalWitness()">+ Testemunha externa</button>
+  <button type="button" class="small success" onclick="BO.addExternalWitness()">+ Testemunha</button>
 </div>
 <div id="externalWitnesses" class="no-print"></div>
 <div class="sig-list" id="signatureList"></div>
@@ -412,7 +423,7 @@ html{scroll-behavior:smooth}
 <template id="tplCartucho"><div class="subcard"><div class="subcard-head"><span>Cartucho</span><button type="button" class="small danger no-print" onclick="BO.removeCard(this)">Remover</button></div><table class="form"><colgroup><col style="width:34%"><col style="width:33%"><col style="width:33%"></colgroup><tr><td><label class="lbl">Quantidade</label><input></td><td><label class="lbl">Calibre</label><input></td><td><label class="lbl">Tipo</label><input></td></tr></table></div></template>
 <template id="tplResistencia"><div class="subcard"><div class="subcard-head"><span>Registro de resistência</span><button type="button" class="small danger no-print" onclick="BO.removeCard(this)">Remover</button></div><table class="form"><colgroup><col style="width:30%"><col style="width:24%"><col style="width:23%"><col style="width:23%"></colgroup><tr><td><label class="lbl">Acusado(s) envolvido(s)</label><input></td><td><label class="lbl">Tipo penal / infração</label><input></td><td><label class="lbl">Conduta de resistência apresentada</label><input></td><td><label class="lbl">Meio empregado para conter</label><input></td></tr></table><table class="form"><colgroup><col style="width:42%"><col style="width:58%"></colgroup><tr><td><label class="lbl">Resultado / desfecho</label><input></td><td><label class="lbl">Providência adotada</label><input></td></tr></table><div style="padding:6px;text-align:justify">No exercício legal da função policial, a resistência e o uso diferenciado da força deverão ser descritos de forma objetiva, indicando a conduta apresentada, o meio empregado, o resultado e as providências adotadas.</div></div></template>
 
-<div class="modal" id="sigModal"><div class="modal-card"><div class="modal-head"><h3 id="sigTitle">Assinatura</h3><button type="button" class="danger small" onclick="BO.closeSig()">Fechar</button></div><div class="canvas-wrap" id="canvasWrap"><canvas id="sigCanvas"></canvas></div><div class="modal-actions"><button type="button" class="secondary" onclick="BO.clearCanvas()">Limpar</button><button type="button" class="success" onclick="BO.saveSignature()">Salvar assinatura</button></div></div></div>
+<div class="modal" id="sigModal"><div class="modal-card"><div class="modal-head"><h3 id="sigTitle">Assinatura</h3><button type="button" class="danger small" onclick="BO.closeSig()">Fechar</button></div><div class="canvas-wrap" id="canvasWrap"><canvas id="sigCanvas"></canvas></div><div class="modal-actions"><button type="button" class="secondary" onclick="BO.clearCanvas()">Refazer</button><button type="button" class="success sig-save-desktop" onclick="BO.saveSignature()">Salvar assinatura</button><button type="button" class="success sig-confirm-mobile" onclick="BO.saveSignature()">Confirmar assinatura</button></div></div></div>
 
 </div>
 <div id="view-fisc" class="view">
@@ -995,7 +1006,7 @@ function refreshSignatures(){
       key:'externa_'+card.dataset.sigId,
       type:'external',
       role:'Externa',
-      name:nome || 'Testemunha externa',
+      name:nome || 'Testemunha',
       detail:doc ? 'CPF/RG: '+doc : ''
     });
   });
@@ -1016,13 +1027,13 @@ function refreshSignatures(){
       : `<button type="button" class="small" onclick="BO.openSig('${s.key}')">Assinar</button>`;
 
     card.innerHTML=`
-      <div class="sig-role">Testemunha ${i+1} · ${s.role}</div>
+      <div class="sig-role">Testemunha ${i+1}<span class="sig-role-detail"> · ${escapeHtml(s.role)}</span></div>
       <div class="sig-person">
         <b>${escapeHtml(s.name)}</b>
         ${s.detail?`<span>${escapeHtml(s.detail)}</span>`:''}
       </div>
       <div class="sig-preview" onclick="BO.openSig('${s.key}')">
-        ${existing?`<img src="${existing}">`:'Toque para assinar'}
+        ${existing?`<img src="${existing}">`:'<span class="sig-placeholder no-print">Toque para assinar</span>'}
       </div>
       <div class="sig-actions no-print">${actionButtons}</div>`;
 
@@ -1035,12 +1046,13 @@ function escapeHtml(value){
   }[m]));
 }
 function fitCanvas(){const c=document.getElementById('sigCanvas'),r=document.getElementById('canvasWrap').getBoundingClientRect(),d=window.devicePixelRatio||1;c.width=Math.max(1,r.width*d);c.height=Math.max(1,r.height*d);ctx=c.getContext('2d');ctx.setTransform(d,0,0,d,0,0);ctx.lineWidth=2;ctx.lineCap='round';ctx.strokeStyle='#111';ctx.fillStyle='#fff';ctx.fillRect(0,0,r.width,r.height)}
-function openSig(key){activeSig=key;document.getElementById('sigTitle').textContent=document.querySelector(`.sig-card[data-key="${key}"] .sig-role`)?.textContent||'Assinatura';document.getElementById('sigModal').classList.add('open');document.body.style.overflow='hidden';setTimeout(fitCanvas,30)}
-function closeSig(){document.getElementById('sigModal').classList.remove('open');document.body.style.overflow='';activeSig=''}
+function openSig(key){activeSig=key;document.getElementById('sigTitle').textContent=document.querySelector(`.sig-card[data-key="${key}"] .sig-role`)?.textContent||'Assinatura';document.getElementById('sigModal').classList.add('open');document.body.classList.add('bpma-signing');document.body.style.overflow='hidden';setTimeout(fitCanvas,30)}
+function closeSig(){document.getElementById('sigModal').classList.remove('open');document.body.classList.remove('bpma-signing');document.body.style.overflow='';activeSig=''}
 function clearCanvas(){if(!ctx)return;const r=document.getElementById('canvasWrap').getBoundingClientRect();ctx.clearRect(0,0,r.width,r.height);ctx.fillStyle='#fff';ctx.fillRect(0,0,r.width,r.height)}
 function saveSignature(){
   if(!activeSig)return;
   const src=optimizedSignatureDataUrl(document.getElementById('sigCanvas'));
+  if(!src){closeSig();return}
   const p=document.querySelector(`.sig-card[data-key="${activeSig}"] .sig-preview`);
   if(p)p.innerHTML=`<img src="${src}">`;
   closeSig();
@@ -1061,7 +1073,7 @@ function optimizedSignatureDataUrl(source){
       }
     }
   }
-  if(!found)return source.toDataURL('image/jpeg',.78);
+  if(!found)return '';
   const pad=Math.max(12,Math.round((window.devicePixelRatio||1)*8));
   minX=Math.max(0,minX-pad);minY=Math.max(0,minY-pad);maxX=Math.min(source.width,maxX+pad);maxY=Math.min(source.height,maxY+pad);
   const cropW=Math.max(1,maxX-minX),cropH=Math.max(1,maxY-minY),scale=Math.min(1,900/cropW,320/cropH);
@@ -1071,7 +1083,7 @@ function optimizedSignatureDataUrl(source){
 }
 function clearSavedSig(key){
   const p=document.querySelector(`.sig-card[data-key="${key}"] .sig-preview`);
-  if(p)p.textContent='Toque para assinar';
+  if(p)p.innerHTML='<span class="sig-placeholder no-print">Toque para assinar</span>';
   saveDraft();
   document.getElementById('boForm')?.dispatchEvent(new Event('change',{bubbles:true}));
   refreshSignatures();

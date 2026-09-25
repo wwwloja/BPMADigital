@@ -33,6 +33,10 @@
  #appScreen .sidebar.open{left:0;box-shadow:12px 0 60px #102e3650}
  #appScreen .mobile-head{display:flex;position:sticky;top:0;z-index:45;align-items:center;justify-content:space-between;margin:0 -16px 16px;padding:12px 16px;background:#f3f5f4;color:#254e3b;border-bottom:1px solid #dce5df}
  #appScreen .mobile-head button{min-height:44px;padding:10px 14px;background:white;color:#25553c;border:1px solid #dce5df;border-radius:11px}
+ #appScreen #menuBtn{background:#17563e;color:#fff;border:2px solid #c8ac5b;font-weight:800;box-shadow:0 2px 8px #102e3633}
+ #appScreen #nav button[data-page="dashboard"]{border:2px solid #c8ac5b;background:#ffffff18;font-weight:800}
+ #appScreen #nav button[data-page="dashboard"] span{font-weight:800}
+ #appScreen .btn[data-go="dashboard"]{border:2px solid #17563e;font-weight:800}
  #appScreen .panel,#appScreen .final-card{padding:16px}#appScreen .topbar h2{font-size:23px}
  #appScreen input:not([type=checkbox]):not([type=radio]),#appScreen select,#appScreen textarea{font-size:16px!important}
  #appScreen .filterbar,#appScreen .stats-filterbar,#appScreen .form-grid,#appScreen .final-grid{grid-template-columns:1fr}

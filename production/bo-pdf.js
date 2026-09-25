@@ -25,6 +25,7 @@
     .sig-person{font-size:8pt;min-height:36px;padding:3px}.sig-person b,.sig-person span{display:block}
     .sig-preview{height:54px;border-bottom:1px solid black;display:flex;align-items:center;justify-content:center}
     .sig-preview img{max-width:100%;max-height:52px;object-fit:contain}
+    .sig-role-detail,.sig-placeholder{display:none!important}
     .signature-empty{grid-column:1/-1}.receipt-line{padding:7px 3px;font-size:9pt}
     .receipt-grid{display:grid;grid-template-columns:2fr .75fr 1.45fr;gap:10px;border-top:1px solid #444;padding:8px 3px;font-size:9pt}
     .manual-line{display:inline-block;border-bottom:1px solid black;min-width:30px;height:16px}
