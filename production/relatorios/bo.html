@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#064e3b">
 <link rel="manifest" href="manifest.json">
-<title>BPMA Digital — BO · 3.8 FINAL</title>
+<title>BPMA Digital — BO · 3.9.6</title>
 <link rel="icon" type="image/png" href="https://png.pngtree.com/png-vector/20240531/ourlarge/pngtree-crested-caracara-bird-png-image_12588698.png">
 <link rel="shortcut icon" type="image/png" href="https://png.pngtree.com/png-vector/20240531/ourlarge/pngtree-crested-caracara-bird-png-image_12588698.png">
 <link rel="apple-touch-icon" href="https://png.pngtree.com/png-vector/20240531/ourlarge/pngtree-crested-caracara-bird-png-image_12588698.png">
@@ -17,6 +17,71 @@ html{scroll-behavior:smooth}
 #view-bo{--line:#111;--soft:#e6e6e6;--bg:#f3f6f8;--card:#fff;--accent:#0f4c81;--danger:#9f1239;--success:#0f766e;--muted:#64748b}#view-bo *{box-sizing:border-box}html{-webkit-text-size-adjust:100%}#view-bo{margin:0;background:var(--bg);color:#000;font-family:Arial,Helvetica,sans-serif;font-size:10pt;line-height:1.15}#view-bo .app{display:grid;grid-template-columns:230px minmax(0,1fr);min-height:100vh}#view-bo .sidebar{position:sticky;top:0;height:100vh;background:linear-gradient(180deg,#064e3b,#043a2e);color:#fff;padding:18px 14px;display:flex;flex-direction:column;z-index:30}#view-bo .brand{text-align:center;padding:4px 8px 20px}#view-bo .brand img{width:72px;height:72px;object-fit:contain;background:#fff;border-radius:14px;padding:4px}#view-bo .brand h2{font-size:15px;margin:10px 0 0}#view-bo .brand small{opacity:.8}#view-bo .nav{display:grid;gap:8px}#view-bo .nav button{width:100%;border:0;background:transparent;color:#e8f7f1;padding:11px 12px;text-align:left;border-radius:10px;cursor:pointer;font-size:13px}#view-bo .nav button:hover, #view-bo .nav button.active{background:rgba(255,255,255,.12)}#view-bo .side-bottom{margin-top:auto;font-size:12px;opacity:.75;text-align:center;padding-top:20px}#view-bo .main{min-width:0;padding:16px 18px 92px}#view-bo .mobile-head{display:none}#view-bo .page{width:min(1080px,100%);margin:0 auto}#view-bo .toolbar{position:fixed;left:0;right:0;bottom:0;z-index:25;display:flex;gap:9px;justify-content:flex-end;flex-wrap:wrap;padding:10px 18px;background:rgba(255,255,255,.96);backdrop-filter:blur(10px);border-top:1px solid #dbe4e0}#view-bo .toolbar .tbtn{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;border-radius:9px;padding:10px 14px;font-weight:800;font-size:13px;cursor:pointer;border:1px solid transparent;min-height:40px}#view-bo .toolbar .tbtn-voltar{background:#fff;color:#174d3b;border-color:#cfd9d5}#view-bo .toolbar .tbtn-pdf{background:#08764f;color:#fff;border-color:#08764f}#view-bo .toolbar .tbtn-limpar{background:#fff;color:#9d2029;border-color:#e0b9be}#view-bo button, #view-bo .btn{border:0;border-radius:8px;padding:9px 12px;font-size:12px;font-weight:800;cursor:pointer;color:#fff;background:var(--accent);min-height:38px;text-decoration:none;display:inline-flex;align-items:center;justify-content:center}#view-bo button.secondary, #view-bo .btn.secondary{background:#e5e7eb;color:#111827}#view-bo button.danger{background:var(--danger)}#view-bo button.success{background:var(--success)}#view-bo button.small{font-size:10px;min-height:24px;padding:4px 7px;border-radius:6px}#view-bo .sheet{background:#fff;border:1px solid #cbd5e1;box-shadow:0 4px 18px rgba(15,23,42,.08);padding:9px;border-radius:18px}#view-bo .print-area{background:#fff;min-width:0}#view-bo table.form{width:100%;border-collapse:collapse;table-layout:fixed;margin:0}#view-bo .form td, #view-bo .form th{border:1px solid var(--line);padding:2px 3px;vertical-align:top;overflow-wrap:anywhere;word-break:break-word}#view-bo .header-table td{height:70px;vertical-align:middle;text-align:center}#view-bo .pm-logo{width:76px;max-height:76px;object-fit:contain;display:block;margin:0 auto}#view-bo .head-title{font-size:14pt;font-weight:900;line-height:1.05;text-transform:uppercase}#view-bo .head-sub{font-size:9pt;font-weight:700;margin-top:3px}#view-bo .section-title{background:var(--soft);font-size:11pt;font-weight:900;text-align:center;line-height:1.05}#view-bo label.lbl, #view-bo .lbl{display:block;font-size:8.4pt;font-weight:800;margin-bottom:1px;color:#000;line-height:1.05}#view-bo input, #view-bo select, #view-bo textarea{width:100%;border:0;outline:none;background:transparent;color:#000;font-family:Arial,Helvetica,sans-serif;font-size:10pt;line-height:1.16;padding:1px 0;min-height:18px}#view-bo select{border:1px solid #d1d5db;border-radius:3px;background:#fff;padding:1px 2px;min-height:21px}#view-bo textarea{resize:vertical;min-height:24px;overflow:hidden}#view-bo .textarea-big{min-height:145px}#view-bo .textarea-mid{min-height:58px}#view-bo .checks{display:flex;gap:8px;flex-wrap:wrap;align-items:center;font-size:9pt}#view-bo .checks label{display:inline-flex;align-items:center;gap:3px;white-space:nowrap}#view-bo .checks input[type=checkbox], #view-bo .checks input[type=radio]{width:auto;min-height:auto}#view-bo .controls{display:flex;gap:6px;justify-content:flex-end;align-items:center;padding:5px 0;flex-wrap:wrap}#view-bo .subcard{border:0;margin:0 0 4px;break-inside:avoid;background:#fff}
 #view-bo .subcard-head + table.form td,#view-bo .subcard-head + table.form th{border-top:0}
 #view-bo table.form + table.form td,#view-bo table.form + table.form th{border-top:0}#view-bo .subcard-head{display:flex;align-items:center;justify-content:space-between;gap:8px;background:#efefef;border-bottom:1px solid #000;padding:2px 4px;font-weight:900;font-size:9pt}#view-bo .empty-note{border:1px solid #000;padding:4px 6px;text-align:center;font-weight:900;background:#fff;font-size:10pt;margin:0 0 3px}#view-bo .hidden{display:none!important}#view-bo .sig-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:8px 0 10px}#view-bo .sig-card{border:1px solid #111;border-radius:7px;padding:6px;background:#fff}#view-bo .sig-role{font-size:9pt;font-weight:900;text-align:center;margin-bottom:4px}#view-bo .sig-preview{height:82px;border:1.5px dashed #94a3b8;border-radius:6px;display:flex;align-items:center;justify-content:center;background:#fff;overflow:hidden;cursor:pointer;color:#64748b}#view-bo .sig-preview img{max-width:100%;max-height:100%;object-fit:contain}#view-bo .sig-actions{display:flex;gap:6px;justify-content:center;margin-top:5px}#view-bo .modal{position:fixed;inset:0;z-index:2000;background:rgba(15,23,42,.82);display:none;align-items:center;justify-content:center;padding:10px}#view-bo .modal.open{display:flex}#view-bo .modal-card{width:min(920px,100%);height:min(700px,96dvh);background:#fff;border-radius:16px;padding:12px;display:grid;grid-template-rows:auto 1fr auto;gap:9px}#view-bo .modal-head{display:flex;justify-content:space-between;align-items:center}#view-bo .canvas-wrap{border:2px solid var(--accent);border-radius:10px;overflow:hidden;min-height:0;background:#fff;touch-action:none}#view-bo canvas{display:block;width:100%;height:100%;touch-action:none;background:#fff}#view-bo .modal-actions{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap}#view-bo .receipt-line{padding:7px 5px;font-size:10pt}#view-bo .receipt-grid{display:grid;grid-template-columns:2fr .75fr 1.45fr;gap:12px;align-items:end;padding:8px 4px 4px;border-top:1px solid var(--line);margin-top:6px}#view-bo .print-area{border-bottom:1px solid var(--line);padding-bottom:8px}#view-bo .manual-line{display:inline-block;border-bottom:1px solid #000;min-width:34px;height:20px;vertical-align:bottom;flex:1}#view-bo .print-render{display:none}@media(max-width:900px){#view-bo .app{display:block}#view-bo .sidebar{display:none}#view-bo .main{padding:0 10px 96px}#view-bo .mobile-head{display:flex;position:sticky;top:0;z-index:40;background:#064e3b;color:#fff;align-items:center;gap:8px;padding:12px 14px;margin:0 -10px 10px}#view-bo .mobile-head b{font-size:15px}}@media(max-width:820px){#view-bo .toolbar{justify-content:stretch}#view-bo .toolbar .tbtn{flex:1 1 30%;font-size:12px;padding:10px 6px}#view-bo .sheet{padding:5px;overflow-x:auto;border-radius:14px}#view-bo .print-area{min-width:780px}#view-bo input, #view-bo select, #view-bo textarea{font-size:16px}#view-bo .sig-list{grid-template-columns:1fr}#view-bo .modal{padding:0}#view-bo .modal-card{width:100%;height:100dvh;border-radius:0}}@media print{#view-bo *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}html, #view-bo{background:#fff!important}#view-bo .page{width:100%;padding:0;margin:0}#view-bo .toolbar, #view-bo .controls, #view-bo .no-print, #view-bo button, #view-bo .btn, #view-bo .sidebar, #view-bo .mobile-head{display:none!important}#view-bo .app, #view-bo .main{display:block;padding:0;margin:0}#view-bo .sheet{border:0;box-shadow:none;padding:0;border-radius:0}#view-bo .print-area{min-width:0;width:100%}#view-bo .form td, #view-bo .form th{padding:1px 2px!important}#view-bo input:not([type=checkbox]):not([type=radio]), #view-bo select, #view-bo textarea{display:none!important}#view-bo .print-render{display:block!important;white-space:pre-wrap;overflow-wrap:anywhere;font-size:10pt;line-height:1.12;min-height:14px}#view-bo .header-table td{height:62px!important}#view-bo .pm-logo{width:74px!important;max-height:74px!important}#view-bo .head-title{font-size:13pt!important}#view-bo .section-title{font-size:10.5pt!important}#view-bo .sig-list{grid-template-columns:repeat(3,1fr)!important;gap:10px!important;margin:24px 0 8px!important}#view-bo .sig-card{border:0!important;padding:0!important}#view-bo .sig-preview{height:54px!important;border:0!important;border-bottom:1px solid #000!important;border-radius:0!important}#view-bo .sig-actions, #view-bo .modal{display:none!important}#view-bo .pm-logo.gov-logo{width:128px!important;max-height:56px!important}}#view-bo .gov-logo{width:100%;max-width:182px;height:auto;object-fit:contain}#view-bo .pm-logo.gov-logo{max-height:60px}
+/* BO 3.9.5.1 — editor mobile em cartões e ações simplificadas. As regras de impressão permanecem acima. */
+#view-bo .bo-mobile-tools{display:none}
+#view-bo .bo-mobile-status{display:none}
+@media screen and (max-width:820px){
+  #view-bo{--mobile-green:#075e45;--mobile-soft:#edf7f3;--mobile-line:#d8e5df;background:#eef3f1;font-size:16px}
+  #view-bo .main{padding:0 10px calc(104px + env(safe-area-inset-bottom))}
+  #view-bo .mobile-head{margin-bottom:0;min-height:56px;box-shadow:0 3px 14px rgba(0,0,0,.14)}
+  #view-bo .mobile-head span{font-size:20px}
+  #view-bo .mobile-head b{font-size:16px;line-height:1.2}
+  #view-bo .page{width:100%;margin:0;padding:0}
+  #view-bo .sheet{padding:0;background:transparent;border:0;box-shadow:none;overflow:visible;border-radius:0}
+  #view-bo .print-area{min-width:0;width:100%;background:transparent;padding:10px 0 0;border:0}
+  #view-bo .bo-mobile-tools{display:block;position:sticky;top:56px;z-index:35;margin:0 -10px 10px;padding:9px 10px;background:rgba(255,255,255,.97);border-bottom:1px solid var(--mobile-line);box-shadow:0 3px 12px rgba(15,23,42,.07);backdrop-filter:blur(10px)}
+  #view-bo .bo-progress-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px;color:#355149;font-size:12px;font-weight:800}
+  #view-bo .bo-progress-track{height:6px;flex:1;background:#dce7e2;border-radius:999px;overflow:hidden}
+  #view-bo .bo-progress-bar{display:block;height:100%;width:0;background:linear-gradient(90deg,#0b7c55,#2ea879);border-radius:inherit;transition:width .2s ease}
+  #view-bo .bo-step-nav{display:flex;gap:7px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px;overscroll-behavior-inline:contain}
+  #view-bo .bo-step-nav::-webkit-scrollbar{display:none}
+  #view-bo .bo-step-nav button{flex:0 0 auto;min-height:36px;padding:8px 11px;border:1px solid #cfe0d8;background:#fff;color:#174d3b;border-radius:999px;font-size:12px;white-space:nowrap}
+  #view-bo .bo-step-nav button.active{background:var(--mobile-green);color:#fff;border-color:var(--mobile-green)}
+  #view-bo .bo-mobile-status{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 10px;padding:10px 12px;background:#fff;border:1px solid var(--mobile-line);border-radius:12px;color:#536b63;font-size:12px}
+  #view-bo .bo-mobile-status b{color:#173d31;font-size:13px}
+  #view-bo .header-table{display:table!important;background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 3px 14px rgba(15,23,42,.06);margin-bottom:10px}
+  #view-bo .header-table tbody{display:table-row-group}
+  #view-bo .header-table tr{display:table-row}
+  #view-bo .header-table td{display:table-cell!important;width:auto!important;border:0!important;padding:8px 4px!important;vertical-align:middle}
+  #view-bo .header-table td:first-child,#view-bo .header-table td:last-child{width:18%!important}
+  #view-bo .header-table .pm-logo{width:50px;max-height:50px}
+  #view-bo .header-table .gov-logo{max-width:72px}
+  #view-bo .head-title{font-size:12px;line-height:1.15}
+  #view-bo .head-sub{font-size:8px;line-height:1.2}
+  #view-bo table.form:not(.header-table),#view-bo table.form:not(.header-table)>tbody,#view-bo table.form:not(.header-table)>tbody>tr{display:block;width:100%}
+  #view-bo table.form:not(.header-table) colgroup{display:none}
+  #view-bo table.form:not(.header-table) td,#view-bo table.form:not(.header-table) th{display:block;width:100%!important;border:1px solid var(--mobile-line);border-bottom:0;padding:10px 11px;background:#fff;overflow:visible}
+  #view-bo table.form:not(.header-table) tr>td:last-child,#view-bo table.form:not(.header-table) tr>th:last-child{border-bottom:1px solid var(--mobile-line)}
+  #view-bo table.form:not(.header-table){margin-bottom:9px;border-radius:12px;overflow:hidden;box-shadow:0 2px 10px rgba(15,23,42,.035)}
+  #view-bo table.form:not(.header-table) .section-title{padding:12px 14px;background:linear-gradient(135deg,#075e45,#0b7656);color:#fff;border:0;font-size:14px;text-align:left;letter-spacing:.01em}
+  #view-bo label.lbl,#view-bo .lbl{font-size:12px;color:#3e554d;margin-bottom:6px;line-height:1.25}
+  #view-bo input,#view-bo select,#view-bo textarea{font-size:16px;line-height:1.35;min-height:46px;padding:10px 11px;border:1px solid #cad9d2;border-radius:9px;background:#fff}
+  #view-bo textarea{min-height:100px;overflow:auto}
+  #view-bo .textarea-mid{min-height:120px}
+  #view-bo .textarea-big{min-height:240px}
+  #view-bo input:focus,#view-bo select:focus,#view-bo textarea:focus{border-color:#0b7c55;box-shadow:0 0 0 3px rgba(11,124,85,.12)}
+  #view-bo .checks{font-size:14px;line-height:1.35;align-items:flex-start}
+  #view-bo .checks label{white-space:normal;align-items:flex-start}
+  #view-bo .checks input[type=checkbox],#view-bo .checks input[type=radio]{flex:0 0 22px;width:22px;height:22px;min-height:22px;margin-top:0}
+  #view-bo .controls{justify-content:stretch;margin:5px 0 10px;padding:8px;background:#f7faf8;border:1px solid var(--mobile-line);border-radius:11px}
+  #view-bo .controls button{flex:1 1 145px;min-height:44px;font-size:13px}
+  #view-bo .subcard{margin:0 0 12px;border:1px solid var(--mobile-line);border-radius:13px;overflow:hidden;box-shadow:0 3px 12px rgba(15,23,42,.05)}
+  #view-bo .subcard-head{padding:10px 12px;background:#e7f1ed;border:0;font-size:13px;color:#174d3b}
+  #view-bo .subcard-head+table.form{border-radius:0;margin-bottom:0;box-shadow:none}
+  #view-bo .empty-note{padding:11px;border:1px dashed #afc7bc;border-radius:10px;margin:0 0 10px;color:#536b63;background:#f8fbfa;font-size:13px}
+  #view-bo .sig-list{gap:12px}
+  #view-bo .sig-card{padding:12px;border-color:var(--mobile-line);border-radius:13px;box-shadow:0 3px 12px rgba(15,23,42,.04)}
+  #view-bo .sig-role{font-size:13px;color:#174d3b}
+  #view-bo .sig-person{display:grid;gap:2px;text-align:center;font-size:13px;margin-bottom:7px}
+  #view-bo .sig-preview{height:130px}
+  #view-bo .sig-actions button{min-height:42px}
+  #view-bo .receipt-line,#view-bo .receipt-grid{background:#fff;border:1px solid var(--mobile-line);border-radius:10px;font-size:13px;line-height:1.55}
+  #view-bo .receipt-grid{grid-template-columns:1fr;gap:14px;margin-top:8px}
+  #view-bo .bo-print-bottom{margin:14px 0 4px}
+  #view-bo .bo-print-bottom button{width:100%;min-height:50px;background:#08764f;font-size:14px}
+  #view-bo .toolbar{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;padding:8px 8px calc(8px + env(safe-area-inset-bottom));box-shadow:0 -4px 18px rgba(15,23,42,.11)}
+  #view-bo .toolbar .tbtn{min-width:0;min-height:48px;padding:7px 4px;font-size:11px;line-height:1.15;text-align:center}
+}
 #view-fisc{
   --verde:#064e3b; --verde2:#0b6b4f; --verde3:#dff3ea;
   --borda:#dbe4e0; --fundo:#f3f6f5; --texto:#17211e; --muted:#68736f;
@@ -112,14 +177,9 @@ html{scroll-behavior:smooth}
 #view-bo .toolbar .tbtn-voltar{
   background:#fff!important;color:#174d3b!important;border:1px solid #cfd9d5!important
 }
+#view-bo #bpmaBoEditar[hidden]{display:none!important}
 #view-bo .toolbar .tbtn-limpar{
-  background:#fff!important;color:#9d2029!important;border:1px solid #e0b9be!important
-}
-#view-bo .toolbar .tbtn-salvar{
-  background:#08764f!important;color:#fff!important;border:1px solid #08764f!important
-}
-#view-bo .toolbar .tbtn-finalizar{
-  background:#174d3b!important;color:#fff!important;border:1px solid #174d3b!important
+  background:#b4232c!important;color:#fff!important;border:1px solid #9b1d26!important
 }
 
 /* Botão de PDF no final do relatório */
@@ -140,54 +200,7 @@ html{scroll-behavior:smooth}
   cursor:pointer
 }
 
-/* Responsividade */
-@media(max-width:900px){
-  #view-bo .main{padding:10px 10px 100px!important}
-  #view-bo .page{width:100%!important;max-width:100%!important}
-  #view-bo .sheet{padding:5px!important;border-radius:12px!important}
-  #view-bo .print-area{min-width:0!important}
-  #view-bo table.form{width:100%!important;table-layout:fixed!important}
-  #view-bo .form td,#view-bo .form th{
-    padding:2px!important;
-    overflow-wrap:anywhere!important;
-    word-break:normal!important
-  }
-  #view-bo label.lbl,#view-bo .lbl{font-size:7.6pt!important}
-  #view-bo input,#view-bo select,#view-bo textarea{
-    font-size:12px!important;
-    min-width:0!important
-  }
-  #view-bo .head-title{font-size:11pt!important}
-  #view-bo .head-sub{font-size:7.5pt!important}
-  #view-bo .pm-logo{max-width:100%!important;height:auto!important}
-}
-@media(max-width:620px){
-  #view-bo .main{padding:6px 5px 154px!important}
-  #view-bo .sheet{padding:3px!important;border-radius:8px!important}
-  #view-bo .form td,#view-bo .form th{padding:1px!important}
-  #view-bo label.lbl,#view-bo .lbl{font-size:6.8pt!important}
-  #view-bo input,#view-bo select,#view-bo textarea{
-    font-size:10px!important;
-    line-height:1.1!important;
-    padding:1px 0!important
-  }
-  #view-bo .section-title{font-size:8.5pt!important}
-  #view-bo .head-title{font-size:9.5pt!important}
-  #view-bo .head-sub{font-size:6.5pt!important}
-  #view-bo .header-table td{height:52px!important}
-  #view-bo .toolbar{
-    display:grid!important;
-    grid-template-columns:1fr 1fr!important;
-    padding:8px!important
-  }
-  #view-bo .toolbar .tbtn{
-    width:100%!important;
-    padding:9px 5px!important;
-    font-size:11px!important
-  }
-  #view-bo .bo-print-bottom{justify-content:stretch!important}
-  #view-bo .bo-print-bottom button{width:100%!important}
-}
+/* Responsividade consolidada no editor mobile e em bo-fixes.css. */
 @media print{
   #view-bo .bo-print-bottom{display:none!important}
 }
@@ -241,6 +254,17 @@ html{scroll-behavior:smooth}
 }
 </style>
 
+<link rel="stylesheet" href="../bo-fixes.css">
+<style id="bpma-clear-buttons-red">
+@media screen{
+  #view-bo .toolbar .tbtn-limpar,
+  #view-fisc .toolbar .tbtn-limpar,
+  #view-serv .toolbar .tbtn-limpar{background:#b4232c!important;color:#fff!important;border:1px solid #9b1d26!important}
+  #view-bo .toolbar .tbtn-limpar:hover,
+  #view-fisc .toolbar .tbtn-limpar:hover,
+  #view-serv .toolbar .tbtn-limpar:hover{background:#941b23!important}
+}
+</style>
 </head>
 <body>
 <div id="view-login" class="view active">
@@ -292,8 +316,20 @@ html{scroll-behavior:smooth}
 <div class="side-bottom">BO sincronizado pelo Supabase.</div>
 </aside>
 <main class="main">
-<div class="mobile-head"><span>☰</span><b>Boletim de Ocorrência</b></div>
+<div class="mobile-head"><span>📝</span><b>Boletim de Ocorrência</b></div>
+<div class="bo-mobile-tools no-print" aria-label="Navegação do boletim">
+  <div class="bo-progress-row"><span>Preenchimento</span><div class="bo-progress-track"><span class="bo-progress-bar" id="boProgressBar"></span></div><strong id="boProgressText">0%</strong></div>
+  <div class="bo-step-nav" id="boStepNav">
+    <button type="button" data-bo-go="secIdentificacao" class="active">1 Identificação</button>
+    <button type="button" data-bo-go="secGuarnicao">2 Guarnição</button>
+    <button type="button" data-bo-go="secAcusados">3 Pessoas</button>
+    <button type="button" data-bo-go="secArmas">4 Apreensões</button>
+    <button type="button" data-bo-go="secRelato">5 Relato</button>
+    <button type="button" data-bo-go="secAssinaturas">6 Assinaturas</button>
+  </div>
+</div>
 <div class="page">
+<div class="bo-mobile-status no-print"><div><b>Preencha por etapas</b><br><span>O rascunho é salvo automaticamente neste aparelho.</span></div><span id="boMobileSaveState">Pronto</span></div>
 <section class="sheet"><div class="print-area" id="boForm">
 <table id="secIdentificacao" class="form header-table"><colgroup><col style="width:18%"><col style="width:64%"><col style="width:18%"></colgroup><tr>
 <td><img class="pm-logo gov-logo" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAATgAAABlCAMAAADuxg/FAAABgFBMVEVmmZ/bYl4lZGidj3cod50xlF6WWU+Vs8ZSlm1beI+lyq/j5N+upJzXnJZFOjrWHyEIjz1ZUzygNTATKhvkh3ouSzpnaWGxyWrZ5nA2gI2WRj7FQznvwr292dhpwI39/f0XFhbs6OjIyMjU19UoJic3Nja1uLaJiIh2dnZIR0hYV1iop6iUl5VoZ2cIea7adnX5xMPYNTXWCwvYHR3lXl4SiEaPp5YICAizxbgxaEcQRS3wvb5Thmlrh3XwvsAxdk53mISVpq+3xsmYtabJuLVrlXlHdlnb5uXX49opdZWMmacSaDgPVi4gHR4uhVV0pouwWE/m3uAYeUPn2tlSlXCvusWvmJVziJEgHiAOkkayd3FIaFFVemWzZVoXc5kqWDpxlKrRg3aFe3jMl5HIwrywamTJZlpTiqZoXFbIqaYTOSeAf4DKamKSWEi0RTkRSketSkOQspq708jEioXAvsDR2+MTU1O1ioYwWkURWmdgXmChnqATdT1BPkAUaockZDxn7n3CAAAAgHRSTlP//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////xUHpOoAAB0xSURBVHja7ZyJWxNZtsAjKCIu89rel3mk6lZqT2O/eRYVO5mkshMlQYEkDSg0i0KjrSC2Dmr7r79zzr21JtBC+803r+V+3ZJUbm2/nHv2SmrybJxqpM4QnIE7A3cG7gzc2TgDdwbuDNzHBE6SzsCdipssS2fgTsGNqerHTu5U4OblzarKzsCdfKFWq1VLviydgXt/mwBjXlatqmVZVQZvmHQG7r2UGwyQN8vaqVZVGd+cgXufwWQcarXa3blRVaubrvvRqroT6jiJyaos73SXlnaqm2BaP9qVenLjwACcNfpk6+XOpvUxW9YTgwPfV93ZWBrdsD5uX24oOOl4PadWd7rdrqVufsyuXGooGulYLSdbr8EbgSV7Bi6+Fi37GCKSuinLB9y6bkp/4PN9VOCYrWc3j1mpFtpSdH3ZccZBagLZv7LNHQSn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" alt="Governo da Paraíba"></td>
@@ -346,14 +382,13 @@ html{scroll-behavior:smooth}
 </div>
 <div class="toolbar">
 <button type="button" class="tbtn tbtn-voltar" id="bpmaBoVoltar">← Voltar</button>
-<button type="button" class="tbtn tbtn-limpar" id="bpmaBoLimpar">Limpar</button>
-<button type="button" class="tbtn tbtn-salvar" id="bpmaBoSalvar">Salvar rascunho</button>
-<button type="button" class="tbtn tbtn-finalizar" id="bpmaBoFinalizar">Finalizar</button>
+<button type="button" class="tbtn tbtn-voltar" id="bpmaBoEditar" hidden>Editar relatório</button>
+<button type="button" class="tbtn tbtn-limpar" id="bpmaBoLimpar">← Limpar</button>
 </div>
 
 <template id="tplPessoa"><div class="subcard pessoa-card"><div class="subcard-head"><span class="card-title">Pessoa</span><button type="button" class="small danger no-print" onclick="BO.removeCard(this)">Remover</button></div>
-<table class="form"><colgroup><col style="width:38%"><col style="width:22%"><col style="width:20%"><col style="width:20%"></colgroup><tr><td><label class="lbl">Nome completo</label><input class="nome-pessoa"></td><td><label class="lbl">CPF</label><input></td><td><label class="lbl">RG</label><input></td><td><label class="lbl">Data de nascimento</label><input type="date"></td></tr></table>
-<table class="form"><colgroup><col style="width:20%"><col style="width:20%"><col style="width:20%"><col style="width:40%"></colgroup><tr><td><label class="lbl">Sexo</label><select><option></option><option>Masculino</option><option>Feminino</option><option>Outro</option></select></td><td><label class="lbl">Estado civil</label><input></td><td><label class="lbl">Telefone</label><input></td><td><label class="lbl">Filiação</label><input></td></tr></table>
+<table class="form"><colgroup><col style="width:38%"><col style="width:22%"><col style="width:20%"><col style="width:20%"></colgroup><tr><td><label class="lbl">Nome completo</label><input class="nome-pessoa" autocomplete="name"></td><td><label class="lbl">CPF</label><input inputmode="numeric" autocomplete="off"></td><td><label class="lbl">RG</label><input inputmode="numeric" autocomplete="off"></td><td><label class="lbl">Data de nascimento</label><input type="date"></td></tr></table>
+<table class="form"><colgroup><col style="width:20%"><col style="width:20%"><col style="width:20%"><col style="width:40%"></colgroup><tr><td><label class="lbl">Sexo</label><select><option></option><option>Masculino</option><option>Feminino</option><option>Outro</option></select></td><td><label class="lbl">Estado civil</label><input></td><td><label class="lbl">Telefone</label><input type="tel" inputmode="tel" autocomplete="tel"></td><td><label class="lbl">Filiação</label><input></td></tr></table>
 <table class="form"><colgroup><col style="width:78%"><col style="width:22%"></colgroup><tr><td><label class="lbl">Endereço completo (Rua, Nº, Bairro, Cidade e UF)</label><input></td><td><label class="lbl">Nº CNH</label><input></td></tr></table>
 <table class="form"><colgroup><col style="width:65%"><col style="width:35%"></colgroup><tr><td><label class="lbl">Ponto de referência</label><input></td><td><label class="lbl">Profissão declarada</label><input></td></tr></table></div></template>
 <template id="tplGuarnicao"><div class="subcard guarnicao-card"><div class="subcard-head"><span>Policial da guarnição</span><button type="button" class="small danger no-print" onclick="BO.removeCard(this)">Remover</button></div><table class="form"><colgroup><col style="width:25%"><col style="width:35%"><col style="width:20%"><col style="width:20%"></colgroup><tr><td><label class="lbl">Posto/Graduação</label><input class="grad-policial" oninput="BO.refreshSignatures()"></td><td><label class="lbl">Nome de guerra</label><input class="nome-policial" oninput="BO.refreshSignatures()"></td><td><label class="lbl">Matrícula</label><input class="matricula-policial" oninput="BO.refreshSignatures()"></td><td><label class="lbl">Função</label><select class="funcao-policial" onchange="BO.refreshSignatures()"><option></option><option>Comandante</option><option>Motorista</option><option>Patrulheiro</option></select></td></tr></table></div></template>
@@ -549,7 +584,7 @@ html{scroll-behavior:smooth}
 <div class="toolbar">
   <button type="button" class="tbtn tbtn-voltar" onclick="showView('home')">Voltar</button>
   <button class="tbtn tbtn-pdf" type="button" onclick="FISC.gerarPDF()">Gerar PDF</button>
-  <button class="tbtn tbtn-limpar" type="button" onclick="FISC.limpar()">Limpar tudo</button>
+  <button class="tbtn tbtn-limpar" type="button" onclick="FISC.limpar()">← Limpar</button>
 </div>
 <div class="toast" id="toast"></div>
 
@@ -754,7 +789,7 @@ html{scroll-behavior:smooth}
 <div class="toolbar">
   <button class="tbtn tbtn-voltar" type="button" onclick="showView('home')">Voltar</button>
   <button class="tbtn tbtn-pdf" type="button" onclick="SERV.gerarPDF()">Gerar PDF</button>
-  <button class="tbtn tbtn-limpar" type="button" onclick="SERV.limparTudo()">Limpar tudo</button>
+  <button class="tbtn tbtn-limpar" type="button" onclick="SERV.limparTudo()">← Limpar</button>
 </div>
 
 
@@ -850,20 +885,22 @@ const __bpmaParams=new URLSearchParams(location.search); const INTEGRATED_MODE=_
 const DRAFT_KEY='central_bpma_bo_'+(new URLSearchParams(location.search).get('record')||'sem_registro'); let activeSig=''; let ctx, drawing=false;
 function go(id){document.getElementById(id)?.scrollIntoView({behavior:'smooth',block:'start'})}
 function cloneTpl(id){return document.getElementById(id).content.firstElementChild.cloneNode(true)}
-function removeCard(btn){btn.closest('.subcard')?.remove();refreshSignatures()}
-function addPessoa(container,label){const c=document.getElementById(container);c.classList.remove('hidden');const n=c.children.length+1,x=cloneTpl('tplPessoa');x.querySelector('.card-title').textContent=label+' '+n;c.appendChild(x)}
+function removeCard(btn){btn.closest('.subcard')?.remove();refreshSignatures();setTimeout(updateMobileProgress,0)}
+function addPessoa(container,label){const c=document.getElementById(container);c.classList.remove('hidden');const n=c.children.length+1,x=cloneTpl('tplPessoa');x.querySelector('.card-title').textContent=label+' '+n;c.appendChild(x);setTimeout(updateMobileProgress,0)}
 function makeSigId(prefix='sig'){return prefix+'_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7)}
 function addGuarnicao(){
   const x=cloneTpl('tplGuarnicao');
   x.dataset.sigId=makeSigId('gu');
   document.getElementById('guarnicao').appendChild(x);
   refreshSignatures();
+  setTimeout(updateMobileProgress,0);
 }
 function addExternalWitness(){
   const x=cloneTpl('tplExternalWitness');
   x.dataset.sigId=makeSigId('ext');
   document.getElementById('externalWitnesses').appendChild(x);
   refreshSignatures();
+  setTimeout(updateMobileProgress,0);
 }
 function addArma(){document.getElementById('armaEmpty').classList.add('hidden');document.getElementById('armas').classList.remove('hidden');document.getElementById('armas').appendChild(cloneTpl('tplArma'));document.getElementById('semArma').checked=false}
 function addCartucho(){document.getElementById('cartuchoEmpty').classList.add('hidden');document.getElementById('cartuchos').classList.remove('hidden');document.getElementById('cartuchos').appendChild(cloneTpl('tplCartucho'));document.getElementById('semCartucho').checked=false}
@@ -873,6 +910,7 @@ function toggleSolicitante(){document.getElementById('solicitanteBox').classList
 function toggleResistencia(){let h=document.getElementById('houveResistencia').checked;document.getElementById('semResistenciaBox').classList.toggle('hidden',h);document.getElementById('resistenciaBox').classList.toggle('hidden',!h);document.getElementById('btnAddResistencia').classList.toggle('hidden',!h);if(h&&!document.getElementById('resistenciaBox').children.length)addResistencia()}
 function addResistencia(){document.getElementById('resistenciaBox').appendChild(cloneTpl('tplResistencia'))}
 function preparePrintRender(){document.querySelectorAll('#boForm input:not([type=checkbox]):not([type=radio]),#boForm select,#boForm textarea').forEach(el=>{let p=el.nextElementSibling;if(!p||!p.classList.contains('print-render')){p=document.createElement('div');p.className='print-render';el.insertAdjacentElement('afterend',p)}p.textContent=el.value||''})}
+window.addEventListener('beforeprint',preparePrintRender);
 function prepareAndPrint(){
   const prepare=()=>{preparePrintRender();setPageMargin('7mm')};
   if(window.BPMA_PRINT?.printCurrent) return window.BPMA_PRINT.printCurrent(prepare);
@@ -1002,13 +1040,34 @@ function closeSig(){document.getElementById('sigModal').classList.remove('open')
 function clearCanvas(){if(!ctx)return;const r=document.getElementById('canvasWrap').getBoundingClientRect();ctx.clearRect(0,0,r.width,r.height);ctx.fillStyle='#fff';ctx.fillRect(0,0,r.width,r.height)}
 function saveSignature(){
   if(!activeSig)return;
-  const src=document.getElementById('sigCanvas').toDataURL('image/png');
+  const src=optimizedSignatureDataUrl(document.getElementById('sigCanvas'));
   const p=document.querySelector(`.sig-card[data-key="${activeSig}"] .sig-preview`);
   if(p)p.innerHTML=`<img src="${src}">`;
   closeSig();
   saveDraft();
   document.getElementById('boForm')?.dispatchEvent(new Event('change',{bubbles:true}));
   refreshSignatures();
+}
+function optimizedSignatureDataUrl(source){
+  if(!source)return '';
+  const sourceCtx=source.getContext('2d',{willReadFrequently:true});
+  const pixels=sourceCtx.getImageData(0,0,source.width,source.height);
+  let minX=source.width,minY=source.height,maxX=0,maxY=0,found=false;
+  for(let y=0;y<source.height;y+=2){
+    for(let x=0;x<source.width;x+=2){
+      const i=(y*source.width+x)*4;
+      if(pixels.data[i]<238||pixels.data[i+1]<238||pixels.data[i+2]<238){
+        found=true;minX=Math.min(minX,x);minY=Math.min(minY,y);maxX=Math.max(maxX,x);maxY=Math.max(maxY,y);
+      }
+    }
+  }
+  if(!found)return source.toDataURL('image/jpeg',.78);
+  const pad=Math.max(12,Math.round((window.devicePixelRatio||1)*8));
+  minX=Math.max(0,minX-pad);minY=Math.max(0,minY-pad);maxX=Math.min(source.width,maxX+pad);maxY=Math.min(source.height,maxY+pad);
+  const cropW=Math.max(1,maxX-minX),cropH=Math.max(1,maxY-minY),scale=Math.min(1,900/cropW,320/cropH);
+  const out=document.createElement('canvas');out.width=Math.max(1,Math.round(cropW*scale));out.height=Math.max(1,Math.round(cropH*scale));
+  const outCtx=out.getContext('2d');outCtx.fillStyle='#fff';outCtx.fillRect(0,0,out.width,out.height);outCtx.drawImage(source,minX,minY,cropW,cropH,0,0,out.width,out.height);
+  return out.toDataURL('image/jpeg',.8);
 }
 function clearSavedSig(key){
   const p=document.querySelector(`.sig-card[data-key="${key}"] .sig-preview`);
@@ -1021,7 +1080,25 @@ function point(e){const r=document.getElementById('sigCanvas').getBoundingClient
 const c=document.getElementById('sigCanvas');['mousedown','touchstart'].forEach(ev=>c.addEventListener(ev,e=>{e.preventDefault();drawing=true;const [x,y]=point(e);ctx.beginPath();ctx.moveTo(x,y)},{passive:false}));['mousemove','touchmove'].forEach(ev=>c.addEventListener(ev,e=>{if(!drawing)return;e.preventDefault();const [x,y]=point(e);ctx.lineTo(x,y);ctx.stroke()},{passive:false}));['mouseup','mouseleave','touchend','touchcancel'].forEach(ev=>c.addEventListener(ev,()=>drawing=false));
 if(!loadDraft()){addGuarnicao(); addPessoa('acusados','Acusado'); addPessoa('vitimas','Vítima'); addPessoa('testemunhas','Testemunha');} refreshSignatures();
 
-window.BO = {addArma,addCartucho,addGuarnicao,addExternalWitness,addPessoa,addResistencia,clearCanvas,clearForm,clearSavedSig,closeSig,go,openSig,prepareAndPrint,preparePrintRender,refreshSignatures,removeCard,saveSignature,toggleEmpty,toggleObjeto,toggleResistencia,toggleSolicitante};
+function updateMobileProgress(){
+  const controls=[...document.querySelectorAll('#boForm input:not([type=checkbox]):not([type=radio]),#boForm select,#boForm textarea')].filter(el=>!el.disabled);
+  const relevant=controls.filter(el=>el.offsetParent!==null);
+  const filled=relevant.filter(el=>String(el.value||'').trim()).length;
+  const percent=relevant.length?Math.round((filled/relevant.length)*100):0;
+  const bar=document.getElementById('boProgressBar'),text=document.getElementById('boProgressText');
+  if(bar)bar.style.width=percent+'%';if(text)text.textContent=percent+'%';
+}
+function setMobileSaveState(text){const el=document.getElementById('boMobileSaveState');if(el)el.textContent=text}
+document.getElementById('boStepNav')?.addEventListener('click',e=>{
+  const btn=e.target.closest('[data-bo-go]');if(!btn)return;
+  document.querySelectorAll('#boStepNav button').forEach(x=>x.classList.toggle('active',x===btn));
+  go(btn.dataset.boGo);
+});
+document.getElementById('boForm')?.addEventListener('input',()=>{updateMobileProgress();setMobileSaveState('Salvando...')});
+document.getElementById('boForm')?.addEventListener('change',()=>{updateMobileProgress();setMobileSaveState('Salvando...')});
+setTimeout(updateMobileProgress,80);
+
+window.BO = {addArma,addCartucho,addGuarnicao,addExternalWitness,addPessoa,addResistencia,clearCanvas,clearForm,clearSavedSig,closeSig,go,openSig,prepareAndPrint,preparePrintRender,refreshSignatures,removeCard,saveSignature,toggleEmpty,toggleObjeto,toggleResistencia,toggleSolicitante,updateMobileProgress,setMobileSaveState};
 })();
 </script>
 <script>
@@ -1359,8 +1436,10 @@ window.SERV = {addAnimal,addAtividade,addProcedimento,addRecurso,gerarPDF,go,lim
 <script src="../supabase-config.js"></script>
 <script src="../supabase-auth.js"></script>
 <script src="../security.js"></script>
-<script src="../text-input-fix.js"></script>
 <script src="../print-helper.js"></script>
+<script src="../vendor/html2pdf.bundle.min.js"></script>
+<script src="../bo-pdf.js"></script>
+<script src="../local-report-store.js"></script>
 <script src="../supabase-bo.js"></script>
 
 <script id="bpma-modulo-33-integracao">
@@ -1376,6 +1455,8 @@ window.SERV = {addAnimal,addAtividade,addProcedimento,addRecurso,gerarPDF,go,lim
   let saving=false;
   let pendingSave=false;
   let userTouched=false;
+  let editingFinalized=false;
+  let revisionPromise=null;
 
   const $=(s,r=document)=>r.querySelector(s);
   const $$=(s,r=document)=>Array.from(r.querySelectorAll(s));
@@ -1388,10 +1469,35 @@ window.SERV = {addAnimal,addAtividade,addProcedimento,addRecurso,gerarPDF,go,lim
   function canEdit(){
     if(!session || !record) return false;
     if(session.role==='gestor') return false;
+    if(record.status==='Finalizado' && !editingFinalized) return false;
     if(session.role==='admin'||session.role==='p3') return true;
     if(String(record.authorId)!==String(session.id)) return false;
-    if(record.status==='Finalizado') return false;
     return session.role==='cpu'||session.role==='operacional';
+  }
+
+  function canRevise(){
+    if(!session || record?.status!=='Finalizado' || session.role==='gestor')return false;
+    return session.role==='admin'||session.role==='p3'||String(record.authorId)===String(session.id);
+  }
+
+  function enableFinalEdit(){
+    if(!canRevise())return;
+    editingFinalized=true;
+    $$('[data-bpma-readonly="1"]').forEach(el=>{el.disabled=false;el.readOnly=false;delete el.dataset.bpmaReadonly});
+    $('#bpmaBoEditar').hidden=true;
+    window.BO?.setMobileSaveState?.('Edição liberada');
+  }
+
+  async function beginRevision(){
+    if(record?.status!=='Finalizado')return true;
+    if(!editingFinalized)return false;
+    if(!revisionPromise){
+      revisionPromise=window.BPMA_BO.startRevision(record.id)
+        .then(updated=>{record=updated;return true})
+        .catch(err=>{alert(window.BPMA_BO.friendlyError(err));return false})
+        .finally(()=>{revisionPromise=null});
+    }
+    return revisionPromise;
   }
 
   function formControls(){
@@ -1475,11 +1581,13 @@ window.SERV = {addAnimal,addAtividade,addProcedimento,addRecurso,gerarPDF,go,lim
         const updated=await window.BPMA_BO.saveState(record,state);
         if(updated) record=updated;
       }
-      if(showMessage) alert('Rascunho salvo no Supabase.');
+      if(showMessage) alert('Rascunho salvo somente neste aparelho.');
+      window.BO?.setMobileSaveState?.('Salvo');
       return true;
     }catch(err){
       if(showMessage) alert(window.BPMA_BO.friendlyError(err));
       console.warn('Falha ao salvar BO:',err);
+      window.BO?.setMobileSaveState?.('Falha ao salvar');
       return false;
     }finally{
       saving=false;
@@ -1492,26 +1600,13 @@ window.SERV = {addAnimal,addAtividade,addProcedimento,addRecurso,gerarPDF,go,lim
   function queueSave(){
     if(!canEdit())return;
     userTouched=true;
-    clearTimeout(saveTimer);
-    saveTimer=setTimeout(()=>saveNow(false),900);
-  }
-
-  async function finalize(){
-    if(!record || !canEdit()){
-      alert('Este BO está somente para visualização.');
+    if(record?.status==='Finalizado'){
+      void beginRevision().then(ok=>{if(ok)queueSave()});
       return;
     }
-    if(!confirm('Finalizar este Boletim de Ocorrência?'))return;
-
+    window.BO?.setMobileSaveState?.('Salvando...');
     clearTimeout(saveTimer);
-    try{
-      await ensureRecord(capture());
-      record=await window.BPMA_BO.finalize(record.id,capture());
-      alert('Boletim de Ocorrência finalizado e salvo no Supabase.');
-      location.replace('../index.html#bo');
-    }catch(err){
-      alert(window.BPMA_BO.friendlyError(err));
-    }
+    saveTimer=setTimeout(()=>saveNow(false),900);
   }
 
   async function clearCurrent(){
@@ -1523,6 +1618,7 @@ window.SERV = {addAnimal,addAtividade,addProcedimento,addRecurso,gerarPDF,go,lim
 
     clearTimeout(saveTimer);
     try{
+      if(record?.status==='Finalizado' && !(await beginRevision()))return;
       if(!record.id){
         window.BO?.clearForm?.();
         userTouched=false;
@@ -1539,20 +1635,25 @@ window.SERV = {addAnimal,addAtividade,addProcedimento,addRecurso,gerarPDF,go,lim
   }
 
   function readonlyMode(){
+    const edit=$('#bpmaBoEditar');
+    if(edit)edit.hidden=!canRevise() || editingFinalized;
     if(canEdit())return;
 
     formControls().forEach(e=>{
+      if(!e.disabled)e.dataset.bpmaReadonly='1';
       e.disabled=true;
       e.readOnly=true;
     });
 
     $$('#view-bo .controls button,#view-bo .no-print button').forEach(b=>{
-      if(b.id!=='bpmaBoPrintA4') b.disabled=true;
+      if(b.id!=='bpmaBoPrintA4'){
+        if(!b.disabled)b.dataset.bpmaReadonly='1';
+        b.disabled=true;
+      }
     });
 
-    $('#bpmaBoSalvar')?.setAttribute('disabled','disabled');
-    $('#bpmaBoFinalizar')?.setAttribute('disabled','disabled');
-    $('#bpmaBoLimpar')?.setAttribute('disabled','disabled');
+    const clear=$('#bpmaBoLimpar');
+    if(clear){if(!clear.disabled)clear.dataset.bpmaReadonly='1';clear.disabled=true}
   }
 
 
@@ -1560,10 +1661,14 @@ window.SERV = {addAnimal,addAtividade,addProcedimento,addRecurso,gerarPDF,go,lim
     if(leaveReport.busy)return;
     leaveReport.busy=true;
     clearTimeout(saveTimer);
+    if(revisionPromise && !(await revisionPromise)){leaveReport.busy=false;return}
+    if(record?.status==='Finalizado' && editingFinalized && userTouched && !(await beginRevision())){
+      leaveReport.busy=false;return;
+    }
     const back=$('#bpmaBoVoltar');
     if(back){back.disabled=true;back.textContent='Salvando...'}
     try{
-      if(canEdit() && (record?.id || userTouched)){
+      if(record?.status!=='Finalizado' && canEdit() && (record?.id || userTouched)){
         let elapsed=0;
         while(saving && elapsed<1800){
           await new Promise(r=>setTimeout(r,60)); elapsed+=60;
@@ -1580,24 +1685,45 @@ window.SERV = {addAnimal,addAtividade,addProcedimento,addRecurso,gerarPDF,go,lim
     location.replace(target);
   }
 
-  function printA4(){
-    // Salva em paralelo. No celular, gera PDF A4 e abre o compartilhamento do sistema.
-    if(canEdit()) saveNow(false);
-    const numero=(record?.numero||'BO').replace(/[^a-zA-Z0-9_-]+/g,'_');
-    if(window.BPMA_PRINT?.printCurrent){
-      window.BPMA_PRINT.printCurrent({
-        selector:'#view-bo .print-area',
-        wrapperId:'view-bo',
-        wrapperClass:'view active',
-        fitSinglePage:true,
-        filename:`BO_${numero}.pdf`,
-        prepare:()=>{ window.BO?.preparePrintRender?.(); }
-      });
-    }else if(window.BO && typeof window.BO.prepareAndPrint==='function'){
-      window.BO.prepareAndPrint();
-    }else{
-      window.print();
-    }
+  async function printA4(){
+    const btn=$('#bpmaBoPrintA4');
+    if(btn?.disabled)return;
+    if(btn)btn.disabled=true;
+    try{
+      if(revisionPromise && !(await revisionPromise))return;
+      if(record?.status==='Finalizado' && editingFinalized && userTouched && !(await beginRevision()))return;
+      if(record?.status!=='Finalizado'){
+        if(!canEdit())return;
+        clearTimeout(saveTimer);
+        for(let i=0;saving && i<100;i++)await new Promise(resolve=>setTimeout(resolve,50));
+        if(saving){alert('Aguarde o salvamento do BO e tente imprimir novamente.');return}
+        clearTimeout(saveTimer);
+        pendingSave=false;
+        if(!(await saveNow(false,true))){alert('Não foi possível salvar o BO. Tente novamente.');return}
+        record=await window.BPMA_BO.finalize(record.id,capture());
+        editingFinalized=false;
+        userTouched=false;
+        readonlyMode();
+        window.BO?.setMobileSaveState?.(`Finalizado · v${record.dados?.version?.number||1}`);
+      }
+      const numero=(record?.numero||'BO').replace(/[^a-zA-Z0-9_-]+/g,'_');
+      const version=record?.dados?.version?.number||1;
+      if(window.BPMA_PRINT?.printCurrent){
+        window.BPMA_PRINT.printCurrent({
+          selector:'#view-bo .print-area',
+          wrapperId:'view-bo',
+          wrapperClass:'view active',
+          fitSinglePage:true,
+          filename:`BO_${numero}_v${version}.pdf`,
+          prepare:()=>{ window.BO?.preparePrintRender?.(); }
+        });
+      }else if(window.BO && typeof window.BO.prepareAndPrint==='function'){
+        window.BO.prepareAndPrint();
+      }else window.print();
+    }catch(err){
+      console.error('Impressão BO:',err);
+      alert(window.BPMA_BO?.friendlyError?.(err)||'Não foi possível preparar o PDF A4.');
+    }finally{if(btn)btn.disabled=false}
   }
 
   if(!session || session.auth!=='supabase'){
@@ -1625,17 +1751,20 @@ window.SERV = {addAnimal,addAtividade,addProcedimento,addRecurso,gerarPDF,go,lim
 
   forceBOView();
   if(record.state) restore(record.state);
+  setTimeout(()=>window.BO?.updateMobileProgress?.(),120);
 
   const form=$('#boForm');
   if(form){
     form.addEventListener('input',queueSave);
     form.addEventListener('change',queueSave);
+    form.addEventListener('click',e=>{
+      if(e.target.closest('button[onclick*="add"],button[onclick*="remove"],button[onclick*="toggle"]'))queueSave();
+    });
   }
 
   $('#bpmaBoVoltar')?.addEventListener('click',()=>leaveReport('../index.html#bo'));
+  $('#bpmaBoEditar')?.addEventListener('click',enableFinalEdit);
   $('#bpmaBoLimpar')?.addEventListener('click',clearCurrent);
-  $('#bpmaBoSalvar')?.addEventListener('click',()=>saveNow(true,true));
-  $('#bpmaBoFinalizar')?.addEventListener('click',finalize);
   $('#bpmaBoPrintA4')?.addEventListener('click',printA4);
 
   readonlyMode();

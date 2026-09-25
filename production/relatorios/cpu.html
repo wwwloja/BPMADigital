@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>BPMA Digital — CPU · 3.8 FINAL</title>
+<title>BPMA Digital — CPU · 3.9.4</title>
 <meta name="theme-color" content="#064e3b">
 <link rel="manifest" href="../manifest.webmanifest">
 <link rel="icon" type="image/png" href="https://png.pngtree.com/png-vector/20240531/ourlarge/pngtree-crested-caracara-bird-png-image_12588698.png">
@@ -1525,9 +1525,12 @@ body{padding-bottom:74px}
   border:1px solid #cfd9d5;background:#fff;color:#174d3b;border-radius:9px;
   padding:9px 11px;font-weight:800;font-size:12px;cursor:pointer
 }
+.bpma-system-toolbar #bpmaClear{background:#b4232c;color:#fff;border-color:#9b1d26}
+.bpma-system-toolbar #bpmaClear:hover{background:#941b23}
 .bpma-system-toolbar button.primary{background:#08764f;color:#fff;border-color:#08764f}
 .bpma-system-toolbar button.finalize{background:#174d3b;color:#fff;border-color:#174d3b}
 .bpma-system-toolbar button:disabled{opacity:.45;cursor:not-allowed}
+.bpma-system-toolbar #bpmaEdit[hidden]{display:none!important}
 .bpma-readonly-notice{
   position:sticky;top:0;z-index:9998;background:#fff4d7;color:#6c5200;
   border-bottom:1px solid #ead99c;padding:9px 12px;text-align:center;font-weight:800;font-size:12px
@@ -1748,6 +1751,19 @@ body{padding-bottom:74px}
 }
 </style>
 
+<style id="bpma-cpu-fontes-preenchimento">
+@media screen{
+  main.wrap input,main.wrap select,main.wrap textarea{
+    font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif!important;
+  }
+}
+@media print{
+  main.wrap input,main.wrap select,main.wrap textarea,main.wrap .bpma-print-value{
+    font-family:"Times New Roman",Times,serif!important;
+    font-size:10pt!important;
+  }
+}
+</style>
 </head>
 <body>
 <main class="wrap">
@@ -2403,19 +2419,7 @@ body{padding-bottom:74px}
   });
 
   // ===== Impressão =====
-  q('#printRelatorioCompleto')?.addEventListener('click',()=>{
-  if(window.BPMA_CPU_SYNC_PRINT_VALUES) window.BPMA_CPU_SYNC_PRINT_VALUES();
-  if(window.BPMA_PRINT?.printCurrent){
-    window.BPMA_PRINT.printCurrent({
-      selector:'main.wrap',
-      filename:'Relatorio_CPU_BPMA.pdf',
-      prepare:()=>{
-        window.BPMA_CPU_SYNC_PRINT_VALUES?.();
-        window.BPMA_CPU_buildPrintMirrors?.();
-      }
-    });
-  }else window.print();
-});
+  q('#printRelatorioCompleto')?.addEventListener('click',()=>window.BPMA_CPU_PRINT_NOW?.());
 
   window.addEventListener('resize',()=>growAll());
 
@@ -2436,7 +2440,6 @@ body{padding-bottom:74px}
 <script src="../supabase-config.js"></script>
 <script src="../supabase-auth.js"></script>
 <script src="../security.js"></script>
-<script src="../text-input-fix.js"></script>
 <script src="../print-helper.js"></script>
 <script src="../supabase-cpu.js"></script>
 
@@ -2462,6 +2465,8 @@ body{padding-bottom:74px}
   let pendingSave=false;
   let saveTimer=null;
   let userTouched=false;
+  let editingFinalized=false;
+  let revisionPromise=null;
 
   function controls(){
     return $$('input:not([type="file"]), select, textarea').filter(el=>!el.closest('.bpma-system-toolbar'));
@@ -2521,11 +2526,24 @@ body{padding-bottom:74px}
   function canEdit(){
     if(!session || !record) return false;
     if(session.role==='gestor') return false;
+    if(record.status==='Finalizado' && !editingFinalized) return false;
     if(session.role==='admin' || session.role==='p3') return true;
     const owner=String(record.authorId)===String(session.id);
     if(!owner) return false;
-    if(record.status==='Finalizado') return false;
     return session.role==='cpu' || session.role==='operacional';
+  }
+
+  function canRevise(){
+    if(!session || record?.status!=='Finalizado' || session.role==='gestor')return false;
+    return session.role==='admin'||session.role==='p3'||String(record.authorId)===String(session.id);
+  }
+
+  function enableFinalEdit(){
+    if(!canRevise())return;
+    editingFinalized=true;
+    document.querySelector('.bpma-readonly-notice')?.remove();
+    $$('[data-bpma-readonly="1"]').forEach(el=>{el.disabled=false;el.readOnly=false;delete el.dataset.bpmaReadonly});
+    updateToolbar();
   }
 
   function setReadonly(){
@@ -2538,11 +2556,15 @@ body{padding-bottom:74px}
     document.body.prepend(notice);
 
     controls().forEach(el=>{
+      if(!el.disabled)el.dataset.bpmaReadonly='1';
       el.disabled=true;
       el.readOnly=true;
     });
     $$('button').forEach(b=>{
-      if(!b.closest('.bpma-system-toolbar') && b.id!=='printRelatorioCompleto') b.disabled=true;
+      if(!b.closest('.bpma-system-toolbar') && b.id!=='printRelatorioCompleto'){
+        if(!b.disabled)b.dataset.bpmaReadonly='1';
+        b.disabled=true;
+      }
     });
   }
 
@@ -2739,7 +2761,7 @@ body{padding-bottom:74px}
     return record;
   }
 
-  async function persist(status,showMessage=true,force=false){
+  async function persist(status,showMessage=true,force=false,stayOpen=false){
     if(!record){
       alert('Registro do sistema não encontrado.');
       return false;
@@ -2769,10 +2791,47 @@ body{padding-bottom:74px}
         : await window.BPMA_CPU.saveState(record,state,stats,numero);
 
       if(status==='Finalizado'){
+        editingFinalized=false;
+        userTouched=false;
         const template=JSON.parse(JSON.stringify(state||{}));
         localStorage.setItem(templateKey(record.authorId,'CPU'),JSON.stringify(template));
 
-        if(showMessage) alert('Relatório CPU finalizado e salvo no Supabase.');
+        let pdfArchived=false;
+        let pdfArchiveError=null;
+        try{
+          const safeNumero=String(record?.numero||'CPU').replace(/[^a-zA-Z0-9_-]+/g,'_');
+          const filename=`CPU_${safeNumero}_v${record?.dados?.version?.number||1}.pdf`;
+          const blob=await window.BPMA_PRINT?.generateMobilePdf?.({
+            selector:'.page',
+            filename,
+            silent:true,
+            returnBlob:true,
+            prepare:()=>{
+              window.BPMA_CPU_SYNC_PRINT_VALUES?.();
+              window.BPMA_CPU_buildPrintMirrors?.();
+            }
+          });
+          if(blob instanceof Blob){
+            record=await window.BPMA_CPU.archivePdf(record,blob,filename);
+            pdfArchived=true;
+          }
+        }catch(err){
+          pdfArchiveError=err;
+          console.warn('CPU finalizado, mas o PDF temporário não pôde ser arquivado:',err);
+        }
+
+        if(stayOpen){
+          updateToolbar();
+          setReadonly();
+          return true;
+        }
+        if(showMessage){
+          if(pdfArchived){
+            alert('Relatório CPU finalizado. Dados e estatísticas salvos no Supabase e PDF arquivado por 365 dias.');
+          }else{
+            alert('Relatório CPU finalizado e dados salvos no Supabase. O PDF temporário não pôde ser arquivado agora; use Imprimir / Salvar PDF A4 para guardar uma cópia.'+(pdfArchiveError?'':' '));
+          }
+        }
         location.replace('../index.html#cpu');
         return true;
       }
@@ -2786,17 +2845,33 @@ body{padding-bottom:74px}
       return false;
     }finally{
       saving=false;
-      if(pendingSave){
+      if(pendingSave && status!=='Finalizado'){
         pendingSave=false;
         setTimeout(()=>persist(record?.status==='Reaberto'?'Reaberto':'Rascunho',false),80);
-      }
+      }else pendingSave=false;
     }
   }
   function queueSave(){
     if(!canEdit())return;
     userTouched=true;
+    if(record?.status==='Finalizado'){
+      void beginRevision().then(ok=>{if(ok)queueSave()});
+      return;
+    }
     clearTimeout(saveTimer);
     saveTimer=setTimeout(()=>persist(record?.status==='Reaberto'?'Reaberto':'Rascunho',false),1200);
+  }
+
+  async function beginRevision(){
+    if(record?.status!=='Finalizado')return true;
+    if(!editingFinalized)return false;
+    if(!revisionPromise){
+      revisionPromise=window.BPMA_CPU.startRevision(record.id)
+        .then(updated=>{record=updated;updateToolbar();return true})
+        .catch(err=>{alert(window.BPMA_CPU.friendlyError(err));return false})
+        .finally(()=>{revisionPromise=null});
+    }
+    return revisionPromise;
   }
 
   async function clearCurrentReport(){
@@ -2807,6 +2882,7 @@ body{padding-bottom:74px}
     if(!confirm('Limpar todos os campos deste relatório atual?')) return;
 
     clearTimeout(saveTimer);
+    if(record?.status==='Finalizado' && !(await beginRevision()))return;
 
     controls().forEach(el=>{
       if(el.type==='checkbox'||el.type==='radio') el.checked=false;
@@ -2837,7 +2913,7 @@ body{padding-bottom:74px}
     const sub=$('#bpmaRecordSub');
     if(title) title.textContent=record?.id ? `CPU · ${record?.numero||'CPU'}` : 'CPU · Novo relatório';
     if(sub) sub.textContent=record?.id
-      ? `${record?.status||'Rascunho'} · ${record?.unidade||''} · ${record?.autor||''}`
+      ? `${record?.status||'Rascunho'}${record?.dados?.version?.number?` · v${record.dados.version.number}`:''} · ${record?.unidade||''} · ${record?.autor||''}`
       : `Não salvo · o rascunho será criado após o primeiro preenchimento · ${record?.unidade||''}`;
     const save=$('#bpmaSaveDraft');
     const fin=$('#bpmaFinalize');
@@ -2845,6 +2921,8 @@ body{padding-bottom:74px}
     if(save) save.disabled=!canEdit();
     if(fin) fin.disabled=!canEdit();
     if(clear) clear.disabled=!canEdit();
+    const edit=$('#bpmaEdit');
+    if(edit) edit.hidden=!canRevise() || editingFinalized;
   }
 
 
@@ -2852,11 +2930,15 @@ body{padding-bottom:74px}
     if(leaveReport.busy)return;
     leaveReport.busy=true;
     clearTimeout(saveTimer);
+    if(revisionPromise && !(await revisionPromise)){leaveReport.busy=false;return}
+    if(record?.status==='Finalizado' && editingFinalized && userTouched && !(await beginRevision())){
+      leaveReport.busy=false;return;
+    }
     const back=$('#bpmaBack');
     if(back){back.disabled=true;back.textContent='Salvando...'}
     let result=true;
     try{
-      if(canEdit() && (record?.id || userTouched)){
+      if(record?.status!=='Finalizado' && canEdit() && (record?.id || userTouched)){
         result=await Promise.race([
           persist(record?.status==='Reaberto'?'Reaberto':'Rascunho',false),
           new Promise(resolve=>setTimeout(()=>resolve(null),4000))
@@ -2875,6 +2957,39 @@ body{padding-bottom:74px}
     location.replace(target);
   }
 
+  window.BPMA_CPU_PRINT_NOW=async()=>{
+    const btn=$('#printRelatorioCompleto');
+    if(btn?.disabled)return;
+    if(btn)btn.disabled=true;
+    try{
+      if(revisionPromise && !(await revisionPromise))return;
+      if(record?.status==='Finalizado' && editingFinalized && userTouched && !(await beginRevision()))return;
+      if(record?.status!=='Finalizado'){
+        if(!canEdit())return;
+        clearTimeout(saveTimer);
+        for(let i=0;saving && i<100;i++)await new Promise(resolve=>setTimeout(resolve,50));
+        if(saving){alert('Aguarde o salvamento do CPU e tente imprimir novamente.');return}
+        clearTimeout(saveTimer);
+        pendingSave=false;
+        if(!(await persist('Finalizado',true,true,true)))return;
+      }
+      window.BPMA_CPU_SYNC_PRINT_VALUES?.();
+      const filename=`CPU_${String(record?.numero||'BPMA').replace(/[^a-zA-Z0-9_-]+/g,'_')}_v${record?.dados?.version?.number||1}.pdf`;
+      if(window.BPMA_PRINT?.printCurrent){
+        window.BPMA_PRINT.printCurrent({
+          selector:'main.wrap',filename,
+          prepare:()=>{
+            window.BPMA_CPU_SYNC_PRINT_VALUES?.();
+            window.BPMA_CPU_buildPrintMirrors?.();
+          }
+        });
+      }else window.print();
+    }catch(err){
+      console.error('Impressão CPU:',err);
+      alert(window.BPMA_CPU?.friendlyError?.(err)||'Não foi possível preparar o PDF A4.');
+    }finally{if(btn)btn.disabled=false}
+  };
+
   function buildToolbar(){
     const bar=document.createElement('div');
     bar.className='bpma-system-toolbar';
@@ -2885,20 +3000,14 @@ body{padding-bottom:74px}
       </div>
       <div class="bpma-actions">
         <button type="button" id="bpmaBack">← Voltar</button>
-        <button type="button" id="bpmaClear">Limpar</button>
-        <button type="button" id="bpmaSaveDraft" class="primary">Salvar rascunho</button>
-        <button type="button" id="bpmaFinalize" class="finalize">Finalizar</button>
+        <button type="button" id="bpmaEdit" hidden>Editar relatório</button>
+        <button type="button" id="bpmaClear">← Limpar</button>
       </div>`;
     document.body.appendChild(bar);
 
     $('#bpmaBack').onclick=()=>leaveReport('../index.html#cpu');
+    $('#bpmaEdit').onclick=enableFinalEdit;
     $('#bpmaClear').onclick=clearCurrentReport;
-    $('#bpmaSaveDraft').onclick=()=>persist(record?.status==='Reaberto'?'Reaberto':'Rascunho',true,true);
-    $('#bpmaFinalize').onclick=()=>{
-      if(confirm('Finalizar este Relatório CPU? Após finalizar, perfis operacionais não poderão editá-lo.')){
-        persist('Finalizado',true,true);
-      }
-    };
   }
 
   if(!session || session.auth!=='supabase'){
@@ -2963,6 +3072,9 @@ body{padding-bottom:74px}
   document.addEventListener('change',e=>{
     if(e.target.matches('input,textarea,select')) queueSave();
   },true);
+  document.addEventListener('click',e=>{
+    if(e.target.closest('#addEquipe,#addProc,#addAnimal,#addAtividade,[data-del-proc],[data-del-animal]'))queueSave();
+  });
 
   if(autoPrint && record.status==='Finalizado'){
     if(window.BPMA_CPU_SYNC_PRINT_VALUES) window.BPMA_CPU_SYNC_PRINT_VALUES();

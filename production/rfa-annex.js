@@ -1,4 +1,9 @@
 (() => {
+  function createAnnexManager(position){
+    const final=position==='final';
+    const ids=final ? {status:'finalAnnexStatus',list:'finalAnnexList',print:'finalAnnexPrintPages',manager:'finalAnnexManager',file:'finalAnnexFileInput',button:'finalAnnexFileBtn'}
+                    : {status:'annexStatus',list:'annexList',print:'annexPrintPages',manager:'annexManager',file:'annexFileInput',button:'annexFileBtn'};
+    const statusSel='#'+ids.status, listSel='#'+ids.list, printSel='#'+ids.print, managerSel='#'+ids.manager, fileSel='#'+ids.file, buttonSel='#'+ids.button;
   const PDFJS_URL='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
   const PDFJS_WORKER='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
   let pdfPromise=null;
@@ -13,16 +18,15 @@
   }
 
   function updateStatus(){
-    const box=$('#annexStatus');
+    const box=$(statusSel);
     const print=$('#printRelatorioCompleto');
-    const cards=$$('.annex-item','#annexList');
+    const cards=$$('.annex-item',listSel);
     if(box){
       if(busy>0) box.textContent='Processando anexo...';
       else if(!cards.length) box.textContent='Nenhum anexo adicionado.';
       else box.textContent=`${cards.length} arquivo${cards.length===1?'':'s'} anexado${cards.length===1?'':'s'}.`;
     }
-    if(print && busy>0) print.disabled=true;
-    else if(print && !print.dataset.forceDisabled) print.disabled=false;
+    if(print && !print.dataset.forceDisabled) print.disabled=!!(busy || window.BPMA_RFA_ANNEX?.isBusy?.() || window.BPMA_RFA_FINAL_ANNEX?.isBusy?.());
   }
 
   function setBusy(delta){ busy=Math.max(0,busy+delta); updateStatus(); }
@@ -108,19 +112,19 @@
   }
 
   function rebuildPrintPages(){
-    const target=$('#annexPrintPages');
+    const target=$(printSel);
     if(!target)return;
     target.innerHTML='';
-    $$('.annex-item','#annexList').forEach(card=>{
+    $$('.annex-item',listSel).forEach(card=>{
       const pages=card._printPages||[];
       pages.forEach(src=>{
         const sheet=document.createElement('section');
-        sheet.className='annex-print-sheet';
+        sheet.className='annex-print-sheet'+(final?' annex-final-sheet':'');
         const header=cloneHeader();
         header.classList.add('annex-header');
         const title=document.createElement('div');
         title.className='annex-document-title';
-        title.textContent='ANEXO DOCUMENTAL';
+        title.textContent=final?'ANEXO DOCUMENTAL FINAL':'ANEXO DOCUMENTAL';
         const body=document.createElement('div');
         body.className='annex-document-body';
         const img=document.createElement('img');
@@ -145,7 +149,7 @@
       <div class="annex-thumb"><span class="annex-placeholder">${mime==='application/pdf'?'PDF':'IMG'}</span></div>
       <div class="annex-info"><b>${safeText(name||'Anexo')}</b><span class="annex-kind">${mime==='application/pdf'?'PDF':'Imagem'} · preparando...</span></div>
       <button type="button" class="btn danger annex-remove">Excluir</button>`;
-    $('#annexList')?.appendChild(card);
+    $(listSel)?.appendChild(card);
     updateStatus();
     return card;
   }
@@ -218,22 +222,39 @@
     }finally{setBusy(-1)}
   }
 
+  async function buildLocalSerialized(item){
+    const pages=Array.isArray(item?.pages)?item.pages.filter(Boolean):[];
+    if(!pages.length)return;
+    const mime=String(item?.mime||'').toLowerCase() || 'image/jpeg';
+    const card=makeCard({name:item?.name||'Anexo',mime,path:''});
+    card._printPages=pages;
+    setCardPreview(card,pages[0],pages.length);
+  }
+
   async function restore(items){
     clear(false);
-    for(const item of (items||[])) await buildStored(item);
+    for(const item of (items||[])){
+      if(item?.path) await buildStored(item);
+      else if(Array.isArray(item?.pages) && item.pages.length) await buildLocalSerialized(item);
+    }
     rebuildPrintPages();
   }
 
   function captureState(){
-    return $$('.annex-item','#annexList').map(card=>({
-      path:card.dataset.storagePath||'',
-      mime:card.dataset.mimeType||'',
-      name:card.dataset.originalName||'Anexo'
-    })).filter(x=>x.path);
+    return $$('.annex-item',listSel).map(card=>{
+      const path=card.dataset.storagePath||'';
+      return {
+        path,
+        mime:card.dataset.mimeType||'',
+        name:card.dataset.originalName||'Anexo',
+        pages:path?[]:Array.from(card._printPages||[])
+      };
+    }).filter(x=>x.path||x.pages.length);
   }
 
   async function syncUploads(reportId){
-    for(const card of $$('.annex-item','#annexList')){
+    if(window.BPMA_RFA?.LOCAL_ONLY) return;
+    for(const card of $$('.annex-item',listSel)){
       if(card.dataset.storagePath || !card._file)continue;
       const saved=await window.BPMA_RFA.uploadDocument(reportId,card._file);
       card.dataset.storagePath=saved.path;
@@ -246,20 +267,20 @@
   function desiredPaths(){ return captureState().map(x=>x.path).filter(Boolean); }
 
   function clear(notify=true){
-    const list=$('#annexList'); if(list)list.innerHTML='';
-    const print=$('#annexPrintPages'); if(print)print.innerHTML='';
+    const list=$(listSel); if(list)list.innerHTML='';
+    const print=$(printSel); if(print)print.innerHTML='';
     updateStatus();
     if(notify)emitChange();
   }
 
   function bind(){
-    const files=$('#annexFileInput');
-    $('#annexFileBtn')?.addEventListener('click',()=>files?.click());
+    const files=$(fileSel);
+    $(buttonSel)?.addEventListener('click',()=>files?.click());
     files?.addEventListener('change',async()=>{
       await addFiles(files.files);
       files.value='';
     });
-    $('#annexList')?.addEventListener('click',e=>{
+    $(listSel)?.addEventListener('click',e=>{
       const btn=e.target.closest('.annex-remove'); if(!btn)return;
       btn.closest('.annex-item')?.remove();
       rebuildPrintPages(); updateStatus(); emitChange();
@@ -268,23 +289,16 @@
   }
 
   function setReadonly(readonly){
-    $$('#annexManager button, #annexManager input').forEach(el=>el.disabled=!!readonly);
+    $$(`${managerSel} button, ${managerSel} input`).forEach(el=>el.disabled=!!readonly);
   }
 
   document.addEventListener('DOMContentLoaded',bind);
-  function getPages(){
-    const pages=[];
-    $$('.annex-item','#annexList').forEach(card=>{
-      (card._printPages||[]).forEach((src,index)=>pages.push({
-        src, name:card.dataset.originalName||'Anexo', index:index+1,
-        total:(card._printPages||[]).length
-      }));
-    });
-    return pages;
-  }
-
-  window.BPMA_RFA_ANNEX={
+  const api={
     addFiles,restore,captureState,syncUploads,desiredPaths,clear,
-    rebuildPrintPages,isBusy,setReadonly,getPages
+    rebuildPrintPages,isBusy,setReadonly
   };
+  window[final?'BPMA_RFA_FINAL_ANNEX':'BPMA_RFA_ANNEX']=api;
+  }
+  createAnnexManager('initial');
+  createAnnexManager('final');
 })();

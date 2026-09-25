@@ -35,30 +35,3 @@ body.home-screen{background:#f3f5f4}
 @media(max-width:900px){.home-screen #appScreen>.main{padding:0 18px 20px}.home-screen .main>.mobile-head{margin:0 -18px;padding:8px 18px;background:#f3f5f4;color:#355745;border-bottom:1px solid #e5ebe7;position:relative}.home-screen .mobile-head>b{font-size:11px;font-weight:500}.home-screen .mobile-head button{background:white;color:#355745;border:1px solid #dce5df;border-radius:9px;min-height:40px;padding:8px 12px}.home-header{padding:16px 0}.home-welcome{padding:27px 0 24px}.home-welcome h1{font-size:29px}.home-modules{gap:12px}.home-module{min-height:190px;padding:17px 15px 35px;border-radius:18px}.home-module strong{font-size:14px}.home-module>span:not(.home-icon):not(.home-card-arrow){font-size:11px}.home-icon{width:42px;height:42px;margin-bottom:14px}.home-section-title h2{font-size:16px}.home-tools-grid{grid-template-columns:1fr}.home-app .panel{padding:16px}.home-app .draft-dashboard-item{flex-wrap:wrap;gap:12px}.home-app .table-wrap{overflow:auto}}
 @media(max-width:600px){.home-app .table-wrap table{width:100%;min-width:0}.home-app .table-wrap thead{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}.home-app .table-wrap tbody,.home-app .table-wrap tr{display:block}.home-app .table-wrap tr{padding:12px 0;border-top:1px solid #e5ece6}.home-app .table-wrap td{display:block;padding:4px 0;border:0;overflow-wrap:anywhere;font-size:12px}.home-app .table-wrap td:first-child{font-weight:700;font-size:14px}.home-app .table-wrap td:nth-child(2)::before{content:'Tipo: ';color:#718078}.home-app .table-wrap td:nth-child(3)::before{content:'Unidade: ';color:#718078}.home-app .table-wrap td:nth-child(4)::before{content:'Autor: ';color:#718078}.home-app .table-wrap td:nth-child(6)::before{content:'Atualizado: ';color:#718078}.home-app .table-wrap .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}}
 @media(prefers-reduced-motion:reduce){.home-module{transition:none}}
-/* O mesmo idioma visual da tela inicial nas demais abas do painel. */
-.home-module{text-decoration:none}
-.work-screen{background:#f3f5f4}
-.work-screen .main{padding:24px clamp(16px,3vw,42px) 48px}
-.work-screen .topbar{max-width:1080px;margin:0 auto 20px;border-bottom:1px solid #dce5df;padding:8px 0 18px}
-.work-screen .topbar h2{font-size:clamp(20px,2.5vw,29px);letter-spacing:-.7px;color:#183d32}
-.work-screen #content{max-width:1080px;margin:auto}
-.work-screen .panel,.work-screen .kpi,.work-screen .module-card{border:1px solid #dce5df;border-radius:18px;background:#fff;box-shadow:0 4px 14px #14362508}
-.work-screen .panel{padding:clamp(16px,2.5vw,24px);margin-top:14px}
-.work-screen .panel h3{font-size:17px;letter-spacing:-.35px;color:#214c3a}
-.work-screen .quick-info{flex-wrap:wrap}
-.work-screen .actions .btn{min-height:42px;display:inline-flex;align-items:center;justify-content:center}
-.work-screen .table-wrap{max-width:100%;overflow-x:auto}
-.work-screen .table-wrap td{white-space:normal;overflow-wrap:anywhere}
-@media(max-width:900px){
-  .work-screen .main{padding:12px 14px 34px}
-  .work-screen .topbar{padding:10px 0 15px;display:flex}
-  .work-screen .mobile-head{border-radius:12px;margin-bottom:12px}
-  .work-screen .panel{padding:16px}
-  .work-screen .actions .btn{flex:1 1 145px}
-  .work-screen .cards,.work-screen .module-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
-}
-@media(max-width:600px){
-  .work-screen .cards,.work-screen .module-grid{grid-template-columns:1fr}
-  .work-screen .topbar{flex-wrap:wrap}
-  .work-screen .table-wrap table{min-width:640px}
-}
