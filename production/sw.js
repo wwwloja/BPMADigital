@@ -1,4 +1,4 @@
-const CACHE='bpma-digital-3.9.16-planejamento';
+const CACHE='bpma-digital-3.9.17-cpu-responsivo';
 const SHELL=[
   '/',
   '/index.html',

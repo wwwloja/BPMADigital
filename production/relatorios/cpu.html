@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>BPMA Digital — CPU · 3.9.16</title>
+<title>BPMA Digital — CPU · 3.9.17</title>
 <meta name="theme-color" content="#064e3b">
 <link rel="manifest" href="../manifest.webmanifest">
 <link rel="icon" type="image/png" href="https://png.pngtree.com/png-vector/20240531/ourlarge/pngtree-crested-caracara-bird-png-image_12588698.png">
@@ -1539,11 +1539,32 @@ body{padding-bottom:74px}
   position:sticky;top:0;z-index:9998;background:#fff4d7;color:#6c5200;
   border-bottom:1px solid #ead99c;padding:9px 12px;text-align:center;font-weight:800;font-size:12px
 }
+@media screen and (min-width:721px){
+  .wrap{max-width:1280px;width:calc(100% - 28px);padding-left:14px;padding-right:14px}
+  .bpma-system-toolbar{padding-left:max(14px,calc((100vw - 1280px)/2 + 14px));padding-right:max(14px,calc((100vw - 1280px)/2 + 14px))}
+  .bpma-system-toolbar .bpma-actions{flex-wrap:nowrap}
+  .bpma-system-toolbar button{white-space:nowrap;min-height:42px}
+}
+@media screen and (min-width:721px) and (max-width:1050px){
+  .bpma-system-toolbar .bpma-meta{display:none}
+  .bpma-system-toolbar .bpma-actions{width:100%;justify-content:center;flex-wrap:wrap}
+  .bpma-system-toolbar button{flex:1 1 150px}
+}
 @media(max-width:720px){
-  body{padding-bottom:126px}
-  .bpma-system-toolbar{align-items:flex-start;flex-direction:column}
-  .bpma-system-toolbar .bpma-actions{width:100%;display:grid;grid-template-columns:1fr 1fr}
-  .bpma-system-toolbar button{width:100%}
+  body{padding-bottom:196px}
+  .bpma-system-toolbar{align-items:flex-start;flex-direction:column;padding:8px 10px}
+  .bpma-system-toolbar .bpma-meta{width:100%}
+  .bpma-system-toolbar .bpma-actions{width:100%;display:grid;grid-template-columns:1fr 1fr;gap:7px}
+  .bpma-system-toolbar button{width:100%;min-height:44px;padding:9px 8px}
+  .bpma-system-toolbar #bpmaFinalize{grid-column:1/-1}
+  .card-body{padding:10px}
+  .table-wrap{max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+}
+@media screen and (max-width:430px){
+  .wrap{padding-left:6px;padding-right:6px}
+  .card{border-radius:10px}
+  .card-head{padding:10px}
+  .bpma-system-toolbar .bpma-meta small{white-space:normal;line-height:1.25}
 }
 @media print{
   body{padding-bottom:0!important}
@@ -3266,13 +3287,20 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
       <div class="bpma-actions">
         <button type="button" id="bpmaBack">← Voltar</button>
         <button type="button" id="bpmaEdit" hidden>✏️ Corrigir relatório</button>
-        <button type="button" id="bpmaClear">← Limpar</button>
+        <button type="button" id="bpmaClear">Limpar</button>
+        <button type="button" id="bpmaSaveDraft" class="primary">Salvar rascunho</button>
+        <button type="button" id="bpmaFinalize" class="finalize">Finalizar</button>
       </div>`;
     document.body.appendChild(bar);
 
     $('#bpmaBack').onclick=()=>leaveReport('../index.html#cpu');
     $('#bpmaEdit').onclick=enableFinalEdit;
     $('#bpmaClear').onclick=clearCurrentReport;
+    $('#bpmaSaveDraft').onclick=()=>persist(record?.status==='Reaberto'?'Reaberto':'Rascunho',true);
+    $('#bpmaFinalize').onclick=async()=>{
+      if(!confirm('Finalizar este Relatório CPU? Os dados passarão a compor as estatísticas.')) return;
+      await persist('Finalizado',true);
+    };
   }
 
   if(!session || session.auth!=='supabase'){
