@@ -1,4 +1,4 @@
-const CACHE='bpma-digital-3.9.12-testemunha-bo';
+const CACHE='bpma-digital-3.9.14-cpu-pdf-assinatura';
 const SHELL=[
   '/',
   '/index.html',

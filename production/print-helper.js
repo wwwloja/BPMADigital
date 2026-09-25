@@ -317,6 +317,7 @@
 
   async function generateMobilePdf(opts={}){
     if(window.BPMA_BO_PDF && (opts.selector||autoSelector())==='#view-bo .print-area') return generateBoPdf(opts);
+    if((opts.selector||autoSelector())==='main.wrap') return generateCpuMobilePdf(opts);
     if(!opts.silent) showBusy();
     try{
       prepareSafe(opts.prepare);
@@ -718,6 +719,75 @@
     }
   }
 
+  // O CPU é longo: capturar o formulário inteiro em um único canvas corta
+  // o final em alguns celulares. Cada seção é rasterizada separadamente.
+  function cpuMainChildren(){
+    const source=document.querySelector('main.wrap');
+    if(!source)throw new Error('Relatório CPU não encontrado.');
+    const clone=source.cloneNode(true);
+    syncControls(source,clone);
+    clone.querySelectorAll('.no-print,.report-final-actions,.report-final-note,script').forEach(el=>el.remove());
+    return Array.from(clone.children).filter(el=>!el.matches('.no-print,.report-final-actions,.report-final-note'));
+  }
+
+  async function canvasForCpuFragment(element){
+    const host=document.createElement('div');
+    host.className='bpma-cpu-fragment-host';
+    host.style.cssText=`position:fixed!important;left:0!important;top:0!important;width:${CONTENT_W_MM}mm!important;max-width:${CONTENT_W_MM}mm!important;height:auto!important;margin:0!important;padding:0!important;background:#fff!important;z-index:-2147483000!important;pointer-events:none!important;overflow:visible!important;box-sizing:border-box!important`;
+    const wrap=document.createElement('main');
+    wrap.className='wrap';
+    wrap.style.cssText=`width:${CONTENT_W_MM}mm!important;max-width:${CONTENT_W_MM}mm!important;min-width:0!important;height:auto!important;margin:0!important;padding:0!important;overflow:visible!important;background:#fff!important;box-sizing:border-box!important`;
+    wrap.appendChild(element.cloneNode(true));
+    host.appendChild(wrap);
+    document.body.appendChild(host);
+    const style=document.createElement('style');
+    style.className='bpma-cpu-fragment-style';
+    style.textContent=collectPrintCss()+`
+      .bpma-cpu-fragment-host,.bpma-cpu-fragment-host *{box-sizing:border-box!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+      .bpma-cpu-fragment-host .wrap{width:${CONTENT_W_MM}mm!important;max-width:${CONTENT_W_MM}mm!important;margin:0!important;padding:0!important;overflow:visible!important;transform:none!important}
+      .bpma-cpu-fragment-host .no-print,.bpma-cpu-fragment-host .cpu-signature-main,.bpma-cpu-fragment-host button{display:none!important}
+    `;
+    document.head.appendChild(style);
+    try{
+      await inlineImages(wrap);
+      await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
+      const rect=wrap.getBoundingClientRect();
+      const width=Math.max(1,Math.ceil(rect.width));
+      const height=Math.max(1,Math.ceil(wrap.scrollHeight||rect.height));
+      const worker=window.html2pdf().set({
+        html2canvas:{scale:1.35,useCORS:true,allowTaint:false,logging:false,backgroundColor:'#ffffff',width,height,windowWidth:Math.max(820,width),windowHeight:Math.max(900,Math.min(height+20,6000)),scrollX:0,scrollY:0},
+        jsPDF:{unit:'mm',format:'a4',orientation:'portrait',compress:true}
+      }).from(wrap).toCanvas();
+      return await worker.get('canvas');
+    }finally{host.remove();style.remove()}
+  }
+
+  async function generateCpuMobilePdf(opts={}){
+    if(!opts.silent)showBusy();
+    try{
+      prepareSafe(opts.prepare);
+      autoPrepare();
+      try{window.dispatchEvent(new Event('beforeprint'))}catch{}
+      await ensurePdfLib();
+      const pdf=await newEmptyPdf();
+      const state={pageOpen:false,y:MARGIN_MM};
+      for(const child of cpuMainChildren()){
+        const canvas=await canvasForCpuFragment(child);
+        addCanvasSlices(pdf,canvas,state);
+      }
+      if((pdf.getNumberOfPages?.()||0)===0)throw new Error('O CPU não possui conteúdo para gerar o PDF.');
+      const blob=pdf.output('blob');
+      if(!(blob instanceof Blob)||blob.size<1000)throw new Error('PDF CPU vazio ou inválido.');
+      if(!opts.silent)showReady(blob,opts.filename||'CPU_BPMA.pdf');
+      return opts.returnBlob ? blob : true;
+    }catch(err){
+      console.error('PDF CPU por seções:',err);
+      if(opts.returnBlob)throw err;
+      if(!opts.silent)showError(err);
+      return false;
+    }finally{try{window.dispatchEvent(new Event('afterprint'))}catch{}}
+  }
+
   async function generateRfaMobilePdf(opts={}){
     showBusy();
     try{
@@ -800,6 +870,10 @@
       return window.BPMA_BO_PDF.nativePrint();
     }
     if(isMobile()){
+      if(opts.selector==='main.wrap'){
+        generateCpuMobilePdf(opts);
+        return true;
+      }
       generateMobilePdf(opts);
       return true;
     }

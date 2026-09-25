@@ -1531,6 +1531,10 @@ body{padding-bottom:74px}
 .bpma-system-toolbar button.finalize{background:#174d3b;color:#fff;border-color:#174d3b}
 .bpma-system-toolbar button:disabled{opacity:.45;cursor:not-allowed}
 .bpma-system-toolbar #bpmaEdit[hidden]{display:none!important}
+.bpma-system-toolbar #bpmaBack{
+  background:#17563e;color:#fff;border:2px solid #c8ac5b;
+  font-weight:900;min-height:48px;box-shadow:0 2px 8px rgba(10,55,38,.22)
+}
 .bpma-readonly-notice{
   position:sticky;top:0;z-index:9998;background:#fff4d7;color:#6c5200;
   border-bottom:1px solid #ead99c;padding:9px 12px;text-align:center;font-weight:800;font-size:12px
@@ -1763,6 +1767,36 @@ body{padding-bottom:74px}
     font-size:10pt!important;
   }
 }
+</style>
+<style id="bpma-cpu-assinatura-coordenador">
+.cpu-signature-preview{display:flex;align-items:flex-end;justify-content:center;min-height:0}
+.cpu-signature-preview img{display:block;max-width:100%;max-height:68px;object-fit:contain}
+.cpu-signature-preview img[hidden],.cpu-signature-actions button[hidden]{display:none!important}
+.cpu-signature-actions{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:10px}
+.cpu-signature-actions button{background:#17563e;color:#fff;border:1px solid #17563e;min-height:42px}
+.cpu-signature-actions button.secondary{background:#fff;color:#17563e}
+.cpu-signature-main{display:inline-flex;align-items:center;justify-content:center;gap:7px;width:100%;min-height:50px;margin-top:10px;background:#17563e;color:#fff;border:2px solid #c8ac5b;border-radius:10px;font-size:14px;font-weight:900;box-shadow:0 2px 8px rgba(10,55,38,.22)}
+.cpu-signature-main:disabled{opacity:.45}
+body.cpu-signing{overflow:hidden}
+body.cpu-signing .bpma-system-toolbar{display:none!important}
+#cpuSignatureModal{position:fixed;inset:0;z-index:100100;display:none;align-items:center;justify-content:center;padding:10px;background:rgba(15,23,42,.8)}
+#cpuSignatureModal.open{display:flex}
+#cpuSignatureModal .cpu-signature-dialog{width:min(920px,100%);height:min(700px,96dvh);background:#fff;border-radius:16px;padding:12px;display:grid;grid-template-rows:auto minmax(0,1fr) auto;gap:9px}
+#cpuSignatureModal .cpu-signature-head,#cpuSignatureModal .cpu-signature-footer{display:flex;align-items:center;justify-content:space-between;gap:8px}
+#cpuSignatureModal .cpu-signature-head h2{margin:0;font-size:17px;color:#173f31}
+#cpuSignatureModal .cpu-signature-canvas{border:2px solid #17563e;border-radius:10px;min-height:0;overflow:hidden;background:#fff;touch-action:none}
+#cpuSignatureModal canvas{display:block;width:100%;height:100%;touch-action:none}
+#cpuSignatureModal .cpu-signature-footer button{min-height:46px}
+#cpuSignatureConfirm{flex:1;background:#17563e;border:1px solid #17563e}
+@media(max-width:720px){
+  #cpuSignatureModal{padding:0}
+  #cpuSignatureModal .cpu-signature-dialog{width:100%;height:100dvh;border-radius:0;padding-bottom:max(12px,env(safe-area-inset-bottom))}
+}
+@media print{
+  #cpuSignatureModal,.cpu-signature-actions,.cpu-signature-main{display:none!important}
+  .cpu-signature-preview img{max-height:45px!important}
+}
+#bpmaPdfStaging .cpu-signature-main{display:none!important}
 </style>
 </head>
 <body>
@@ -2183,10 +2217,15 @@ body{padding-bottom:74px}
       <div class="pass-field s6">
         <label>Coordenador de Policiamento</label>
         <input name="coordenadorAssinatura" placeholder="Posto/Grad. e nome">
+        <button type="button" id="cpuSignOpen" class="cpu-signature-main">✍ Assinar digitalmente</button>
       </div>
 
       <div class="pass-field s6 signature-box">
+        <div class="cpu-signature-preview"><img id="cpuCoordinatorSignature" alt="Assinatura do coordenador" hidden></div>
         <div class="signature-line">Coordenador de Policiamento</div>
+        <div class="cpu-signature-actions no-print">
+          <button type="button" id="cpuSignRemove" class="secondary" hidden>Remover assinatura</button>
+        </div>
       </div>
 
     </div>
@@ -2210,6 +2249,13 @@ body{padding-bottom:74px}
 
 
 </main>
+<div id="cpuSignatureModal" role="dialog" aria-modal="true" aria-labelledby="cpuSignatureTitle">
+  <div class="cpu-signature-dialog">
+    <div class="cpu-signature-head"><h2 id="cpuSignatureTitle">Assinatura do Coordenador</h2><button type="button" id="cpuSignatureClose">Fechar</button></div>
+    <div class="cpu-signature-canvas" id="cpuSignatureCanvasWrap"><canvas id="cpuSignatureCanvas" aria-label="Desenhe a assinatura do coordenador"></canvas></div>
+    <div class="cpu-signature-footer"><button type="button" id="cpuSignatureRedo">Refazer</button><button type="button" id="cpuSignatureConfirm">Confirmar assinatura</button></div>
+  </div>
+</div>
 
 
 
@@ -2467,10 +2513,132 @@ body{padding-bottom:74px}
   let userTouched=false;
   let editingFinalized=false;
   let revisionPromise=null;
+  let coordinatorSignature='';
+  let signatureContext=null;
+  let signatureDrawing=false;
+  let signatureHasInk=false;
 
   function controls(){
     return $$('input:not([type="file"]), select, textarea').filter(el=>!el.closest('.bpma-system-toolbar'));
   }
+
+  function setCoordinatorSignature(src){
+    coordinatorSignature=typeof src==='string' && src.startsWith('data:image/') ? src : '';
+    const img=$('#cpuCoordinatorSignature');
+    if(img){
+      if(coordinatorSignature)img.src=coordinatorSignature;
+      else img.removeAttribute('src');
+      img.hidden=!coordinatorSignature;
+    }
+    const open=$('#cpuSignOpen');
+    if(open)open.textContent=coordinatorSignature?'✍ Alterar assinatura':'✍ Assinar digitalmente';
+    const remove=$('#cpuSignRemove');
+    if(remove)remove.hidden=!coordinatorSignature;
+  }
+
+  function resetSignatureCanvas(){
+    const canvas=$('#cpuSignatureCanvas');
+    if(!canvas || !signatureContext)return;
+    signatureContext.clearRect(0,0,canvas.width,canvas.height);
+    signatureContext.fillStyle='#fff';
+    signatureContext.fillRect(0,0,canvas.width,canvas.height);
+    signatureDrawing=false;
+    signatureHasInk=false;
+  }
+
+  function fitSignatureCanvas(){
+    const canvas=$('#cpuSignatureCanvas');
+    const rect=canvas?.getBoundingClientRect();
+    if(!rect?.width || !rect.height)return;
+    const scale=window.devicePixelRatio||1;
+    canvas.width=Math.max(1,Math.round(rect.width*scale));
+    canvas.height=Math.max(1,Math.round(rect.height*scale));
+    signatureContext=canvas.getContext('2d');
+    signatureContext.setTransform(scale,0,0,scale,0,0);
+    signatureContext.lineWidth=2.5;
+    signatureContext.lineCap='round';
+    signatureContext.lineJoin='round';
+    signatureContext.strokeStyle='#111';
+    resetSignatureCanvas();
+  }
+
+  function closeSignature(){
+    $('#cpuSignatureModal')?.classList.remove('open');
+    document.body.classList.remove('cpu-signing');
+    signatureDrawing=false;
+  }
+
+  function openSignature(){
+    if(!canEdit() && canRevise())enableFinalEdit();
+    if(!canEdit())return;
+    $('#cpuSignatureModal')?.classList.add('open');
+    document.body.classList.add('cpu-signing');
+    requestAnimationFrame(fitSignatureCanvas);
+  }
+
+  function signaturePoint(event){
+    const r=$('#cpuSignatureCanvas').getBoundingClientRect();
+    return {x:event.clientX-r.left,y:event.clientY-r.top};
+  }
+
+  function optimizedCoordinatorSignature(canvas){
+    const pixels=signatureContext.getImageData(0,0,canvas.width,canvas.height);
+    let minX=canvas.width,minY=canvas.height,maxX=0,maxY=0,found=false;
+    for(let y=0;y<canvas.height;y+=2){
+      for(let x=0;x<canvas.width;x+=2){
+        const i=(y*canvas.width+x)*4;
+        if(pixels.data[i]<238||pixels.data[i+1]<238||pixels.data[i+2]<238){
+          found=true;minX=Math.min(minX,x);minY=Math.min(minY,y);
+          maxX=Math.max(maxX,x);maxY=Math.max(maxY,y);
+        }
+      }
+    }
+    if(!found)return '';
+    const pad=Math.max(12,Math.round((window.devicePixelRatio||1)*8));
+    minX=Math.max(0,minX-pad);minY=Math.max(0,minY-pad);
+    maxX=Math.min(canvas.width,maxX+pad);maxY=Math.min(canvas.height,maxY+pad);
+    const w=Math.max(1,maxX-minX),h=Math.max(1,maxY-minY);
+    const scale=Math.min(1,900/w,260/h);
+    const out=document.createElement('canvas');
+    out.width=Math.max(1,Math.round(w*scale));out.height=Math.max(1,Math.round(h*scale));
+    const ctx=out.getContext('2d');
+    ctx.fillStyle='#fff';ctx.fillRect(0,0,out.width,out.height);
+    ctx.drawImage(canvas,minX,minY,w,h,0,0,out.width,out.height);
+    return out.toDataURL('image/jpeg',.82);
+  }
+
+  function confirmSignature(){
+    const canvas=$('#cpuSignatureCanvas');
+    if(!signatureHasInk || !canvas){closeSignature();return}
+    const src=optimizedCoordinatorSignature(canvas);
+    closeSignature();
+    if(!src)return;
+    setCoordinatorSignature(src);
+    queueSave();
+  }
+
+  $('#cpuSignOpen')?.addEventListener('click',openSignature);
+  $('#cpuSignRemove')?.addEventListener('click',()=>{if(!canEdit())return;setCoordinatorSignature('');queueSave()});
+  $('#cpuSignatureClose')?.addEventListener('click',closeSignature);
+  $('#cpuSignatureRedo')?.addEventListener('click',resetSignatureCanvas);
+  $('#cpuSignatureConfirm')?.addEventListener('click',confirmSignature);
+  $('#cpuSignatureCanvas')?.addEventListener('pointerdown',e=>{
+    if(!signatureContext)return;
+    e.preventDefault();signatureDrawing=true;
+    e.currentTarget.setPointerCapture?.(e.pointerId);
+    const p=signaturePoint(e);
+    signatureContext.beginPath();signatureContext.moveTo(p.x,p.y);
+    signatureContext.lineTo(p.x+.1,p.y+.1);signatureContext.stroke();
+    signatureHasInk=true;
+  });
+  $('#cpuSignatureCanvas')?.addEventListener('pointermove',e=>{
+    if(!signatureDrawing)return;
+    e.preventDefault();const p=signaturePoint(e);
+    signatureContext.lineTo(p.x,p.y);signatureContext.stroke();
+  });
+  ['pointerup','pointercancel','lostpointercapture'].forEach(type=>{
+    $('#cpuSignatureCanvas')?.addEventListener(type,()=>{signatureDrawing=false});
+  });
 
   function captureState(){
     const dynamic={};
@@ -2484,7 +2652,7 @@ body{padding-bottom:74px}
       value:el.value,
       checked:!!el.checked
     }));
-    return {dynamic,values};
+    return {dynamic,values,coordinatorSignature};
   }
 
   function restoreState(state){
@@ -2504,6 +2672,7 @@ body{padding-bottom:74px}
       if(el.type==='checkbox' || el.type==='radio') el.checked=!!v.checked;
       else el.value=v.value ?? '';
     });
+    setCoordinatorSignature(state.coordinatorSignature||'');
 
     $$('textarea').forEach(el=>el.dispatchEvent(new Event('input',{bubbles:true})));
     $('#recursosBody input')?.dispatchEvent(new Event('input',{bubbles:true}));
@@ -2562,6 +2731,7 @@ body{padding-bottom:74px}
     });
     $$('button').forEach(b=>{
       if(!b.closest('.bpma-system-toolbar') && b.id!=='printRelatorioCompleto'){
+        if(b.id==='cpuSignOpen' && canRevise())return;
         if(!b.disabled)b.dataset.bpmaReadonly='1';
         b.disabled=true;
       }
@@ -2729,7 +2899,11 @@ body{padding-bottom:74px}
   }
 
   function loadNewTemplate(){
-    try{return JSON.parse(localStorage.getItem(templateKey(session.id,'CPU'))||'null')}catch{return null}
+    try{
+      const template=JSON.parse(localStorage.getItem(templateKey(session.id,'CPU'))||'null');
+      if(template)delete template.coordinatorSignature;
+      return template;
+    }catch{return null}
   }
 
   function makeUnsavedRecord(){
@@ -2794,6 +2968,7 @@ body{padding-bottom:74px}
         editingFinalized=false;
         userTouched=false;
         const template=JSON.parse(JSON.stringify(state||{}));
+        delete template.coordinatorSignature;
         localStorage.setItem(templateKey(record.authorId,'CPU'),JSON.stringify(template));
 
         let pdfArchived=false;
@@ -2802,7 +2977,7 @@ body{padding-bottom:74px}
           const safeNumero=String(record?.numero||'CPU').replace(/[^a-zA-Z0-9_-]+/g,'_');
           const filename=`CPU_${safeNumero}_v${record?.dados?.version?.number||1}.pdf`;
           const blob=await window.BPMA_PRINT?.generateMobilePdf?.({
-            selector:'.page',
+            selector:'main.wrap',
             filename,
             silent:true,
             returnBlob:true,
@@ -2890,6 +3065,7 @@ body{padding-bottom:74px}
       else el.value='';
       if(el.tagName==='TEXTAREA') el.dispatchEvent(new Event('input',{bubbles:true}));
     });
+    setCoordinatorSignature('');
 
     try{
       if(!record.id){
