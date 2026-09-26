@@ -320,6 +320,29 @@
     });
   }
 
+  function sanitizeCanvasColors(root){
+    // html2canvas 1.x não entende oklab()/oklch()/lab() retornados por Safari/iOS moderno.
+    // O PDF do CPU usa uma paleta fixa, então substituímos qualquer função CSS Color 4
+    // por RGB seguro antes da rasterização.
+    const bad=/\b(?:oklab|oklch|lab|lch|color)\s*\(/i;
+    const props=['color','backgroundColor','borderTopColor','borderRightColor','borderBottomColor','borderLeftColor','outlineColor','textDecorationColor','caretColor'];
+    const all=[root,...Array.from(root.querySelectorAll('*'))];
+    for(const el of all){
+      let cs; try{cs=(el.ownerDocument?.defaultView||window).getComputedStyle(el)}catch{continue}
+      for(const p of props){
+        const v=cs?.[p];
+        if(v && bad.test(v)){
+          const fallback=(p==='backgroundColor')?'rgb(255, 255, 255)':(p==='color'||p==='caretColor'?'rgb(17, 17, 17)':'rgb(207, 216, 212)');
+          try{el.style.setProperty(p.replace(/[A-Z]/g,m=>'-'+m.toLowerCase()),fallback,'important')}catch{}
+        }
+      }
+      for(const p of ['backgroundImage','boxShadow','textShadow']){
+        const v=cs?.[p];
+        if(v && bad.test(v)){ try{el.style.setProperty(p.replace(/[A-Z]/g,m=>'-'+m.toLowerCase()),'none','important')}catch{} }
+      }
+    }
+  }
+
   async function inlineImages(root){
     const imgs=Array.from(root.querySelectorAll('img'));
     await Promise.all(imgs.map(async img=>{
@@ -771,14 +794,15 @@
   }
 
   const CPU_PDF_CSS=`
-    .bpma-cpu-pdf-host,.bpma-cpu-pdf-host *{box-sizing:border-box!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+    .bpma-cpu-pdf-host,.bpma-cpu-pdf-host *{box-sizing:border-box!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color:#111!important;border-color:#cfd8d4!important;box-shadow:none!important;text-shadow:none!important;outline-color:#cfd8d4!important;caret-color:#111!important;accent-color:#075d49!important;background-image:none!important}
+    .bpma-cpu-pdf-host *::before,.bpma-cpu-pdf-host *::after{box-shadow:none!important;text-shadow:none!important;background-image:none!important}
     .bpma-cpu-pdf-host{font-family:"Times New Roman",Times,serif!important;color:#111!important;background:#fff!important;font-size:10pt!important;line-height:1.16!important}
     .bpma-cpu-pdf-host .wrap{width:196mm!important;max-width:196mm!important;min-width:196mm!important;margin:0!important;padding:0!important;background:#fff!important;overflow:visible!important}
     .bpma-cpu-pdf-host .wrap>*{width:100%!important;max-width:100%!important;margin-left:0!important;margin-right:0!important;transform:none!important}
     .bpma-cpu-pdf-host .no-print,.bpma-cpu-pdf-host button,.bpma-cpu-pdf-host .report-final-actions,.bpma-cpu-pdf-host .report-final-note,.bpma-cpu-pdf-host .cpu-signature-actions{display:none!important}
     .bpma-cpu-pdf-host .topbar{display:grid!important;grid-template-columns:21mm 1fr 21mm!important;align-items:center!important;gap:3mm!important;width:100%!important;padding:3mm 4mm!important;margin:0 0 3mm!important;border:1px solid #ccd7d2!important;border-radius:4mm!important;background:#fff!important;box-shadow:none!important}
     .bpma-cpu-pdf-host .topbar img{display:block!important;max-width:17mm!important;max-height:17mm!important;width:auto!important;height:auto!important;object-fit:contain!important;margin:auto!important}
-    .bpma-cpu-pdf-host .head{text-align:center!important}.bpma-cpu-pdf-host .head b{display:block!important;font-size:11pt!important;line-height:1.05!important}.bpma-cpu-pdf-host .head .sub{font-size:9pt!important;line-height:1.08!important;margin-top:1mm!important}
+    .bpma-cpu-pdf-host .head{text-align:center!important;color:#111!important}.bpma-cpu-pdf-host .head b{display:block!important;font-size:11pt!important;line-height:1.05!important}.bpma-cpu-pdf-host .head .sub{font-size:9pt!important;line-height:1.08!important;margin-top:1mm!important}
     .bpma-cpu-pdf-host .title-row{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:3mm!important;margin:0 0 2.5mm!important}.bpma-cpu-pdf-host .title-row h1{font-size:13pt!important;color:#075d49!important;margin:0!important}.bpma-cpu-pdf-host .status{font-size:8.5pt!important;color:#555!important}
     .bpma-cpu-pdf-host .card{display:block!important;width:100%!important;margin:0 0 2.5mm!important;border:1px solid #cfd8d4!important;border-radius:0!important;background:#fff!important;box-shadow:none!important;overflow:visible!important}
     .bpma-cpu-pdf-host .card-head{display:block!important;padding:2mm 2.5mm!important;border-bottom:0.35mm solid #d2bf45!important;background:#fff!important;color:#075d49!important;font-weight:700!important;font-size:10pt!important;line-height:1.1!important}
@@ -797,7 +821,7 @@
     .bpma-cpu-pdf-host .ufr-wrap{display:inline-flex!important;align-items:center!important;width:auto!important;max-width:100%!important;gap:1mm!important;margin:.8mm 0!important;padding:.8mm 1.2mm!important;border:.2mm solid #bdd5cb!important;border-radius:1mm!important;background:#f7fbf9!important}.bpma-cpu-pdf-host .ufr-wrap[hidden]{display:none!important}.bpma-cpu-pdf-host .ufr-wrap label{margin:0!important;font-size:6.8pt!important}.bpma-cpu-pdf-host .ufr-field{display:flex!important;align-items:center!important;gap:.6mm!important}.bpma-cpu-pdf-host .ufr-unit{font-size:6.5pt!important;font-weight:700!important}.bpma-cpu-pdf-host .ufr-field .bpma-print-value{width:auto!important;min-width:8mm!important;text-align:center!important;font-weight:700!important}
     .bpma-cpu-pdf-host .amb-title,.bpma-cpu-pdf-host .subbox-title{background:#08765e!important;color:#fff!important;font-weight:700!important;text-align:center!important;padding:2mm!important;font-size:9.5pt!important;line-height:1.08!important}
     .bpma-cpu-pdf-host .pass-grid,.bpma-cpu-pdf-host .signature-grid{width:100%!important;max-width:100%!important}
-    .bpma-cpu-pdf-host .cpu-signature-main{display:block!important;margin-top:6mm!important;text-align:center!important}.bpma-cpu-pdf-host .cpu-signature-main:before{content:"";display:block;width:70mm;border-top:.2mm solid #777;margin:0 auto 1.5mm!important}.bpma-cpu-pdf-host .cpu-signature-main canvas{display:none!important}
+    .bpma-cpu-pdf-host .cpu-signature-main{display:none!important}.bpma-cpu-pdf-host .signature-box{display:block!important;margin-top:5mm!important;text-align:center!important}.bpma-cpu-pdf-host .signature-line{display:block!important;width:70mm!important;margin:8mm auto 0!important;padding-top:1.5mm!important;border-top:.2mm solid #777!important;text-align:center!important;font-size:8pt!important}.bpma-cpu-pdf-host .cpu-signature-preview{display:block!important;text-align:center!important}.bpma-cpu-pdf-host .cpu-signature-preview img{display:block!important;max-width:65mm!important;max-height:15mm!important;margin:0 auto!important;object-fit:contain!important}.bpma-cpu-pdf-host .cpu-signature-preview img[hidden]{display:none!important}
     .bpma-cpu-pdf-host .note{display:none!important}
   `;
 
@@ -813,36 +837,43 @@
   }
 
   async function canvasForCpuFragment(element){
-    const host=document.createElement('div');
-    host.className='bpma-cpu-fragment-host';
-    host.style.cssText=`position:fixed!important;left:-10000px!important;top:0!important;width:${CONTENT_W_MM}mm!important;max-width:${CONTENT_W_MM}mm!important;min-width:${CONTENT_W_MM}mm!important;height:auto!important;margin:0!important;padding:0!important;background:#fff!important;z-index:1!important;pointer-events:none!important;overflow:visible!important;box-sizing:border-box!important`;
-    const wrap=document.createElement('main');
+    // Renderizador isolado: evita que o html2canvas leia CSS moderno da interface
+    // (ex.: oklab/oklch do Safari/iOS) e garante exatamente a largura A4 do CPU.
+    const frame=document.createElement('iframe');
+    frame.className='bpma-cpu-pdf-frame';
+    frame.setAttribute('aria-hidden','true');
+    frame.style.cssText=`position:fixed!important;left:-12000px!important;top:0!important;width:${CONTENT_W_MM}mm!important;height:2000px!important;border:0!important;opacity:.001!important;pointer-events:none!important;z-index:-2147483000!important;background:#fff!important`;
+    frame.srcdoc=`<!doctype html><html><head><meta charset="utf-8"><base href="${location.href.replace(/"/g,'&quot;')}"><style>html,body{margin:0!important;padding:0!important;width:${CONTENT_W_MM}mm!important;min-width:${CONTENT_W_MM}mm!important;background:#fff!important;color:#111!important} ${CPU_PDF_CSS}</style></head><body class="bpma-cpu-pdf-host"></body></html>`;
+    document.body.appendChild(frame);
+    await new Promise((resolve,reject)=>{
+      const timer=setTimeout(()=>reject(new Error('Tempo excedido ao preparar o PDF.')),6000);
+      frame.onload=()=>{clearTimeout(timer);resolve()};
+    });
+    const doc=frame.contentDocument;
+    if(!doc)throw new Error('Renderizador isolado indisponível.');
+    const wrap=doc.createElement('main');
     wrap.className='wrap';
-    wrap.style.cssText=`width:${CONTENT_W_MM}mm!important;max-width:${CONTENT_W_MM}mm!important;min-width:0!important;height:auto!important;margin:0!important;padding:0!important;overflow:visible!important;background:#fff!important;box-sizing:border-box!important`;
-    const clonedChild=element.cloneNode(true);
+    wrap.style.cssText=`width:${CONTENT_W_MM}mm!important;max-width:${CONTENT_W_MM}mm!important;min-width:${CONTENT_W_MM}mm!important;height:auto!important;margin:0!important;padding:0!important;overflow:visible!important;background:#fff!important;box-sizing:border-box!important`;
+    const clonedChild=doc.importNode(element,true);
     wrap.appendChild(clonedChild);
-    host.appendChild(wrap);
-    document.body.appendChild(host);
-    const style=document.createElement('style');
-    style.className='bpma-cpu-fragment-style';
-    style.textContent=CPU_PDF_CSS+`
-      .bpma-cpu-fragment-host{position:fixed!important;left:-10000px!important;top:0!important;width:196mm!important;max-width:196mm!important;min-width:196mm!important;height:auto!important;background:#fff!important;overflow:visible!important}
-      .bpma-cpu-fragment-host .wrap{width:196mm!important;max-width:196mm!important;min-width:196mm!important}
-    `;
-    document.head.appendChild(style);
+    doc.body.appendChild(wrap);
+    // Os valores de impressão já estão nos .bpma-print-value; removemos controles
+    // para impedir estilos nativos do iOS/Safari de chegarem ao html2canvas.
+    wrap.querySelectorAll('input,select,textarea,button,.bpma-print-source,.no-print,.report-final-actions,.report-final-note,.cpu-signature-actions,.cpu-signature-main').forEach(el=>el.remove());
     try{
       await inlineImages(wrap);
+      sanitizeCanvasColors(wrap);
       await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
-      const measured=clonedChild || wrap;
-      const rect=measured.getBoundingClientRect();
-      const width=Math.max(1,Math.ceil(wrap.getBoundingClientRect().width));
-      const height=Math.max(1,Math.ceil(measured.scrollHeight||rect.height||wrap.scrollHeight));
+      sanitizeCanvasColors(wrap);
+      const rect=wrap.getBoundingClientRect();
+      const width=Math.max(1,Math.ceil(rect.width));
+      const height=Math.max(1,Math.ceil(wrap.scrollHeight||rect.height));
       const worker=window.html2pdf().set({
-        html2canvas:{scale:1.6,useCORS:true,allowTaint:false,logging:false,backgroundColor:'#ffffff',width,height,windowWidth:width,scrollX:0,scrollY:0,removeContainer:true,imageTimeout:12000},
+        html2canvas:{scale:1.6,useCORS:true,allowTaint:false,logging:false,backgroundColor:'#ffffff',width,height,windowWidth:width,windowHeight:Math.max(height,900),scrollX:0,scrollY:0,removeContainer:true,imageTimeout:12000,onclone:(cloneDoc)=>{try{cloneDoc.querySelectorAll('*').forEach(el=>{el.style.setProperty('box-shadow','none','important');el.style.setProperty('text-shadow','none','important');el.style.setProperty('background-image','none','important')})}catch{}}},
         jsPDF:{unit:'mm',format:'a4',orientation:'portrait',compress:true}
       }).from(wrap).toCanvas();
       return await worker.get('canvas');
-    }finally{host.remove();style.remove()}
+    }finally{frame.remove()}
   }
 
 

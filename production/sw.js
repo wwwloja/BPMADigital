@@ -1,4 +1,4 @@
-const CACHE='bpma-digital-4.0.24-cpu-pdf-clean';
+const CACHE='bpma-digital-4.0.25-cpu-pdf-width-ios';
 const SHELL=[
   '/',
   '/index.html',
