@@ -1897,6 +1897,44 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
   .ufr-wrap .ufr-field input{width:100%!important;max-width:160px!important}
 }
 </style>
+
+<style id="bpma-cpu-mobile-v4013">
+/* 4.0.13 — formulário mobile; não altera o layout de impressão A4 */
+@media screen and (max-width:720px){
+  /* Bloco 1: linha de equipe como cartão e totais legíveis */
+  #tblRecursos tfoot{display:block!important;width:100%!important;margin-top:10px!important}
+  #tblRecursos tfoot tr{display:grid!important;grid-template-columns:1fr 1fr!important;gap:8px!important;width:100%!important;padding:10px!important;border:1px solid #d7e2dd!important;border-radius:12px!important;background:#f3f8f5!important;box-sizing:border-box!important}
+  #tblRecursos tfoot td{display:flex!important;align-items:center!important;justify-content:space-between!important;min-height:42px!important;padding:8px 10px!important;border:1px solid #e2ebe7!important;border-radius:9px!important;background:#fff!important;font-weight:800!important;box-sizing:border-box!important}
+  #tblRecursos tfoot td:first-child,#tblRecursos tfoot td.no-print{display:none!important}
+  #tblRecursos tfoot td:nth-child(2)::before{content:"Dia";font-size:11px;color:#527064}
+  #tblRecursos tfoot td:nth-child(3)::before{content:"Ordinário";font-size:11px;color:#527064}
+  #tblRecursos tfoot td:nth-child(4)::before{content:"P.O.R.";font-size:11px;color:#527064}
+  #tblRecursos tfoot td:nth-child(5)::before{content:"Noite";font-size:11px;color:#527064}
+  #tblRecursos tfoot td:nth-child(6)::before{content:"Ordinário";font-size:11px;color:#527064}
+  #tblRecursos tfoot td:nth-child(7)::before{content:"P.O.R.";font-size:11px;color:#527064}
+
+  /* Bloco 4: prisões/apreensões em cartões, sem rolagem horizontal */
+  #tblPrisoesPreview{min-width:0!important;width:100%!important;table-layout:auto!important;display:block!important}
+  #tblPrisoesPreview thead{display:none!important}
+  #tblPrisoesPreview tbody{display:block!important;width:100%!important}
+  #tblPrisoesPreview tr{display:block!important;width:100%!important;margin:0 0 12px!important;padding:10px!important;border:1px solid #d7e2dd!important;border-radius:12px!important;background:#fff!important;box-sizing:border-box!important}
+  #tblPrisoesPreview td{display:grid!important;grid-template-columns:112px minmax(0,1fr)!important;gap:9px!important;align-items:center!important;width:100%!important;padding:8px 4px!important;border:0!important;border-bottom:1px solid #edf1ef!important;box-sizing:border-box!important;text-align:left!important}
+  #tblPrisoesPreview td:last-child{border-bottom:0!important}
+  #tblPrisoesPreview td::before{content:attr(data-label);font-size:10px;font-weight:900;color:#31584c;text-transform:uppercase;line-height:1.15}
+  #tblPrisoesPreview td.cat{display:none!important}
+  #tblPrisoesPreview input[type="number"]{width:86px!important;max-width:86px!important;min-height:44px!important;justify-self:start!important;font-size:16px!important}
+  #tblPrisoesPreview textarea{width:100%!important;min-height:96px!important;font-size:16px!important;line-height:1.3!important;box-sizing:border-box!important}
+  #tblPrisoesPreview td:last-child{grid-template-columns:112px minmax(0,1fr)!important}
+  #tblPrisoesPreview td:last-child textarea{min-height:110px!important}
+  #tblPrisoesPreview .mobile-category{display:block!important;margin:-2px 0 7px!important;padding:5px 8px!important;border-radius:7px!important;background:#eef6f2!important;color:#174f3e!important;font-size:11px!important;font-weight:900!important;text-transform:uppercase!important}
+
+  /* Procedimentos administrativos: conclusão ganha mais espaço */
+  #procBody .desfechos{display:flex!important;flex-wrap:wrap!important;gap:8px 12px!important}
+  #procBody .desfechos label{white-space:nowrap!important}
+  #procBody textarea[aria-label="Conclusão do procedimento"]{min-height:110px!important}
+}
+</style>
+
 </head>
 <body>
 <!-- Barra de ações CPU: markup estático para permanecer visível no desktop mesmo antes da inicialização dos dados. -->
@@ -2211,7 +2249,7 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
             <tr>
               <td><textarea rows="2" aria-label="VTR ou guarnição autuante" placeholder="VTR/GU e autuante"></textarea></td>
               <td><div class="combo-stack"><select class="natureza-cat" aria-label="Categoria ambiental"><option value="">Natureza</option><option>Fauna</option><option>Flora</option><option>Poluição</option><option>Mineração</option><option>Pesca</option><option>Recursos Hídricos</option><option>Unidade de Conservação</option><option>Queimada/Incêndio</option><option>Licenciamento Ambiental</option><option>Outros</option></select><select class="natureza-sub" aria-label="Subnatureza"><option value="">Subnatureza</option></select><input class="natureza-outro" placeholder="Outra natureza" hidden></div></td>
-              <td><div class="desfechos" aria-label="Desfechos"><label><input type="checkbox" value="TCO"> TCO</label><label><input type="checkbox" value="APF"> APF</label><label><input type="checkbox" value="Procedimento administrativo" data-proc-adm> Proc. adm.</label><label><input type="checkbox" value="Apreensão"> Apreensão</label><label><input type="checkbox" value="Encaminhamento"> Encaminhamento</label></div><div class="ufr-wrap" hidden><label>UFR-PB aplicadas</label><div class="ufr-field"><input class="ufr-pb" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="0" aria-label="Quantidade de UFR-PB aplicadas"><span class="ufr-unit">UFR-PB</span></div><small>Informe a quantidade de UFR-PB aplicadas neste procedimento administrativo.</small></div><textarea rows="2" aria-label="Conclusão do procedimento" placeholder="Resultado, nº do termo/auto, providências adotadas..."></textarea></td>
+              <td><div class="desfechos" aria-label="Desfechos"><label><input type="checkbox" value="TCO"> TCO</label><label><input type="checkbox" value="APF"> APF</label><label><input type="checkbox" value="Procedimento administrativo" data-proc-adm> Proc. adm.</label><label><input type="checkbox" value="Apreensão"> Apreensão</label></div><div class="ufr-wrap" hidden><label>UFR-PB aplicadas</label><div class="ufr-field"><input class="ufr-pb" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="0" aria-label="Quantidade de UFR-PB aplicadas"><span class="ufr-unit">UFR-PB</span></div><small>Informe a quantidade de UFR-PB aplicadas neste procedimento administrativo.</small></div><textarea rows="2" aria-label="Conclusão do procedimento" placeholder="Resultado, nº do termo/auto, providências adotadas..."></textarea></td>
               <td><textarea rows="2" aria-label="Itens apreendidos" placeholder="Animais, veículos ou materiais apreendidos"></textarea></td>
               <td class="no-print" style="text-align:center;vertical-align:middle"><button type="button" class="btn-del" data-del-proc>Excluir</button></td>
             </tr>
@@ -2570,10 +2608,10 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
       const oldNat=natCell.querySelector('textarea,input')?.value||'', oldConc=concCell.querySelector('textarea')?.value||'';
       natCell.innerHTML='<div class="combo-stack"><select class="natureza-cat"><option value="">Natureza</option><option>Fauna</option><option>Flora</option><option>Poluição</option><option>Mineração</option><option>Pesca</option><option>Recursos Hídricos</option><option>Unidade de Conservação</option><option>Queimada/Incêndio</option><option>Licenciamento Ambiental</option><option>Outros</option></select><select class="natureza-sub"><option value="">Subnatureza</option></select><input class="natureza-outro" placeholder="Outra natureza" hidden></div>';
       const cat=guessNatureza(oldNat); natCell.querySelector('.natureza-cat').value=cat; syncNaturezaCombo(row,false); if(cat==='Outros')natCell.querySelector('.natureza-outro').value=oldNat;
-      concCell.innerHTML='<div class="desfechos"><label><input type="checkbox" value="TCO"> TCO</label><label><input type="checkbox" value="APF"> APF</label><label><input type="checkbox" value="Procedimento administrativo" data-proc-adm> Proc. adm.</label><label><input type="checkbox" value="Apreensão"> Apreensão</label><label><input type="checkbox" value="Encaminhamento"> Encaminhamento</label></div><div class="ufr-wrap" hidden><label>UFR-PB aplicadas</label><div class="ufr-field"><input class="ufr-pb" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="0"><span class="ufr-unit">UFR-PB</span></div><small>Informe a quantidade de UFR-PB aplicadas neste procedimento administrativo.</small></div><textarea rows="2" placeholder="Resultado, nº do termo/auto, providências adotadas..."></textarea>';
+      concCell.innerHTML='<div class="desfechos"><label><input type="checkbox" value="TCO"> TCO</label><label><input type="checkbox" value="APF"> APF</label><label><input type="checkbox" value="Procedimento administrativo" data-proc-adm> Proc. adm.</label><label><input type="checkbox" value="Apreensão"> Apreensão</label></div><div class="ufr-wrap" hidden><label>UFR-PB aplicadas</label><div class="ufr-field"><input class="ufr-pb" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="0"><span class="ufr-unit">UFR-PB</span></div><small>Informe a quantidade de UFR-PB aplicadas neste procedimento administrativo.</small></div><textarea rows="2" placeholder="Resultado, nº do termo/auto, providências adotadas..."></textarea>';
       concCell.querySelector('textarea').value=oldConc; const lc=oldConc.toLowerCase();
       if(/\btco\b/.test(lc))concCell.querySelector('input[value="TCO"]').checked=true; if(/\bapf\b|auto de prisão|auto de prisao|flagrante/.test(lc))concCell.querySelector('input[value="APF"]').checked=true;
-      if(/apreens/.test(lc))concCell.querySelector('input[value="Apreensão"]').checked=true; if(/encaminh/.test(lc))concCell.querySelector('input[value="Encaminhamento"]').checked=true;
+      if(/apreens/.test(lc))concCell.querySelector('input[value="Apreensão"]').checked=true;
     });
   }
   function syncUfrField(row,clearWhenOff=true){
@@ -2609,7 +2647,7 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
     return `<tr>
       <td><textarea rows="2" placeholder="VTR/GU e autuante"></textarea></td>
       <td><div class="combo-stack"><select class="natureza-cat"><option value="">Natureza</option><option>Fauna</option><option>Flora</option><option>Poluição</option><option>Mineração</option><option>Pesca</option><option>Recursos Hídricos</option><option>Unidade de Conservação</option><option>Queimada/Incêndio</option><option>Licenciamento Ambiental</option><option>Outros</option></select><select class="natureza-sub"><option value="">Subnatureza</option></select><input class="natureza-outro" placeholder="Outra natureza" hidden></div></td>
-      <td><div class="desfechos"><label><input type="checkbox" value="TCO"> TCO</label><label><input type="checkbox" value="APF"> APF</label><label><input type="checkbox" value="Procedimento administrativo" data-proc-adm> Proc. adm.</label><label><input type="checkbox" value="Apreensão"> Apreensão</label><label><input type="checkbox" value="Encaminhamento"> Encaminhamento</label></div><div class="ufr-wrap" hidden><label>UFR-PB aplicadas</label><div class="ufr-field"><input class="ufr-pb" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="0"><span class="ufr-unit">UFR-PB</span></div><small>Informe a quantidade de UFR-PB aplicadas neste procedimento administrativo.</small></div><textarea rows="2" placeholder="Resultado, nº do termo/auto, providências adotadas..."></textarea></td>
+      <td><div class="desfechos"><label><input type="checkbox" value="TCO"> TCO</label><label><input type="checkbox" value="APF"> APF</label><label><input type="checkbox" value="Procedimento administrativo" data-proc-adm> Proc. adm.</label><label><input type="checkbox" value="Apreensão"> Apreensão</label></div><div class="ufr-wrap" hidden><label>UFR-PB aplicadas</label><div class="ufr-field"><input class="ufr-pb" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="0"><span class="ufr-unit">UFR-PB</span></div><small>Informe a quantidade de UFR-PB aplicadas neste procedimento administrativo.</small></div><textarea rows="2" placeholder="Resultado, nº do termo/auto, providências adotadas..."></textarea></td>
       <td><textarea rows="2" placeholder="Animais, veículos ou materiais apreendidos"></textarea></td>
       <td class="no-print" style="text-align:center;vertical-align:middle"><button type="button" class="btn-del" data-del-proc>Excluir</button></td>
     </tr>`;
@@ -3664,5 +3702,35 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
   new MutationObserver(enhanceMobileTables).observe(document.documentElement,{childList:true,subtree:true});
 })();
 </script>
+
+<script id="bpma-cpu-mobile-js-v4013">
+(function(){
+  function labelPrisoes(){
+    var t=document.getElementById('tblPrisoesPreview'); if(!t)return;
+    var labels=['Categoria','Tipo de prisão','Qtd. prisões / apreensões','Qtd. TCO digital lavrado','Conclusão'];
+    var category='';
+    t.querySelectorAll('tbody tr').forEach(function(row){
+      var cells=Array.from(row.children), offset=0;
+      if(cells[0] && cells[0].classList.contains('cat')){category=(cells[0].textContent||'').trim();offset=1;}
+      var old=row.querySelector('.mobile-category'); if(old)old.remove();
+      var badge=document.createElement('div'); badge.className='mobile-category'; badge.textContent=category; row.insertBefore(badge,row.firstChild);
+      cells.forEach(function(cell,i){
+        if(cell.tagName!=='TD')return;
+        var idx=cell.classList.contains('cat')?0:(i-offset+1);
+        cell.setAttribute('data-label',labels[idx]||'');
+      });
+    });
+  }
+  function capTwoDigits(el){
+    if(!el || !el.matches || !el.matches('#tblPrisoesPreview input[type="number"]'))return;
+    var n=String(el.value||'').replace(/\D/g,'').slice(0,2);
+    if(n!=='' && Number(n)>99)n='99'; el.value=n;
+  }
+  document.addEventListener('input',function(e){capTwoDigits(e.target)});
+  document.addEventListener('DOMContentLoaded',labelPrisoes);
+  new MutationObserver(labelPrisoes).observe(document.documentElement,{childList:true,subtree:true});
+})();
+</script>
+
 </body>
 </html>
