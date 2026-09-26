@@ -1,4 +1,4 @@
-const CACHE='bpma-digital-4.0.5-ufr-estatisticas';
+const CACHE='bpma-digital-4.0.6-acoes-rascunho-finalizacao';
 const SHELL=[
   '/',
   '/index.html',

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>BPMA Digital — CPU · 4.0.5</title>
+<title>BPMA Digital — CPU · 4.0.6</title>
 <meta name="theme-color" content="#064e3b">
 <link rel="manifest" href="../manifest.webmanifest">
 <link rel="icon" type="image/png" href="https://png.pngtree.com/png-vector/20240531/ourlarge/pngtree-crested-caracara-bird-png-image_12588698.png">
@@ -2651,7 +2651,7 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
 <script src="../supabase-config.js"></script>
 <script src="../supabase-auth.js"></script>
 <script src="../security.js"></script>
-<script src="../print-helper.js?v=4.0.5"></script>
+<script src="../print-helper.js?v=4.0.6"></script>
 <script src="../supabase-cpu.js"></script>
 
 <script id="bpma-cpu-35-integration">
@@ -3341,7 +3341,16 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
       }
       window.BPMA_CPU_SYNC_PRINT_VALUES?.();
       const filename=`CPU_${String(record?.numero||'BPMA').replace(/[^a-zA-Z0-9_-]+/g,'_')}_v${record?.dados?.version?.number||1}.pdf`;
-      if(window.BPMA_PRINT?.printCurrent){
+      if(window.BPMA_PRINT?.generateMobilePdf){
+        const generated=await window.BPMA_PRINT.generateMobilePdf({
+          selector:'main.wrap',filename,
+          prepare:()=>{
+            window.BPMA_CPU_SYNC_PRINT_VALUES?.();
+            window.BPMA_CPU_buildPrintMirrors?.();
+          }
+        });
+        if(generated===false) throw new Error('Não foi possível gerar o PDF A4.');
+      }else if(window.BPMA_PRINT?.printCurrent){
         window.BPMA_PRINT.printCurrent({
           selector:'main.wrap',filename,
           prepare:()=>{
