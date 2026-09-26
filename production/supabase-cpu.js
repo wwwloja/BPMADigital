@@ -225,7 +225,7 @@
     if(current.status!=='Finalizado')return current;
     const version=current.dados?.version||{number:1,history:[{number:1,at:current.finalizedAt||current.updatedAt}]};
     const dados={...(current.dados||{}),pdf:null,version,audit:{...(current.dados?.audit||{}),lastRevisionStartedAt:new Date().toISOString()}};
-    const updated=await patch(id,{status:'Em revisão',finalized_at:null,dados});
+    const updated=await patch(id,{status:'Reaberto',finalized_at:null,dados});
     if(current.pdf?.path) await deletePdfObject(current.pdf.path);
     return updated;
   }

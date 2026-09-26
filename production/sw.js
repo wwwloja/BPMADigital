@@ -1,4 +1,4 @@
-const CACHE='bpma-digital-4.0.20-icones-cards-pdf-cpu';
+const CACHE='bpma-digital-4.0.21-cpu-finalizar-editar-pdf-desktop';
 const SHELL=[
   '/',
   '/index.html',

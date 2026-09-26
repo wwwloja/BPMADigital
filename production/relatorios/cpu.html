@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>BPMA Digital — CPU · 4.0.20</title>
+<title>BPMA Digital — CPU · 4.0.21</title>
 <meta name="theme-color" content="#064e3b">
 <link rel="manifest" href="../manifest.webmanifest">
 <link rel="icon" type="image/png" href="https://png.pngtree.com/png-vector/20240531/ourlarge/pngtree-crested-caracara-bird-png-image_12588698.png">
@@ -2706,7 +2706,7 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
 <script src="../supabase-config.js"></script>
 <script src="../supabase-auth.js"></script>
 <script src="../security.js"></script>
-<script src="../print-helper.js?v=4.0.20"></script>
+<script src="../print-helper.js?v=4.0.21"></script>
 <script src="../supabase-cpu.js"></script>
 
 <script id="bpma-cpu-35-integration">
@@ -3371,17 +3371,17 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
     const clear=$('#bpmaClear');
     const save=$('#bpmaSave');
     const saveBottom=$('#bpmaSaveBottom');
-    if(fin){ fin.disabled=!(canEdit() || record?.status==='Finalizado'); fin.textContent=record?.status==='Finalizado'?'📄 Gerar PDF novamente':'📄 Finalizar e gerar PDF'; }
+    if(fin){ fin.disabled=!(canEdit() || record?.status==='Finalizado'); fin.textContent=record?.status==='Finalizado'?'📄 Gerar PDF novamente':(record?.status==='Reaberto'?'📄 Finalizar correção e gerar PDF':'📄 Finalizar e gerar PDF'); }
     if(clear) clear.disabled=!canEdit();
     if(save){
       save.disabled=!canEdit() || record?.status==='Finalizado';
       save.hidden=record?.status==='Finalizado';
-      save.textContent=record?.status==='Em revisão'?'Salvar alterações':'Salvar rascunho';
+      save.textContent=record?.status==='Reaberto'?'Salvar alterações':'Salvar rascunho';
     }
     if(saveBottom){
       saveBottom.disabled=!canEdit() || record?.status==='Finalizado';
       saveBottom.hidden=record?.status==='Finalizado';
-      saveBottom.textContent=record?.status==='Em revisão'?'💾 Salvar alterações':'💾 Salvar rascunho';
+      saveBottom.textContent=record?.status==='Reaberto'?'💾 Salvar alterações':'💾 Salvar rascunho';
     }
     const edit=$('#bpmaEdit');
     if(edit){edit.hidden=!canRevise();edit.disabled=false;edit.textContent='✏️ Corrigir relatório';}
@@ -3487,7 +3487,7 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
       saveBtn.disabled=true;saveBtn.textContent='Salvando…';
       try{
         clearTimeout(saveTimer);
-        const ok=await persist(record?.status==='Em revisão'?'Em revisão':'Rascunho',true,true,true);
+        const ok=await persist(record?.status==='Reaberto'?'Reaberto':'Rascunho',true,true,true);
         if(ok){userTouched=false;updateToolbar();}
       }finally{
         saveBtn.dataset.busy='0';

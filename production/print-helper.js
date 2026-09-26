@@ -368,7 +368,7 @@
 
   async function generateMobilePdf(opts={}){
     if(window.BPMA_BO_PDF && (opts.selector||autoSelector())==='#view-bo .print-area') return generateBoPdf(opts);
-    if((opts.selector||autoSelector())==='main.wrap') return generateCpuMobilePdf(opts);
+    if((opts.selector||autoSelector())==='main.wrap') return isMobile()?generateCpuMobilePdf(opts):generateCpuDesktopPdf(opts);
     if(!opts.silent) showBusy();
     try{
       prepareSafe(opts.prepare);
@@ -816,6 +816,66 @@
     }finally{host.remove();style.remove()}
   }
 
+
+  async function generateCpuDesktopPdf(opts={}){
+    if(!opts.silent)showBusy();
+    let host=null,style=null;
+    try{
+      prepareSafe(opts.prepare);
+      autoPrepare();
+      try{window.dispatchEvent(new Event('beforeprint'))}catch{}
+      await ensurePdfLib();
+
+      const source=document.querySelector('main.wrap');
+      if(!source)throw new Error('Relatório CPU não encontrado.');
+      const clone=source.cloneNode(true);
+      syncControls(source,clone);
+      clone.querySelectorAll('.no-print,.report-final-actions,.report-final-note,script,button').forEach(el=>el.remove());
+
+      host=document.createElement('div');
+      host.id='bpmaCpuDesktopPdfHost';
+      host.style.cssText=`position:fixed!important;left:0!important;top:0!important;width:${CONTENT_W_MM}mm!important;max-width:${CONTENT_W_MM}mm!important;height:auto!important;margin:0!important;padding:0!important;background:#fff!important;z-index:-2147483000!important;pointer-events:none!important;overflow:visible!important;box-sizing:border-box!important`;
+      clone.style.cssText=`width:${CONTENT_W_MM}mm!important;max-width:${CONTENT_W_MM}mm!important;min-width:${CONTENT_W_MM}mm!important;height:auto!important;margin:0!important;padding:0!important;overflow:visible!important;background:#fff!important;box-sizing:border-box!important`;
+      host.appendChild(clone);
+      document.body.appendChild(host);
+
+      style=document.createElement('style');
+      style.textContent=collectPrintCss()+`
+        #bpmaCpuDesktopPdfHost,#bpmaCpuDesktopPdfHost *{box-sizing:border-box!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+        #bpmaCpuDesktopPdfHost .wrap{width:${CONTENT_W_MM}mm!important;max-width:${CONTENT_W_MM}mm!important;min-width:${CONTENT_W_MM}mm!important;margin:0!important;padding:0!important;transform:none!important;overflow:visible!important}
+        #bpmaCpuDesktopPdfHost .wrap>*{width:100%!important;max-width:100%!important;margin-left:0!important;margin-right:0!important}
+        #bpmaCpuDesktopPdfHost .no-print,#bpmaCpuDesktopPdfHost button{display:none!important}
+      `;
+      document.head.appendChild(style);
+      await inlineImages(clone);
+      await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
+
+      const worker=window.html2pdf().set({
+        html2canvas:{scale:1.6,useCORS:true,allowTaint:false,logging:false,backgroundColor:'#ffffff',scrollX:0,scrollY:0,removeContainer:true,imageTimeout:12000},
+        jsPDF:{unit:'mm',format:'a4',orientation:'portrait',compress:true}
+      }).from(clone).toCanvas();
+      const canvas=await worker.get('canvas');
+      if(!canvas || canvas.width<2 || canvas.height<2)throw new Error('Não foi possível montar o PDF do CPU.');
+
+      const pdf=await newEmptyPdf();
+      const state={pageOpen:false,y:MARGIN_MM};
+      addCanvasSlices(pdf,canvas,state);
+      if((pdf.getNumberOfPages?.()||0)===0)throw new Error('O CPU não possui conteúdo para gerar o PDF.');
+      const blob=pdf.output('blob');
+      if(!(blob instanceof Blob)||blob.size<1000)throw new Error('PDF CPU vazio ou inválido.');
+      if(!opts.silent)showReady(blob,opts.filename||'CPU_BPMA.pdf');
+      return opts.returnBlob?blob:true;
+    }catch(err){
+      console.error('PDF CPU desktop:',err);
+      if(opts.returnBlob)throw err;
+      if(!opts.silent)showError(err);
+      return false;
+    }finally{
+      try{host?.remove()}catch{}
+      try{style?.remove()}catch{}
+    }
+  }
+
   async function generateCpuMobilePdf(opts={}){
     if(!opts.silent)showBusy();
     try{
@@ -925,11 +985,12 @@
       if(isMobile()) return generateBoPdf(opts);
       return window.BPMA_BO_PDF.nativePrint();
     }
+    if(opts.selector==='main.wrap'){
+      if(isMobile()) generateCpuMobilePdf(opts);
+      else generateCpuDesktopPdf(opts);
+      return true;
+    }
     if(isMobile()){
-      if(opts.selector==='main.wrap'){
-        generateCpuMobilePdf(opts);
-        return true;
-      }
       generateMobilePdf(opts);
       return true;
     }
