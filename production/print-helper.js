@@ -368,7 +368,7 @@
 
   async function generateMobilePdf(opts={}){
     if(window.BPMA_BO_PDF && (opts.selector||autoSelector())==='#view-bo .print-area') return generateBoPdf(opts);
-    if((opts.selector||autoSelector())==='main.wrap') return isMobile()?generateCpuMobilePdf(opts):generateCpuDesktopPdf(opts);
+    if((opts.selector||autoSelector())==='main.wrap') return generateCpuDynamicPdf(opts);
     if(!opts.silent) showBusy();
     try{
       prepareSafe(opts.prepare);
@@ -798,6 +798,11 @@
       .bpma-cpu-fragment-host,.bpma-cpu-fragment-host *{box-sizing:border-box!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
       .bpma-cpu-fragment-host .wrap{width:${CONTENT_W_MM}mm!important;max-width:${CONTENT_W_MM}mm!important;margin:0!important;padding:0!important;overflow:visible!important;transform:none!important}
       .bpma-cpu-fragment-host .wrap>*{width:100%!important;max-width:100%!important;margin-left:0!important;margin-right:0!important;overflow:visible!important}
+      .bpma-cpu-fragment-host .card,.bpma-cpu-fragment-host .topbar,.bpma-cpu-fragment-host .title-row{width:100%!important;max-width:100%!important;box-shadow:none!important}
+      .bpma-cpu-fragment-host table{width:100%!important;max-width:100%!important;table-layout:fixed!important;border-collapse:collapse!important}
+      .bpma-cpu-fragment-host tr{break-inside:avoid!important;page-break-inside:avoid!important}
+      .bpma-cpu-fragment-host thead{display:table-header-group!important}
+      .bpma-cpu-fragment-host .table-wrap{overflow:visible!important;width:100%!important;max-width:100%!important}
       .bpma-cpu-fragment-host .no-print,.bpma-cpu-fragment-host .cpu-signature-main,.bpma-cpu-fragment-host button{display:none!important}
     `;
     document.head.appendChild(style);
@@ -809,7 +814,7 @@
       const width=Math.max(1,Math.ceil(wrap.getBoundingClientRect().width));
       const height=Math.max(1,Math.ceil(measured.scrollHeight||rect.height||wrap.scrollHeight));
       const worker=window.html2pdf().set({
-        html2canvas:{scale:1.35,useCORS:true,allowTaint:false,logging:false,backgroundColor:'#ffffff',width,height,windowWidth:width,scrollX:0,scrollY:0,removeContainer:true,imageTimeout:12000},
+        html2canvas:{scale:1.6,useCORS:true,allowTaint:false,logging:false,backgroundColor:'#ffffff',width,height,windowWidth:width,scrollX:0,scrollY:0,removeContainer:true,imageTimeout:12000},
         jsPDF:{unit:'mm',format:'a4',orientation:'portrait',compress:true}
       }).from(wrap).toCanvas();
       return await worker.get('canvas');
@@ -817,92 +822,48 @@
   }
 
 
-  async function generateCpuDesktopPdf(opts={}){
+  async function generateCpuDynamicPdf(opts={}){
     if(!opts.silent)showBusy();
-    let host=null,style=null;
     try{
       prepareSafe(opts.prepare);
       autoPrepare();
       try{window.dispatchEvent(new Event('beforeprint'))}catch{}
       await ensurePdfLib();
-
-      const source=document.querySelector('main.wrap');
-      if(!source)throw new Error('Relatório CPU não encontrado.');
-      const clone=source.cloneNode(true);
-      syncControls(source,clone);
-      clone.querySelectorAll('.no-print,.report-final-actions,.report-final-note,script,button').forEach(el=>el.remove());
-
-      host=document.createElement('div');
-      host.id='bpmaCpuDesktopPdfHost';
-      host.style.cssText=`position:fixed!important;left:0!important;top:0!important;width:${CONTENT_W_MM}mm!important;max-width:${CONTENT_W_MM}mm!important;height:auto!important;margin:0!important;padding:0!important;background:#fff!important;z-index:-2147483000!important;pointer-events:none!important;overflow:visible!important;box-sizing:border-box!important`;
-      clone.style.cssText=`width:${CONTENT_W_MM}mm!important;max-width:${CONTENT_W_MM}mm!important;min-width:${CONTENT_W_MM}mm!important;height:auto!important;margin:0!important;padding:0!important;overflow:visible!important;background:#fff!important;box-sizing:border-box!important`;
-      host.appendChild(clone);
-      document.body.appendChild(host);
-
-      style=document.createElement('style');
-      style.textContent=collectPrintCss()+`
-        #bpmaCpuDesktopPdfHost,#bpmaCpuDesktopPdfHost *{box-sizing:border-box!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
-        #bpmaCpuDesktopPdfHost .wrap{width:${CONTENT_W_MM}mm!important;max-width:${CONTENT_W_MM}mm!important;min-width:${CONTENT_W_MM}mm!important;margin:0!important;padding:0!important;transform:none!important;overflow:visible!important}
-        #bpmaCpuDesktopPdfHost .wrap>*{width:100%!important;max-width:100%!important;margin-left:0!important;margin-right:0!important}
-        #bpmaCpuDesktopPdfHost .no-print,#bpmaCpuDesktopPdfHost button{display:none!important}
-      `;
-      document.head.appendChild(style);
-      await inlineImages(clone);
-      await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
-
-      const worker=window.html2pdf().set({
-        html2canvas:{scale:1.6,useCORS:true,allowTaint:false,logging:false,backgroundColor:'#ffffff',scrollX:0,scrollY:0,removeContainer:true,imageTimeout:12000},
-        jsPDF:{unit:'mm',format:'a4',orientation:'portrait',compress:true}
-      }).from(clone).toCanvas();
-      const canvas=await worker.get('canvas');
-      if(!canvas || canvas.width<2 || canvas.height<2)throw new Error('Não foi possível montar o PDF do CPU.');
-
       const pdf=await newEmptyPdf();
       const state={pageOpen:false,y:MARGIN_MM};
-      addCanvasSlices(pdf,canvas,state);
+      const children=cpuMainChildren();
+      for(const child of children){
+        if(!child || child.matches?.('.no-print,.report-final-actions,.report-final-note'))continue;
+        await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
+        const canvas=await canvasForCpuFragment(child);
+        if(!canvas || canvas.width<2 || canvas.height<2)continue;
+        const hMm=(canvas.height/canvas.width)*CONTENT_W_MM;
+        // Blocos que cabem na folha não são reduzidos: apenas muda de página quando necessário.
+        if(hMm <= (A4_H_MM-(MARGIN_MM*2))){
+          if(!state.pageOpen || state.y+hMm > A4_H_MM-MARGIN_MM){pdf.addPage('a4','portrait');state.pageOpen=true;state.y=MARGIN_MM;}
+          pdf.addImage(canvas.toDataURL('image/jpeg',0.94),'JPEG',MARGIN_MM,state.y,CONTENT_W_MM,hMm,undefined,'FAST');
+          state.y+=hMm+1.8;
+        }else{
+          // Se a seção crescer, ela continua em quantas páginas A4 forem necessárias.
+          if(state.pageOpen && state.y>MARGIN_MM+0.1){state.pageOpen=false;state.y=MARGIN_MM;}
+          addCanvasSlices(pdf,canvas,state);
+        }
+      }
       if((pdf.getNumberOfPages?.()||0)===0)throw new Error('O CPU não possui conteúdo para gerar o PDF.');
       const blob=pdf.output('blob');
       if(!(blob instanceof Blob)||blob.size<1000)throw new Error('PDF CPU vazio ou inválido.');
       if(!opts.silent)showReady(blob,opts.filename||'CPU_BPMA.pdf');
       return opts.returnBlob?blob:true;
     }catch(err){
-      console.error('PDF CPU desktop:',err);
-      if(opts.returnBlob)throw err;
-      if(!opts.silent)showError(err);
-      return false;
-    }finally{
-      try{host?.remove()}catch{}
-      try{style?.remove()}catch{}
-    }
-  }
-
-  async function generateCpuMobilePdf(opts={}){
-    if(!opts.silent)showBusy();
-    try{
-      prepareSafe(opts.prepare);
-      autoPrepare();
-      try{window.dispatchEvent(new Event('beforeprint'))}catch{}
-      await ensurePdfLib();
-      const pdf=await newEmptyPdf();
-      const state={pageOpen:false,y:MARGIN_MM};
-      for(const child of cpuMainChildren()){
-        await new Promise(resolve=>requestAnimationFrame(resolve));
-        const canvas=await canvasForCpuFragment(child);
-        if(!canvas || canvas.width<2 || canvas.height<2)continue;
-        addCanvasSlices(pdf,canvas,state);
-      }
-      if((pdf.getNumberOfPages?.()||0)===0)throw new Error('O CPU não possui conteúdo para gerar o PDF.');
-      const blob=pdf.output('blob');
-      if(!(blob instanceof Blob)||blob.size<1000)throw new Error('PDF CPU vazio ou inválido.');
-      if(!opts.silent)showReady(blob,opts.filename||'CPU_BPMA.pdf');
-      return opts.returnBlob ? blob : true;
-    }catch(err){
-      console.error('PDF CPU por seções:',err);
+      console.error('PDF CPU dinâmico:',err);
       if(opts.returnBlob)throw err;
       if(!opts.silent)showError(err);
       return false;
     }finally{try{window.dispatchEvent(new Event('afterprint'))}catch{}}
   }
+
+  const generateCpuDesktopPdf=generateCpuDynamicPdf;
+  const generateCpuMobilePdf=generateCpuDynamicPdf;
 
   async function generateRfaMobilePdf(opts={}){
     showBusy();
@@ -1086,7 +1047,7 @@
 
   window.BPMA_PRINT={
     isIOS,isAndroid,isMobile,isStandalone,
-    printCurrent,printRfa,nativePrint,generateMobilePdf,generateRfaMobilePdf,
+    printCurrent,printRfa,nativePrint,generateMobilePdf,generateCpuDynamicPdf,generateRfaMobilePdf,
     openReportForPrint,installManualPrintBar,showFallback
   };
 })();

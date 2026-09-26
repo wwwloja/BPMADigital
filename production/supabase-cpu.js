@@ -76,7 +76,9 @@
       stats:row.stats||null,
       pdf:dados?.pdf||null,
       dados,
-      prefilledFromTemplate:!!dados?.prefilledFromTemplate
+      prefilledFromTemplate:!!dados?.prefilledFromTemplate,
+      correction: dados?.correction||null,
+      correctionActive: !!dados?.correction?.active
     };
   }
 
@@ -162,6 +164,8 @@
   }
 
   async function saveState(record,state,stats,numero){
+    // Rascunhos nunca alimentam as estatísticas oficiais. Stats só são gravadas
+    // no momento da finalização.
     const dados={
       ...(record?.dados||{}),
       state,
@@ -173,41 +177,77 @@
         semValidadeOperacional:!!record?.dados?.meta?.testMode
       }
     };
-    const body={dados,stats:record?.dados?.meta?.testMode?null:stats};
+    const body={dados};
     if(numero) body.numero=numero;
     return patch(record.id,body);
   }
 
-  async function finalize(record,state,stats,numero){
-    const now=new Date().toISOString();
-    const previous=Number(record?.dados?.version?.number)||0;
-    const number=previous+1;
-    const history=[...(record?.dados?.version?.history||[]),{number,at:now}];
+  async function saveCorrection(record,workingState,numero){
+    const current=await get(record.id);
+    if(!current) throw new Error('Relatório CPU não encontrado.');
+    if(current.status!=='Finalizado') throw new Error('Somente um CPU finalizado pode entrar em correção.');
+    const existing=current.dados?.correction||{};
     const dados={
-      ...(record?.dados||{}),
+      ...(current.dados||{}),
+      correction:{
+        ...existing,
+        active:true,
+        baseVersion:Number(existing.baseVersion||current.dados?.version?.number||1),
+        startedAt:existing.startedAt||new Date().toISOString(),
+        updatedAt:new Date().toISOString(),
+        workingState
+      }
+    };
+    const body={dados};
+    if(numero) body.numero=numero;
+    // status, finalized_at, stats e dados.state oficial permanecem intactos.
+    return patch(current.id,body);
+  }
+
+  async function finalize(record,state,stats,numero){
+    const current=await get(record.id);
+    if(!current) throw new Error('Relatório CPU não encontrado.');
+    const now=new Date().toISOString();
+    const previous=Number(current?.dados?.version?.number)||0;
+    const number=previous+1;
+    const history=[...(current?.dados?.version?.history||[]),{number,at:now}];
+    const wasCorrection=!!current?.dados?.correction?.active;
+    const serviceIdentity=current?.dados?.serviceIdentity || {
+      dataServico:stats?.dataServico||'',
+      numero:current?.numero||numero||'',
+      createdAt:current?.createdAt||now
+    };
+    const dados={
+      ...(current?.dados||{}),
       state,
+      correction:null,
       prefilledFromTemplate:false,
-      testMode:!!record?.dados?.meta?.testMode,
-      semValidadeOperacional:!!record?.dados?.meta?.testMode,
+      testMode:!!current?.dados?.meta?.testMode,
+      semValidadeOperacional:!!current?.dados?.meta?.testMode,
       version:{number,history},
-      serviceIdentity: record?.dados?.serviceIdentity || {dataServico:stats?.dataServico||'',createdAt:record?.createdAt||now},
-      audit:{...(record?.dados?.audit||{}),lastFinalizedAt:now,corrections:Math.max(0,number-1)}
+      serviceIdentity,
+      audit:{
+        ...(current?.dados?.audit||{}),
+        lastFinalizedAt:now,
+        corrections:Math.max(0,number-1),
+        lastAction:wasCorrection?'correction_finalized':'finalized'
+      }
     };
     const body={
       dados,
-      stats:record?.dados?.meta?.testMode?null:stats,
+      stats:current?.dados?.meta?.testMode?null:stats,
       status:'Finalizado',
       finalized_at:now
     };
     if(numero) body.numero=numero;
-    return patch(record.id,body);
+    return patch(current.id,body);
   }
 
   async function clear(id,state,stats){
     const current=await get(id);
     if(!current) throw new Error('Relatório CPU não encontrado.');
     const dados={...(current.dados||{}),state,prefilledFromTemplate:false};
-    return patch(id,{dados,stats});
+    return patch(id,{dados});
   }
 
   async function deletePdfObject(path){
@@ -222,12 +262,29 @@
   async function startRevision(id){
     const current=await get(id);
     if(!current) throw new Error('Relatório CPU não encontrado.');
-    if(current.status!=='Finalizado')return current;
-    const version=current.dados?.version||{number:1,history:[{number:1,at:current.finalizedAt||current.updatedAt}]};
-    const dados={...(current.dados||{}),pdf:null,version,audit:{...(current.dados?.audit||{}),lastRevisionStartedAt:new Date().toISOString()}};
-    const updated=await patch(id,{status:'Reaberto',finalized_at:null,dados});
-    if(current.pdf?.path) await deletePdfObject(current.pdf.path);
-    return updated;
+    if(current.status!=='Finalizado') return current;
+    if(current.dados?.correction?.active) return current;
+    const dados={
+      ...(current.dados||{}),
+      correction:{
+        active:true,
+        baseVersion:Number(current.dados?.version?.number||1),
+        startedAt:new Date().toISOString(),
+        updatedAt:new Date().toISOString(),
+        workingState:JSON.parse(JSON.stringify(current.state||{}))
+      },
+      audit:{...(current.dados?.audit||{}),lastRevisionStartedAt:new Date().toISOString()}
+    };
+    // Mantém status Finalizado, stats, PDF e finalized_at. Assim a versão oficial
+    // continua alimentando as estatísticas enquanto a correção está em andamento.
+    return patch(id,{dados});
+  }
+
+  async function cancelRevision(id){
+    const current=await get(id);
+    if(!current) throw new Error('Relatório CPU não encontrado.');
+    const dados={...(current.dados||{}),correction:null,audit:{...(current.dados?.audit||{}),lastRevisionCancelledAt:new Date().toISOString()}};
+    return patch(id,{dados});
   }
   const reopen=startRevision;
 
@@ -312,7 +369,7 @@
   }
 
   window.BPMA_CPU={
-    listVisible,get,create,saveState,finalize,clear,reopen,startRevision,remove,
+    listVisible,get,create,saveState,saveCorrection,finalize,clear,reopen,startRevision,cancelRevision,remove,
     archivePdf,signedPdfUrl,PDF_RETENTION_DAYS,friendlyError
   };
 })();

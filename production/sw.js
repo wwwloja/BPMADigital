@@ -1,4 +1,4 @@
-const CACHE='bpma-digital-4.0.21-cpu-finalizar-editar-pdf-desktop';
+const CACHE='bpma-digital-4.0.22-cpu-regra-oficial-pdf-dinamico';
 const SHELL=[
   '/',
   '/index.html',

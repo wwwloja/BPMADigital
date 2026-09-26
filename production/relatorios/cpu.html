@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>BPMA Digital — CPU · 4.0.21</title>
+<title>BPMA Digital — CPU · 4.0.22</title>
 <meta name="theme-color" content="#064e3b">
 <link rel="manifest" href="../manifest.webmanifest">
 <link rel="icon" type="image/png" href="https://png.pngtree.com/png-vector/20240531/ourlarge/pngtree-crested-caracara-bird-png-image_12588698.png">
@@ -1924,8 +1924,9 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
   </div>
   <div class="bpma-actions">
     <button type="button" id="bpmaBack" onclick="if(!this.dataset.bound){location.href='../index.html#cpu'}">← Voltar</button>
-    <button type="button" id="bpmaEdit" hidden>✏️ Corrigir relatório</button>
-    <button type="button" id="bpmaSave" class="primary">Salvar rascunho</button>
+    <button type="button" id="bpmaEdit" hidden>✏️ Corrigir este CPU</button>
+    <button type="button" id="bpmaNewFromThis" hidden>➕ Criar novo CPU a partir deste</button>
+    <button type="button" id="bpmaCancelCorrection" hidden>↩ Cancelar correção</button>
     <button type="button" id="bpmaClear">Limpar</button>
 
   </div>
@@ -2365,7 +2366,6 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
 </section>
 
 <div class="report-final-actions no-print cpu-end-actions">
-  <button type="button" id="bpmaSaveBottom" class="finalize-action secondary-action">💾 Salvar alterações</button>
   <button type="button" id="bpmaFinalize" class="finalize-action">📄 Finalizar e gerar PDF</button>
 </div>
 <div class="report-final-note">
@@ -2706,7 +2706,7 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
 <script src="../supabase-config.js"></script>
 <script src="../supabase-auth.js"></script>
 <script src="../security.js"></script>
-<script src="../print-helper.js?v=4.0.21"></script>
+<script src="../print-helper.js?v=4.0.22"></script>
 <script src="../supabase-cpu.js"></script>
 
 <script id="bpma-cpu-35-integration">
@@ -2723,6 +2723,7 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
   const params=new URLSearchParams(location.search);
   const autoPrint=params.get('print')==='1';
   const newMode=params.get('new')==='1';
+  const correctMode=params.get('correct')==='1';
   let recordId=params.get('record')||'';
   const session=JSON.parse(sessionStorage.getItem(SESSION_KEY)||'null');
 
@@ -2929,10 +2930,12 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
     return compatible;
   }
 
+  function correctionActive(){ return !!record?.dados?.correction?.active || !!record?.correctionActive; }
+
   function canEdit(){
     if(!session || !record) return false;
     if(session.role==='gestor') return false;
-    if(record.status==='Finalizado' && !editingFinalized) return false;
+    if(record.status==='Finalizado' && !correctionActive()) return false;
     if(session.role==='admin' || session.role==='p3') return true;
     const owner=String(record.authorId)===String(session.id);
     if(!owner) return false;
@@ -2940,7 +2943,7 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
   }
 
   function canRevise(){
-    if(!session || record?.status!=='Finalizado' || session.role==='gestor')return false;
+    if(!session || record?.status!=='Finalizado' || correctionActive() || session.role==='gestor')return false;
     return session.role==='admin'||session.role==='p3'||String(record.authorId)===String(session.id);
   }
 
@@ -2951,8 +2954,11 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
     try{
       record=await window.BPMA_CPU.startRevision(record.id);
       editingFinalized=true;
+      const working=record?.dados?.correction?.workingState;
+      if(working) restoreState(JSON.parse(JSON.stringify(working)));
       document.querySelector('.bpma-readonly-notice')?.remove();
       $$('[data-bpma-readonly="1"]').forEach(el=>{el.disabled=false;el.readOnly=false;delete el.dataset.bpmaReadonly});
+      lockServiceDateFields(true);
       updateToolbar();
       setReadonly();
     }catch(err){
@@ -2961,12 +2967,20 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
     }
   }
 
+  function lockServiceDateFields(lock){
+    ['identificacaoServico','inicioData','terminoData'].forEach(name=>{
+      const el=$(`[name="${name}"]`); if(!el)return;
+      if(lock){el.readOnly=true;el.dataset.bpmaDateLocked='1';el.title='A data pertence à identidade deste CPU. Para outro dia, crie um novo CPU a partir deste.'}
+      else if(el.dataset.bpmaDateLocked==='1'){el.readOnly=false;delete el.dataset.bpmaDateLocked;el.removeAttribute('title')}
+    });
+  }
+
   function setReadonly(){
     if(canEdit()) return;
     const notice=document.createElement('div');
     notice.className='bpma-readonly-notice';
     notice.textContent=record?.status==='Finalizado'
-      ? 'Relatório finalizado — aberto somente para visualização.'
+      ? 'Relatório finalizado — versão oficial protegida. Use “Corrigir este CPU” ou “Criar novo CPU a partir deste”.'
       : 'Seu perfil possui acesso somente para visualização deste relatório.';
     document.body.prepend(notice);
 
@@ -3203,118 +3217,77 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
   }
 
   async function persist(status,showMessage=true,force=false,stayOpen=false){
-    if(!record){
-      alert('Registro do sistema não encontrado.');
-      return false;
-    }
-    if(!canEdit()){
-      alert('Este relatório está somente para visualização.');
-      return false;
-    }
-    if(!record.id && !userTouched && !force && status!=='Finalizado'){
-      if(showMessage) alert('Nenhum campo foi preenchido. Nenhum rascunho foi criado.');
-      return true;
-    }
-    if(saving){
-      pendingSave=true;
-      return false;
-    }
-
+    if(!record){ if(showMessage)alert('Registro do sistema não encontrado.'); return false; }
+    if(!canEdit()){ if(showMessage)alert('Este relatório está somente para visualização.'); return false; }
+    if(!record.id && !userTouched && !force && status!=='Finalizado') return true;
+    if(saving){ pendingSave=true; return false; }
     saving=true;
+    setAutosaveState('Salvando…');
     try{
       const state=captureState();
       const stats=extractCPUStats();
-      if(record?.dados?.serviceIdentity?.dataServico && stats.dataServico!==record.dados.serviceIdentity.dataServico){
-        alert(`A data-base deste serviço é ${record.dados.serviceIdentity.dataServico}. Para outro dia, use “Usar como modelo” e crie um novo relatório.`);
-        const dataEl=$('[name="inicioData"]'); if(dataEl)dataEl.value=record.dados.serviceIdentity.dataServico;
+      const officialDate=record?.dados?.serviceIdentity?.dataServico;
+      if(officialDate && stats.dataServico!==officialDate){
+        const dataEl=$('[name="inicioData"]'); if(dataEl)dataEl.value=officialDate;
+        if(showMessage) alert(`A data-base deste CPU é ${officialDate}. Para outro dia, use “Criar novo CPU a partir deste”.`);
         return false;
       }
       if(!record.id) await ensureRecord(state);
       const numero=deriveTitle();
 
-      record = status==='Finalizado'
-        ? await window.BPMA_CPU.finalize(record,state,stats,numero)
-        : await window.BPMA_CPU.saveState(record,state,stats,numero);
-
       if(status==='Finalizado'){
-        editingFinalized=false;
-        userTouched=false;
-        const template=JSON.parse(JSON.stringify(state||{}));
-        delete template.coordinatorSignature;
-        localStorage.setItem(templateKey(record.authorId,'CPU'),JSON.stringify(template));
+        record=await window.BPMA_CPU.finalize(record,state,stats,numero);
+        editingFinalized=false; userTouched=false;
+        setAutosaveState('Finalizado');
 
-        let pdfArchived=false;
-        let pdfArchiveError=null;
+        let pdfArchived=false,pdfArchiveError=null;
         try{
           const safeNumero=String(record?.numero||'CPU').replace(/[^a-zA-Z0-9_-]+/g,'_');
           const filename=`CPU_${safeNumero}_v${record?.dados?.version?.number||1}.pdf`;
-          const blob=await window.BPMA_PRINT?.generateMobilePdf?.({
-            selector:'main.wrap',
-            filename,
-            silent:true,
-            returnBlob:true,
-            prepare:()=>{
-              window.BPMA_CPU_SYNC_PRINT_VALUES?.();
-              window.BPMA_CPU_buildPrintMirrors?.();
-            }
-          });
-          if(blob instanceof Blob){
-            record=await window.BPMA_CPU.archivePdf(record,blob,filename);
-            pdfArchived=true;
-          }
-        }catch(err){
-          pdfArchiveError=err;
-          console.warn('CPU finalizado, mas o PDF temporário não pôde ser arquivado:',err);
-        }
-
-        if(stayOpen){
-          updateToolbar();
-          setReadonly();
-          return true;
-        }
-        if(showMessage){
-          if(pdfArchived){
-            alert('Relatório CPU finalizado. Dados e estatísticas salvos no Supabase e PDF arquivado por 365 dias.');
-          }else{
-            alert('Relatório CPU finalizado e dados salvos no Supabase. O PDF temporário não pôde ser arquivado agora; use 📄 Gerar PDF para guardar uma cópia.'+(pdfArchiveError?'':' '));
-          }
-        }
+          const blob=await window.BPMA_PRINT?.generateMobilePdf?.({selector:'main.wrap',filename,silent:true,returnBlob:true,prepare:()=>{window.BPMA_CPU_SYNC_PRINT_VALUES?.();window.BPMA_CPU_buildPrintMirrors?.();}});
+          if(blob instanceof Blob){record=await window.BPMA_CPU.archivePdf(record,blob,filename);pdfArchived=true;}
+        }catch(err){pdfArchiveError=err;console.warn('CPU finalizado, mas o PDF não pôde ser arquivado:',err)}
+        if(stayOpen){updateToolbar();setReadonly();return true;}
+        if(showMessage) alert(pdfArchived?'Relatório CPU finalizado. A versão oficial e as estatísticas foram atualizadas.':'Relatório CPU finalizado e estatísticas atualizadas. Gere o PDF novamente para guardar uma cópia.');
         location.replace('../index.html#cpu');
         return true;
       }
 
+      if(correctionActive()){
+        record=await window.BPMA_CPU.saveCorrection(record,state,numero);
+      }else{
+        record=await window.BPMA_CPU.saveState(record,state,null,numero);
+      }
       updateToolbar();
-      if(showMessage) alert('Rascunho salvo no Supabase.');
+      setAutosaveState('✓ Alterações salvas automaticamente');
       return true;
     }catch(err){
-      if(showMessage) alert(window.BPMA_CPU.friendlyError(err));
-      else console.warn('Falha no autosave do CPU:',err);
+      setAutosaveState('Falha ao salvar automaticamente');
+      if(showMessage) alert(window.BPMA_CPU.friendlyError(err)); else console.warn('Falha no autosave do CPU:',err);
       return false;
     }finally{
       saving=false;
-      if(pendingSave && status!=='Finalizado'){
-        pendingSave=false;
-        setTimeout(()=>persist(record?.status==='Reaberto'?'Reaberto':'Rascunho',false),80);
-      }else pendingSave=false;
+      if(pendingSave && status!=='Finalizado'){pendingSave=false;setTimeout(()=>persist('Rascunho',false),120)}else pendingSave=false;
     }
   }
+
+  function setAutosaveState(text){
+    const el=$('#bpmaAutosaveState'); if(el)el.textContent=text||'';
+  }
+
   function queueSave(){
     if(!canEdit())return;
     userTouched=true;
-    if(record?.status==='Finalizado'){
-      void beginRevision().then(ok=>{if(ok)queueSave()});
-      return;
-    }
     clearTimeout(saveTimer);
-    saveTimer=setTimeout(()=>persist(record?.status==='Reaberto'?'Reaberto':'Rascunho',false),1200);
+    saveTimer=setTimeout(()=>persist('Rascunho',false),900);
   }
 
   async function beginRevision(){
-    if(record?.status!=='Finalizado')return true;
+    if(record?.status!=='Finalizado' || correctionActive())return true;
     if(!editingFinalized)return false;
     if(!revisionPromise){
       revisionPromise=window.BPMA_CPU.startRevision(record.id)
-        .then(updated=>{record=updated;updateToolbar();return true})
+        .then(updated=>{record=updated;editingFinalized=true;updateToolbar();return true})
         .catch(err=>{alert(window.BPMA_CPU.friendlyError(err));return false})
         .finally(()=>{revisionPromise=null});
     }
@@ -3357,36 +3330,20 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
   }
 
   function updateToolbar(){
-    const title=$('#bpmaRecordTitle');
-    const sub=$('#bpmaRecordSub');
-    if(title){
-      const isTest=!!record?.dados?.meta?.testMode;
-      const prefix=isTest?'CPU TESTE':'CPU';
-      title.textContent=record?.id ? `${prefix} · ${record?.numero||'CPU'}` : `${prefix} · Novo relatório`;
+    const title=$('#bpmaRecordTitle'), sub=$('#bpmaRecordSub');
+    const correction=correctionActive();
+    if(title){const isTest=!!record?.dados?.meta?.testMode;const prefix=isTest?'CPU TESTE':'CPU';title.textContent=record?.id?`${prefix} · ${record?.numero||'CPU'}`:`${prefix} · Novo relatório`;}
+    if(sub){
+      const visualStatus=correction?'Em correção':(record?.status||'Rascunho');
+      sub.innerHTML=record?.id?`${visualStatus}${record?.dados?.version?.number?` · v${record.dados.version.number}`:''} · ${record?.unidade||''} · ${record?.autor||''} <span id="bpmaAutosaveState" style="margin-left:8px;color:#0b6b4f;font-weight:800">${correction?'✓ Correção salva automaticamente':(record?.status==='Finalizado'?'Versão oficial':'✓ Salvamento automático')}</span>`:`Novo relatório · ${record?.unidade||''} <span id="bpmaAutosaveState" style="margin-left:8px;color:#0b6b4f;font-weight:800">✓ Salvamento automático</span>`;
     }
-    if(sub) sub.textContent=record?.id
-      ? `${record?.status||'Rascunho'}${record?.dados?.version?.number?` · v${record.dados.version.number}`:''} · ${record?.unidade||''} · ${record?.autor||''}`
-      : `Não salvo · o rascunho será criado após o primeiro preenchimento · ${record?.unidade||''}`;
-    const fin=$('#bpmaFinalize');
-    const clear=$('#bpmaClear');
-    const save=$('#bpmaSave');
-    const saveBottom=$('#bpmaSaveBottom');
-    if(fin){ fin.disabled=!(canEdit() || record?.status==='Finalizado'); fin.textContent=record?.status==='Finalizado'?'📄 Gerar PDF novamente':(record?.status==='Reaberto'?'📄 Finalizar correção e gerar PDF':'📄 Finalizar e gerar PDF'); }
-    if(clear) clear.disabled=!canEdit();
-    if(save){
-      save.disabled=!canEdit() || record?.status==='Finalizado';
-      save.hidden=record?.status==='Finalizado';
-      save.textContent=record?.status==='Reaberto'?'Salvar alterações':'Salvar rascunho';
-    }
-    if(saveBottom){
-      saveBottom.disabled=!canEdit() || record?.status==='Finalizado';
-      saveBottom.hidden=record?.status==='Finalizado';
-      saveBottom.textContent=record?.status==='Reaberto'?'💾 Salvar alterações':'💾 Salvar rascunho';
-    }
-    const edit=$('#bpmaEdit');
-    if(edit){edit.hidden=!canRevise();edit.disabled=false;edit.textContent='✏️ Corrigir relatório';}
+    const fin=$('#bpmaFinalize'),clear=$('#bpmaClear'),edit=$('#bpmaEdit'),newFrom=$('#bpmaNewFromThis'),cancel=$('#bpmaCancelCorrection');
+    if(fin){fin.disabled=!(canEdit() || record?.status==='Finalizado');fin.textContent=record?.status==='Finalizado'&&!correction?'📄 Gerar PDF oficial':(correction?'📄 Finalizar correção e gerar PDF':'📄 Finalizar e gerar PDF');}
+    if(clear){clear.disabled=!canEdit();clear.hidden=record?.status==='Finalizado';}
+    if(edit){edit.hidden=!canRevise();edit.disabled=false;edit.textContent='✏️ Corrigir este CPU';}
+    if(newFrom){newFrom.hidden=!(record?.status==='Finalizado'&&!correction);newFrom.disabled=false;}
+    if(cancel){cancel.hidden=!correction;cancel.disabled=false;}
   }
-
 
   async function leaveReport(target){
     if(leaveReport.busy)return;
@@ -3402,7 +3359,7 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
     try{
       if(record?.status!=='Finalizado' && canEdit() && (record?.id || userTouched)){
         result=await Promise.race([
-          persist(record?.status==='Reaberto'?'Reaberto':'Rascunho',false),
+          persist('Rascunho',false),
           new Promise(resolve=>setTimeout(()=>resolve(null),4000))
         ]);
       }
@@ -3425,10 +3382,8 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
     try{
       if(revisionPromise && !(await revisionPromise))return;
       if(record?.status==='Finalizado' && editingFinalized && userTouched && !(await beginRevision()))return;
-      if(record?.status!=='Finalizado'){
-        alert('Relatório ainda não finalizado. Para gerar o PDF oficial, finalize o Relatório de Serviço CPU primeiro.');
-        return;
-      }
+      if(record?.status!=='Finalizado'){alert('Relatório ainda não finalizado. Finalize o CPU para gerar o PDF oficial.');return;}
+      if(correctionActive()){alert('Este CPU está em correção. Finalize a correção para gerar a nova versão oficial.');return;}
       window.BPMA_CPU_SYNC_PRINT_VALUES?.();
       const filename=`CPU_${String(record?.numero||'BPMA').replace(/[^a-zA-Z0-9_-]+/g,'_')}_v${record?.dados?.version?.number||1}.pdf`;
       if(window.BPMA_PRINT?.generateMobilePdf){
@@ -3456,91 +3411,36 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
   };
 
   function buildToolbar(){
-    // A barra já existe no HTML para não desaparecer caso o carregamento do CPU demore.
-    // Mantemos criação dinâmica apenas como fallback para versões antigas/cache do PWA.
     let bar=document.getElementById('bpmaSystemToolbar') || document.querySelector('.bpma-system-toolbar');
     if(!bar){
-      bar=document.createElement('div');
-      bar.id='bpmaSystemToolbar';
-      bar.className='bpma-system-toolbar no-print';
-      bar.innerHTML=`
-        <div class="bpma-meta"><b id="bpmaRecordTitle">CPU · Relatório</b><small id="bpmaRecordSub"></small></div>
-        <div class="bpma-actions">
-          <button type="button" id="bpmaBack">← Voltar</button>
-          <button type="button" id="bpmaEdit" hidden>✏️ Corrigir relatório</button>
-          <button type="button" id="bpmaSave" class="primary">Salvar rascunho</button>
-          <button type="button" id="bpmaClear">Limpar</button>
-
-        </div>`;
+      bar=document.createElement('div');bar.id='bpmaSystemToolbar';bar.className='bpma-system-toolbar no-print';
+      bar.innerHTML=`<div class="bpma-meta"><b id="bpmaRecordTitle">CPU · Relatório</b><small id="bpmaRecordSub"></small></div><div class="bpma-actions"><button type="button" id="bpmaBack">← Voltar</button><button type="button" id="bpmaEdit" hidden>✏️ Corrigir este CPU</button><button type="button" id="bpmaNewFromThis" hidden>➕ Criar novo CPU a partir deste</button><button type="button" id="bpmaCancelCorrection" hidden>↩ Cancelar correção</button><button type="button" id="bpmaClear">Limpar</button></div>`;
       document.body.appendChild(bar);
     }
-
-    const back=$('#bpmaBack');
-    if(back){back.dataset.bound='1';back.onclick=()=>leaveReport('../index.html#cpu')}
+    $('#bpmaBack').onclick=()=>leaveReport('../index.html#cpu');
     $('#bpmaEdit').onclick=enableFinalEdit;
-    const saveBtn=$('#bpmaSave');
-    if(saveBtn) saveBtn.onclick=async()=>{
-      if(saveBtn.dataset.busy==='1')return;
-      if(!canEdit()){alert('Este relatório está somente para visualização.');return;}
-      saveBtn.dataset.busy='1';
-      const oldText=saveBtn.textContent;
-      saveBtn.disabled=true;saveBtn.textContent='Salvando…';
-      try{
-        clearTimeout(saveTimer);
-        const ok=await persist(record?.status==='Reaberto'?'Reaberto':'Rascunho',true,true,true);
-        if(ok){userTouched=false;updateToolbar();}
-      }finally{
-        saveBtn.dataset.busy='0';
-        saveBtn.textContent=oldText;
-        updateToolbar();
-      }
+    $('#bpmaNewFromThis').onclick=()=>{if(record?.id)location.href=`cpu.html?new=1&model=${encodeURIComponent(record.id)}`};
+    $('#bpmaCancelCorrection').onclick=async()=>{
+      if(!correctionActive())return;
+      if(!confirm('Cancelar a correção? As alterações ainda não finalizadas serão descartadas e a versão oficial anterior será mantida.'))return;
+      try{record=await window.BPMA_CPU.cancelRevision(record.id);editingFinalized=false;restoreState(record.state);lockServiceDateFields(false);updateToolbar();setReadonly();}
+      catch(err){alert(window.BPMA_CPU?.friendlyError?.(err)||err.message||'Não foi possível cancelar a correção.');}
     };
-    const saveBottom=$('#bpmaSaveBottom');
-    if(saveBottom) saveBottom.onclick=()=>saveBtn?.click();
     $('#bpmaClear').onclick=clearCurrentReport;
     $('#bpmaFinalize').onclick=async()=>{
-      const fin=$('#bpmaFinalize');
-      if(!fin || fin.dataset.busy==='1')return;
-      if(record?.status==='Finalizado'){
-        await window.BPMA_CPU_PRINT_NOW?.();
-        return;
-      }
-      if(!canEdit()){
-        alert('Este relatório não está disponível para edição com este usuário.');
-        return;
-      }
-      if(!confirm('Finalizar este Relatório CPU e gerar o PDF?')) return;
-      fin.dataset.busy='1';
-      fin.disabled=true;
-      const originalText=fin.textContent;
-      fin.textContent='Finalizando…';
+      const fin=$('#bpmaFinalize'); if(!fin||fin.dataset.busy==='1')return;
+      if(record?.status==='Finalizado'&&!correctionActive()){await window.BPMA_CPU_PRINT_NOW?.();return;}
+      if(!canEdit()){alert('Este relatório não está disponível para edição com este usuário.');return;}
+      const correction=correctionActive();
+      if(!confirm(correction?'Finalizar esta correção? A nova versão substituirá os dados oficiais nas estatísticas sem duplicar o CPU.':'Finalizar este Relatório CPU? Os dados passarão a alimentar as estatísticas oficiais.'))return;
+      fin.dataset.busy='1';fin.disabled=true;const originalText=fin.textContent;fin.textContent='Finalizando…';
       try{
-        clearTimeout(saveTimer);
-        if(revisionPromise && !(await revisionPromise)) throw new Error('Não foi possível preparar o relatório para finalização.');
-        for(let i=0;saving && i<160;i++) await new Promise(resolve=>setTimeout(resolve,50));
-        if(saving) throw new Error('O salvamento automático ainda está em andamento. Aguarde alguns segundos e tente novamente.');
-        pendingSave=false;
-        const ok=await persist('Finalizado',true,true,true);
-        if(!ok) throw new Error('A finalização não foi confirmada. Revise os dados e tente novamente.');
-
-        // Confirma no Supabase antes de abrir o PDF. Isso corrige rascunhos reabertos por “Continuar”.
-        const confirmed=record?.id ? await window.BPMA_CPU.get(record.id) : null;
-        if(!confirmed || confirmed.status!=='Finalizado'){
-          throw new Error('O Supabase não confirmou a finalização deste relatório. O PDF não foi gerado.');
-        }
-        record=confirmed;
-        editingFinalized=false;
-        updateToolbar();
-        setReadonly();
-        await window.BPMA_CPU_PRINT_NOW?.();
-      }catch(err){
-        console.error('Finalização CPU:',err);
-        alert(window.BPMA_CPU?.friendlyError?.(err)||err.message||'Não foi possível finalizar e gerar o PDF.');
-      }finally{
-        fin.dataset.busy='0';
-        fin.textContent=originalText;
-        updateToolbar();
-      }
+        clearTimeout(saveTimer);for(let i=0;saving&&i<160;i++)await new Promise(r=>setTimeout(r,50));if(saving)throw new Error('O salvamento automático ainda está em andamento. Aguarde alguns segundos.');
+        pendingSave=false;const ok=await persist('Finalizado',true,true,true);if(!ok)throw new Error('A finalização não foi confirmada.');
+        const confirmed=record?.id?await window.BPMA_CPU.get(record.id):null;if(!confirmed||confirmed.status!=='Finalizado'||confirmed.dados?.correction?.active)throw new Error('O Supabase não confirmou a nova versão oficial.');
+        record=confirmed;editingFinalized=false;updateToolbar();setReadonly();await window.BPMA_CPU_PRINT_NOW?.();
+      }catch(err){console.error('Finalização CPU:',err);alert(window.BPMA_CPU?.friendlyError?.(err)||err.message||'Não foi possível finalizar e gerar o PDF.');}
+      finally{fin.dataset.busy='0';fin.textContent=originalText;updateToolbar();}
     };
   }
 
@@ -3587,7 +3487,9 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
   updateToolbar();
   let restoreCompatible=true;
   try{
-    restoreCompatible=restoreState(record.state);
+    const initialRestoreState=record?.dados?.correction?.active ? record.dados.correction.workingState : record.state;
+    if(record?.dados?.correction?.active){editingFinalized=true;}
+    restoreCompatible=restoreState(initialRestoreState);
   }catch(err){
     restoreCompatible=false;
     console.error('CPU: falha inesperada ao restaurar o rascunho:',err);
@@ -3603,8 +3505,7 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
       const source=await window.BPMA_CPU.get(modelId);
       if(source?.state){
         restoreState(JSON.parse(JSON.stringify(source.state)));
-        const ini=$('[name="inicioData"]'), fim=$('[name="terminoData"]');
-        if(ini)ini.value=''; if(fim)fim.value='';
+        ['identificacaoServico','inicioData','terminoData','inicioHora','terminoHora'].forEach(name=>{const el=$(`[name="${name}"]`);if(el)el.value='';});
         setCoordinatorSignature('');
         record.state=captureState(); record.dados.state=record.state; record.prefilledFromTemplate=true;
       }
@@ -3617,7 +3518,7 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
       record=await window.BPMA_CPU.saveState(
         record,
         captureState(),
-        extractCPUStats(),
+        null,
         deriveTitle()
       );
     }catch(err){
@@ -3625,18 +3526,16 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
     }
   }
 
-  if(record.id && (!record.stats || !record.stats.version)){
+
+
+  if(correctMode && record?.status==='Finalizado' && !record?.dados?.correction?.active){
     try{
-      record=await window.BPMA_CPU.saveState(
-        record,
-        captureState(),
-        extractCPUStats(),
-        deriveTitle()
-      );
-    }catch(err){
-      console.warn('Não foi possível gerar resumo estatístico inicial:',err);
-    }
+      record=await window.BPMA_CPU.startRevision(record.id);
+      editingFinalized=true;
+      restoreState(record?.dados?.correction?.workingState||record.state);
+    }catch(err){alert(window.BPMA_CPU?.friendlyError?.(err)||err.message||'Não foi possível iniciar a correção.');}
   }
+  if(record?.dados?.correction?.active){editingFinalized=true;lockServiceDateFields(true);}
 
   buildToolbar();
   updateToolbar();

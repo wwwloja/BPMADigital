@@ -972,7 +972,7 @@ function canDeleteRecord(r){
 function canCancelRecord(){ return false; }
 function canUseAsModel(r){return !!r && r.tipo==='CPU' && r.status==='Finalizado' && session.role!=='gestor'}
 function canReviseRecord(r){
-  if(!r || r.status!=='Finalizado' || session.role==='gestor')return false;
+  if(!r || r.status!=='Finalizado' || (r.tipo==='CPU'&&r.dados?.correction?.active) || session.role==='gestor')return false;
   return session.role==='admin'||session.role==='p3'||String(r.authorId)===String(session.id);
 }
 function canReopenRecord(r){return canReviseRecord(r)}
@@ -1335,15 +1335,15 @@ async function openArchivedCpuPdf(id){
 
 function reportTable(rows,compact){
   return `<div class="table-wrap"><table><thead><tr><th>Número</th><th>Tipo</th><th>Unidade</th><th>Autor</th><th>Status</th><th>Atualização</th><th>Ações</th></tr></thead><tbody>
-    ${rows.map(r=>`<tr><td>${esc(r.numero)}</td><td>${r.tipo}</td><td>${esc(r.unidade)}</td><td>${esc(r.autor)}</td><td><span class="status ${r.status==='Em revisão'?'em-revisao':r.status.toLowerCase()}">${esc(r.status)}${r.status==='Finalizado'&&r.dados?.version?.number?` · v${Number(r.dados.version.number)}`:''}</span></td><td>${formatDateTime(r.updatedAt||r.createdAt)}</td>
+    ${rows.map(r=>`<tr><td>${esc(r.numero)}</td><td>${r.tipo}</td><td>${esc(r.unidade)}</td><td>${esc(r.autor)}</td><td><span class="status ${(r.tipo==='CPU'&&r.dados?.correction?.active)?'em-revisao':r.status.toLowerCase()}">${esc((r.tipo==='CPU'&&r.dados?.correction?.active)?'Em correção':r.status)}${r.status==='Finalizado'&&r.dados?.version?.number?` · v${Number(r.dados.version.number)}`:''}</span></td><td>${formatDateTime(r.updatedAt||r.createdAt)}</td>
       <td><div class="actions">
         ${isPendingReport(r)
           ? `<button type="button" class="btn primary" data-open-report="${r.id}">✏️ Continuar</button>`
           : `<details class="report-action-menu">
               <summary class="btn primary">📄 Abrir PDF ▾</summary>
               <div class="report-action-popover">
-                ${canPrintRecent(r)?`<button type="button" class="menu-btn" data-print-report="${r.id}">📄 Abrir PDF</button>`:`<button type="button" class="menu-btn" data-open-report="${r.id}">👁 Abrir relatório</button>`}
-                ${canReviseRecord(r)?`<button type="button" class="menu-btn" data-correct-report="${r.id}">✏️ Corrigir relatório</button>`:''}
+                ${r.tipo==='CPU'&&r.dados?.correction?.active?`<button type="button" class="menu-btn" data-open-report="${r.id}">✏️ Continuar correção</button><button type="button" class="menu-btn" data-print-report="${r.id}">📄 Abrir PDF oficial anterior</button>`:(canPrintRecent(r)?`<button type="button" class="menu-btn" data-print-report="${r.id}">📄 Abrir PDF</button>`:`<button type="button" class="menu-btn" data-open-report="${r.id}">👁 Abrir relatório</button>`)}
+                ${canReviseRecord(r)?`<button type="button" class="menu-btn" data-correct-report="${r.id}">✏️ ${r.tipo==='CPU'?'Corrigir este CPU':'Corrigir relatório'}</button>`:''}${canUseAsModel(r)?`<button type="button" class="menu-btn" data-model-cpu="${r.id}">➕ Criar novo CPU a partir deste</button>`:''}
                 ${session.role==='admin'&&canDeleteRecord(r)?`<button type="button" class="menu-btn danger" data-delete="${r.id}">🗑 Excluir</button>`:''}
               </div>
             </details>`}
@@ -2124,16 +2124,19 @@ function useCpuAsModel(id){
 async function correctReport(id){
   const r=getReports().find(x=>String(x.id)===String(id));
   if(!r || !canReviseRecord(r)) return;
-  if(!confirm(`Abrir ${r.numero} para correção? Após corrigir, use “Finalizar e gerar PDF” para salvar a nova versão.`)) return;
+  if(!confirm(`Abrir ${r.numero} para correção? A versão oficial e as estatísticas atuais serão preservadas até você finalizar a correção.`)) return;
   try{
     let updated=null;
     if(r.tipo==='BO') updated=await window.BPMA_BO.reopen(r.id);
     else if(r.tipo==='RFA') updated=await window.BPMA_RFA.reopen(r.id);
-    else if(r.tipo==='CPU') updated=await window.BPMA_CPU.reopen(r.id);
+    else if(r.tipo==='CPU'){
+      const path=reportPathForType(r.tipo);
+      location.href=`${path}?record=${encodeURIComponent(r.id)}&correct=1`;
+      return;
+    }
     if(updated){
       if(r.tipo==='BO') upsertRemoteBO(updated);
       else if(r.tipo==='RFA') upsertRemoteRFA(updated);
-      else if(r.tipo==='CPU') upsertRemoteCPU(updated);
     }
     const path=reportPathForType(r.tipo);
     location.href=`${path}?record=${encodeURIComponent(r.id)}&correct=1`;
