@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>BPMA Digital — CPU · 4.0.6</title>
+<title>BPMA Digital — CPU · 4.0.7</title>
 <meta name="theme-color" content="#064e3b">
 <link rel="manifest" href="../manifest.webmanifest">
 <link rel="icon" type="image/png" href="https://png.pngtree.com/png-vector/20240531/ourlarge/pngtree-crested-caracara-bird-png-image_12588698.png">
@@ -2651,7 +2651,7 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
 <script src="../supabase-config.js"></script>
 <script src="../supabase-auth.js"></script>
 <script src="../security.js"></script>
-<script src="../print-helper.js?v=4.0.6"></script>
+<script src="../print-helper.js?v=4.0.7"></script>
 <script src="../supabase-cpu.js"></script>
 
 <script id="bpma-cpu-35-integration">
@@ -2821,43 +2821,57 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
   }
 
   function restoreState(state){
-    if(!state) return;
+    if(!state || typeof state!=='object') return true;
+    let compatible=true;
+    const warn=(step,err)=>{
+      compatible=false;
+      console.warn(`CPU: falha de compatibilidade ao restaurar ${step}:`,err);
+    };
 
-    if(state.dynamic){
+    try{
+      const dynamic=state.dynamic && typeof state.dynamic==='object' ? state.dynamic : {};
       DYNAMIC_IDS.forEach(id=>{
         const el=document.getElementById(id);
-        if(el && typeof state.dynamic[id]==='string') el.innerHTML=state.dynamic[id];
+        if(el && typeof dynamic[id]==='string') el.innerHTML=dynamic[id];
       });
-    }
+    }catch(err){warn('linhas dinâmicas',err)}
 
-    const list=controls();
-    (state.values||[]).forEach((v,i)=>{
-      const el=list[i];
-      if(!el) return;
-      if(el.type==='checkbox' || el.type==='radio') el.checked=!!v.checked;
-      else el.value=v.value ?? '';
-    });
-    upgradeLegacyRows();
-    setCoordinatorSignature(state.coordinatorSignature||'');
-    $$('#ativBody tr').forEach(syncAtividadeCombo);
-    $$('#procBody tr').forEach(row=>{syncNaturezaCombo(row,true);syncUfrField(row,false)});
+    try{
+      const list=controls();
+      const savedValues=Array.isArray(state.values) ? state.values : [];
+      savedValues.forEach((v,i)=>{
+        const el=list[i];
+        if(!el || !v || typeof v!=='object') return;
+        if(el.type==='checkbox' || el.type==='radio') el.checked=!!v.checked;
+        else el.value=v.value ?? '';
+      });
+    }catch(err){warn('campos salvos',err)}
 
-    $$('textarea').forEach(el=>el.dispatchEvent(new Event('input',{bubbles:true})));
-    $('#recursosBody input')?.dispatchEvent(new Event('input',{bubbles:true}));
+    try{upgradeLegacyRows()}catch(err){warn('estrutura antiga',err)}
+    try{setCoordinatorSignature(state.coordinatorSignature||'')}catch(err){warn('assinatura',err)}
+    try{$$('#ativBody tr').forEach(row=>{try{syncAtividadeCombo(row)}catch(err){warn('atividades',err)}})}catch(err){warn('atividades',err)}
+    try{$$('#procBody tr').forEach(row=>{try{syncNaturezaCombo(row,true);syncUfrField(row,false)}catch(err){warn('ações ambientais',err)}})}catch(err){warn('ações ambientais',err)}
+
+    try{$$('textarea').forEach(el=>el.dispatchEvent(new Event('input',{bubbles:true})))}catch(err){warn('campos de texto',err)}
+    try{$('#recursosBody input')?.dispatchEvent(new Event('input',{bubbles:true}))}catch(err){warn('recursos operacionais',err)}
 
     // Fotos restauradas: exclusão por delegação.
-    const photos=$('#photos');
-    if(photos){
-      photos.addEventListener('click',e=>{
-        const btn=e.target.closest('.photo button');
-        if(!btn) return;
-        btn.closest('.photo')?.remove();
-        $$('.photo',photos).forEach((card,i)=>{
-          const idx=card.querySelector('.photo-index');
-          if(idx) idx.textContent=`Foto ${String(i+1).padStart(2,'0')}`;
+    try{
+      const photos=$('#photos');
+      if(photos && !photos.dataset.bpmaRestoreBound){
+        photos.dataset.bpmaRestoreBound='1';
+        photos.addEventListener('click',e=>{
+          const btn=e.target.closest('.photo button');
+          if(!btn) return;
+          btn.closest('.photo')?.remove();
+          $$('.photo',photos).forEach((card,i)=>{
+            const idx=card.querySelector('.photo-index');
+            if(idx) idx.textContent=`Foto ${String(i+1).padStart(2,'0')}`;
+          });
         });
-      });
-    }
+      }
+    }catch(err){warn('fotos',err)}
+    return compatible;
   }
 
   function canEdit(){
@@ -3390,29 +3404,45 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
     $('#bpmaClear').onclick=clearCurrentReport;
     $('#bpmaFinalize').onclick=async()=>{
       const fin=$('#bpmaFinalize');
-      if(fin?.disabled)return;
+      if(!fin || fin.dataset.busy==='1')return;
       if(record?.status==='Finalizado'){
         await window.BPMA_CPU_PRINT_NOW?.();
         return;
       }
+      if(!canEdit()){
+        alert('Este relatório não está disponível para edição com este usuário.');
+        return;
+      }
       if(!confirm('Finalizar este Relatório CPU e gerar o PDF?')) return;
-      if(fin)fin.disabled=true;
+      fin.dataset.busy='1';
+      fin.disabled=true;
+      const originalText=fin.textContent;
+      fin.textContent='Finalizando…';
       try{
         clearTimeout(saveTimer);
-        if(revisionPromise && !(await revisionPromise))return;
-        for(let i=0;saving && i<120;i++) await new Promise(resolve=>setTimeout(resolve,50));
-        if(saving){
-          alert('O salvamento automático ainda está em andamento. Aguarde alguns segundos e tente novamente.');
-          return;
-        }
+        if(revisionPromise && !(await revisionPromise)) throw new Error('Não foi possível preparar o relatório para finalização.');
+        for(let i=0;saving && i<160;i++) await new Promise(resolve=>setTimeout(resolve,50));
+        if(saving) throw new Error('O salvamento automático ainda está em andamento. Aguarde alguns segundos e tente novamente.');
         pendingSave=false;
         const ok=await persist('Finalizado',true,true,true);
-        if(!ok)return;
+        if(!ok) throw new Error('A finalização não foi confirmada. Revise os dados e tente novamente.');
+
+        // Confirma no Supabase antes de abrir o PDF. Isso corrige rascunhos reabertos por “Continuar”.
+        const confirmed=record?.id ? await window.BPMA_CPU.get(record.id) : null;
+        if(!confirmed || confirmed.status!=='Finalizado'){
+          throw new Error('O Supabase não confirmou a finalização deste relatório. O PDF não foi gerado.');
+        }
+        record=confirmed;
+        editingFinalized=false;
+        updateToolbar();
+        setReadonly();
         await window.BPMA_CPU_PRINT_NOW?.();
       }catch(err){
         console.error('Finalização CPU:',err);
         alert(window.BPMA_CPU?.friendlyError?.(err)||err.message||'Não foi possível finalizar e gerar o PDF.');
       }finally{
+        fin.dataset.busy='0';
+        fin.textContent=originalText;
         updateToolbar();
       }
     };
@@ -3455,7 +3485,20 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
     return;
   }
 
-  restoreState(record.state);
+  // Vincula as ações antes de restaurar o rascunho. Assim um dado antigo/incompatível
+  // nunca deixa o botão “Finalizar e gerar PDF” sem função.
+  buildToolbar();
+  updateToolbar();
+  let restoreCompatible=true;
+  try{
+    restoreCompatible=restoreState(record.state);
+  }catch(err){
+    restoreCompatible=false;
+    console.error('CPU: falha inesperada ao restaurar o rascunho:',err);
+  }
+  if(!restoreCompatible){
+    console.warn('CPU: rascunho antigo carregado com ajustes de compatibilidade. Revise os campos antes de finalizar.');
+  }
 
   // “Usar como modelo” cria um NOVO relatório, nunca altera a identidade do serviço anterior.
   const modelId=params.get('model');
