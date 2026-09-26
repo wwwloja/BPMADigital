@@ -1,4 +1,4 @@
-const CACHE='bpma-digital-4.0.15-cpu-estavel';
+const CACHE='bpma-digital-4.0.16-estatisticas-profissionais';
 const SHELL=[
   '/',
   '/index.html',

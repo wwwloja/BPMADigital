@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>BPMA Digital — CPU · 4.0.11</title>
+<title>BPMA Digital — CPU · 4.0.16</title>
 <meta name="theme-color" content="#064e3b">
 <link rel="manifest" href="../manifest.webmanifest">
 <link rel="icon" type="image/png" href="https://png.pngtree.com/png-vector/20240531/ourlarge/pngtree-crested-caracara-bird-png-image_12588698.png">
@@ -1877,66 +1877,63 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
 @media(max-width:720px){.report-final-actions{display:block!important}.report-final-actions .finalize-action{width:100%!important;min-height:56px!important}}
 </style>
 
-<style id="bpma-cpu-mobile-4015">
-/* 4.0.15: responsividade de tela somente. Impressão A4 permanece no CSS de impressão original. */
+<style id="bpma-cpu-mobile-safe-4016">
+/* 4.0.16 — responsividade somente por CSS. Impressão A4 permanece no CSS original. */
 @media screen and (max-width:720px){
-  body{overflow-x:hidden!important}
-  main.wrap,.wrap,.card,.table-wrap{max-width:100%!important;min-width:0!important;box-sizing:border-box!important}
+  html,body{max-width:100%;overflow-x:hidden}
+  .wrap,.card,.card-body,.table-wrap,.subbox{max-width:100%;box-sizing:border-box}
   .table-wrap{overflow:visible!important}
 
-  /* Recursos operacionais: cada VTR/equipe vira um cartão vertical no celular. */
-  #recursos table{display:block!important;width:100%!important;min-width:0!important;table-layout:auto!important}
-  #recursos thead{display:none!important}
-  #recursos tbody{display:block!important;width:100%!important}
-  #recursosBody tr{display:block!important;width:100%!important;margin:0 0 14px!important;padding:10px!important;border:1px solid #d6e1dc!important;border-radius:12px!important;background:#fff!important;box-sizing:border-box!important}
-  #recursosBody td{display:grid!important;grid-template-columns:115px minmax(0,1fr)!important;gap:10px!important;align-items:center!important;width:100%!important;padding:8px 2px!important;border:0!important;border-bottom:1px solid #edf1ef!important;box-sizing:border-box!important;text-align:left!important}
-  #recursosBody td:last-child{border-bottom:0!important}
-  #recursosBody td::before{font-size:10px!important;font-weight:900!important;color:#285b4b!important;text-transform:uppercase!important;line-height:1.15!important}
-  #recursosBody td:nth-child(1)::before{content:'VTR (prefixo)'}
-  #recursosBody td:nth-child(2)::before{content:'Efetivo 07h–19h'}
-  #recursosBody td:nth-child(3)::before{content:'Ordinário'}
-  #recursosBody td:nth-child(4)::before{content:'P.O.R.'}
-  #recursosBody td:nth-child(5)::before{content:'Efetivo 19h–07h'}
-  #recursosBody td:nth-child(6)::before{content:'Ordinário'}
-  #recursosBody td:nth-child(7)::before{content:'P.O.R.'}
-  #recursosBody td:nth-child(8)::before{content:'Ação'}
-  #recursosBody input,#recursosBody textarea,#recursosBody select{width:100%!important;max-width:100%!important;min-width:0!important;box-sizing:border-box!important;font-size:16px!important}
-  #recursosBody input[type=number]{width:100px!important;max-width:100px!important;text-align:center!important}
-  #recursosBody textarea{min-height:74px!important}
-  #recursosBody .btn-mini,#recursosBody button{width:100%!important;min-height:44px!important}
-  #recursos .total-row{display:grid!important;grid-template-columns:1fr 1fr!important;gap:8px!important;padding:10px!important;border-radius:12px!important;background:#f3f8f5!important}
-  #recursos .total-row td{display:block!important;width:auto!important;border:0!important;text-align:center!important;padding:8px!important}
-  #recursos .total-row td::before{display:none!important}
+  #tblRecursos{display:block;width:100%!important;min-width:0!important}
+  #tblRecursos thead{display:none}
+  #tblRecursos tbody{display:block;width:100%}
+  #tblRecursos tbody tr{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;padding:12px;margin:0 0 12px;border:1px solid #d6e1dc;border-radius:12px;background:#fff;box-sizing:border-box}
+  #tblRecursos tbody td{display:block;width:auto!important;padding:0!important;border:0!important;box-sizing:border-box}
+  #tblRecursos tbody td:nth-child(1),#tblRecursos tbody td:nth-child(2),#tblRecursos tbody td:nth-child(5),#tblRecursos tbody td:nth-child(8){grid-column:1/-1}
+  #tblRecursos tbody td::before{display:block;margin:0 0 5px;font-size:10px;font-weight:900;color:#31584c;text-transform:uppercase;line-height:1.15}
+  #tblRecursos tbody td:nth-child(1)::before{content:'VTR (PREFIXO)'}
+  #tblRecursos tbody td:nth-child(2)::before{content:'EFETIVO (07H ÀS 19H)'}
+  #tblRecursos tbody td:nth-child(3)::before{content:'ORDINÁRIO · DIA'}
+  #tblRecursos tbody td:nth-child(4)::before{content:'P.O.R. · DIA'}
+  #tblRecursos tbody td:nth-child(5)::before{content:'EFETIVO (19H ÀS 07H)'}
+  #tblRecursos tbody td:nth-child(6)::before{content:'ORDINÁRIO · NOITE'}
+  #tblRecursos tbody td:nth-child(7)::before{content:'P.O.R. · NOITE'}
+  #tblRecursos tbody td:nth-child(8)::before{content:'AÇÃO'}
+  #tblRecursos input,#tblRecursos textarea,#tblRecursos button{width:100%!important;max-width:100%!important;min-width:0!important;box-sizing:border-box;font-size:16px}
+  #tblRecursos textarea{min-height:78px}
+  #tblRecursos input[type=number]{min-height:46px;text-align:center}
+  #tblRecursos tfoot{display:block;width:100%;margin-top:8px}
+  #tblRecursos tfoot tr{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:10px;border:1px solid #d6e1dc;border-radius:12px;background:#f3f8f5;box-sizing:border-box}
+  #tblRecursos tfoot td{display:flex!important;align-items:center;justify-content:space-between;min-height:42px;padding:8px 10px!important;border:1px solid #e1eae6!important;border-radius:8px;background:#fff;box-sizing:border-box}
+  #tblRecursos tfoot td:first-child,#tblRecursos tfoot td:last-child{display:none!important}
+  #tblRecursos tfoot td:nth-child(2)::before{content:'TOTAL DIA'}
+  #tblRecursos tfoot td:nth-child(3)::before{content:'ORD.'}
+  #tblRecursos tfoot td:nth-child(4)::before{content:'P.O.R.'}
+  #tblRecursos tfoot td:nth-child(5)::before{content:'TOTAL NOITE'}
+  #tblRecursos tfoot td:nth-child(6)::before{content:'ORD.'}
+  #tblRecursos tfoot td:nth-child(7)::before{content:'P.O.R.'}
 
-  /* Prisões/apreensões: sem colunas espremidas; conclusão recebe a largura útil inteira. */
-  #tblPrisoesPreview{display:block!important;width:100%!important;min-width:0!important;table-layout:auto!important}
-  #tblPrisoesPreview thead{display:none!important}
-  #tblPrisoesPreview tbody{display:block!important;width:100%!important}
-  #tblPrisoesPreview tbody tr{display:block!important;width:100%!important;margin:0 0 14px!important;padding:10px!important;border:1px solid #d6e1dc!important;border-radius:12px!important;background:#fff!important;box-sizing:border-box!important}
-  #tblPrisoesPreview tbody td{display:grid!important;grid-template-columns:120px minmax(0,1fr)!important;gap:10px!important;align-items:start!important;width:100%!important;padding:8px 2px!important;border:0!important;border-bottom:1px solid #edf1ef!important;box-sizing:border-box!important;text-align:left!important;white-space:normal!important}
-  #tblPrisoesPreview tbody td::before{font-size:10px!important;font-weight:900!important;color:#285b4b!important;text-transform:uppercase!important;line-height:1.15!important}
-  #tblPrisoesPreview tbody td.cat{display:block!important;background:#eef6f2!important;border-radius:8px!important;padding:8px!important;font-weight:900!important;color:#174f3e!important}
-  #tblPrisoesPreview tbody td.cat::before{content:'Categoria: ';display:inline!important}
-  #tblPrisoesPreview tbody tr:has(td.cat) td:nth-child(2)::before{content:'Tipo de prisão'}
-  #tblPrisoesPreview tbody tr:has(td.cat) td:nth-child(3)::before{content:'Qtd. prisões'}
-  #tblPrisoesPreview tbody tr:has(td.cat) td:nth-child(4)::before{content:'Qtd. TCO digital'}
-  #tblPrisoesPreview tbody tr:not(:has(td.cat)) td:nth-child(1)::before{content:'Tipo de prisão'}
-  #tblPrisoesPreview tbody tr:not(:has(td.cat)) td:nth-child(2)::before{content:'Qtd. prisões'}
-  #tblPrisoesPreview tbody tr:not(:has(td.cat)) td:nth-child(3)::before{content:'Qtd. TCO digital'}
-  #tblPrisoesPreview tbody td:last-child::before{content:'Conclusão'}
-  #tblPrisoesPreview input[type=number]{width:82px!important;max-width:82px!important;min-height:44px!important;text-align:center!important;font-size:16px!important}
-  #tblPrisoesPreview textarea{width:100%!important;max-width:100%!important;min-height:130px!important;box-sizing:border-box!important;font-size:16px!important;line-height:1.3!important}
-  #tblPrisoesPreview tbody td:last-child{grid-template-columns:1fr!important;gap:6px!important}
-  #tblPrisoesPreview tbody td:last-child::before{display:block!important}
+  #tblPrisoesPreview{display:block;width:100%!important;min-width:0!important;table-layout:auto!important}
+  #tblPrisoesPreview thead{display:none}
+  #tblPrisoesPreview tbody{display:block;width:100%}
+  #tblPrisoesPreview tbody tr{display:grid;grid-template-columns:minmax(0,1fr) 78px 78px;gap:8px;width:100%;padding:12px;margin:0 0 12px;border:1px solid #d6e1dc;border-radius:12px;background:#fff;box-sizing:border-box}
+  #tblPrisoesPreview tbody td{display:block!important;width:auto!important;padding:0!important;border:0!important;box-sizing:border-box;min-width:0}
+  #tblPrisoesPreview tbody td.cat{grid-column:1/-1;background:#eef6f2;border-radius:8px;padding:7px 9px!important;font-size:11px;font-weight:900;color:#174f3e}
+  #tblPrisoesPreview tbody tr td:last-child{grid-column:1/-1}
+  #tblPrisoesPreview tbody tr td:last-child::before{content:'CONCLUSÃO';display:block;margin-bottom:5px;font-size:10px;font-weight:900;color:#31584c}
+  #tblPrisoesPreview input[type=number]{width:100%!important;max-width:78px!important;min-height:44px;text-align:center;font-size:16px;box-sizing:border-box}
+  #tblPrisoesPreview textarea{width:100%!important;max-width:100%!important;min-height:120px;font-size:16px;line-height:1.3;box-sizing:border-box}
+  #tblPrisoesPreview tbody tr td:nth-last-child(3)::before{content:'QTD.';display:block;margin-bottom:5px;font-size:9px;font-weight:900;color:#31584c}
+  #tblPrisoesPreview tbody tr td:nth-last-child(2)::before{content:'TCO';display:block;margin-bottom:5px;font-size:9px;font-weight:900;color:#31584c}
 
-  .desfechos{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}
-  .desfechos label{min-width:0!important;white-space:normal!important}
-  .ufr-wrap{grid-template-columns:1fr!important}
-  .ufr-field{width:100%!important;max-width:100%!important}
-  .ufr-pb{width:130px!important;max-width:130px!important;font-size:16px!important}
+  #procBody .desfechos{display:flex;flex-wrap:wrap;gap:8px 12px}
+  #procBody .desfechos label{white-space:nowrap}
+  #procBody textarea{min-height:100px}
+  #procBody .ufr-pb{width:130px!important;max-width:130px!important;font-size:16px}
 }
-@media print{#bpma-cpu-mobile-4015{display:none!important}}
+@media print{#bpma-cpu-mobile-safe-4016{display:none!important}}
 </style>
+
 </head>
 <body>
 <!-- Barra de ações CPU: markup estático para permanecer visível no desktop mesmo antes da inicialização dos dados. -->
@@ -3682,22 +3679,21 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
 </script>
 
 
-<script id="bpma-cpu-input-limits-4015">
+<script id="bpma-cpu-safe-inputs-4016">
 (function(){
-  function digits(el,max){
-    var v=String(el.value||'').replace(/\D/g,'').slice(0,max);
-    el.value=v;
-  }
   document.addEventListener('input',function(e){
-    if(e.target && e.target.classList && e.target.classList.contains('ufr-pb')) digits(e.target,6);
-    if(e.target && e.target.matches && e.target.matches('#tblPrisoesPreview input[type="number"]')){
-      var v=String(e.target.value||'').replace(/\D/g,'').slice(0,2);
-      if(v!=='' && Number(v)>99) v='99';
-      e.target.value=v;
+    var el=e.target;
+    if(el && el.classList && el.classList.contains('ufr-pb')){
+      var v=String(el.value||'').replace(/\D/g,'').slice(0,6);
+      if(el.value!==v) el.value=v;
     }
-  },true);
-  document.querySelectorAll('#tblPrisoesPreview input[type="number"]').forEach(function(el){el.max='99';el.inputMode='numeric'});
+    if(el && el.matches && el.matches('#tblPrisoesPreview input[type="number"]')){
+      var n=Math.max(0,Math.min(99,parseInt(el.value||'0',10)||0));
+      if(String(el.value)!==String(n)) el.value=String(n);
+    }
+  },false);
 })();
 </script>
+
 </body>
 </html>
