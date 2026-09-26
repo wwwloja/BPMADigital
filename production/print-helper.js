@@ -1248,14 +1248,20 @@
         y+=2.3;
       };
 
-      const drawPassage=()=>{
-        drawSectionTitle('7 · PASSAGEM DE SERVIÇO',18);
+      const drawPassage=async()=>{
+        drawSectionTitle('7 · PASSAGEM DE SERVIÇO',24);
         const date=fieldValue('passagemData');const obs=fieldValue('passagemObservacao');const pass=fieldValue('passagemTexto');const coord=fieldValue('coordenador');
+        const signatureImg=document.querySelector('#cpuCoordinatorSignature');
+        const signatureData=await cpuPdfImageData(signatureImg);
         const widths=[W*.18,W*.38,W*.44];
         const headers=['DATA','OBSERVAÇÃO','PASSAGEM'];
         const vals=[date,obs,pass];
         const lines=vals.map((v,i)=>wrap(v||'',widths[i]-3));
-        const bodyH=Math.max(20,...lines.map(ls=>textHeight(ls,3.05)+5.5));
+        const signatureReserve=signatureData?17:10;
+        const bodyH=Math.max(signatureData?29:20,
+          textHeight(lines[0],3.05)+5.5,
+          textHeight(lines[1],3.05)+5.5,
+          textHeight(lines[2],3.05)+signatureReserve);
         ensure(6.5+bodyH);
         let x=M;
         for(let i=0;i<3;i++){pdf.setFillColor(...PALE);pdf.setDrawColor(...BORDER);pdf.rect(x,y,widths[i],6.2,'FD');setText(6.8,'bold',[38,68,58]);pdf.text(headers[i],x+widths[i]/2,y+4.05,{align:'center'});x+=widths[i]}
@@ -1266,11 +1272,15 @@
           else{pdf.text(lines[i],x+1.5,y+4,{baseline:'top'})}
           x+=widths[i];
         }
-        // Assinatura integrada à célula PASSAGEM, como organização do modelo de referência.
+        // Assinatura digital real do coordenador, integrada à célula PASSAGEM.
         const sigX=M+widths[0]+widths[1],sigW=widths[2];
-        const sigY=y+bodyH-7;
-        pdf.setDrawColor(100,100,100);pdf.line(sigX+6,sigY,sigX+sigW-6,sigY);
-        setText(7.2,'bold',[0,0,0]);pdf.text(coord||'Coordenador de Policiamento',sigX+sigW/2,sigY+3.6,{align:'center'});
+        const lineY=y+bodyH-6.8;
+        if(signatureData){
+          const maxW=Math.min(42,sigW-18),maxH=11.5;
+          try{pdf.addImage(signatureData,cpuPdfImageFormat(signatureData),sigX+(sigW-maxW)/2,lineY-maxH-1.2,maxW,maxH,undefined,'FAST')}catch(err){console.warn('Assinatura CPU no PDF:',err)}
+        }
+        pdf.setDrawColor(100,100,100);pdf.line(sigX+6,lineY,sigX+sigW-6,lineY);
+        setText(7.2,'bold',[0,0,0]);pdf.text(coord||'Coordenador de Policiamento',sigX+sigW/2,lineY+3.6,{align:'center'});
         y+=bodyH+2.5;
       };
 
@@ -1287,7 +1297,7 @@
       drawSubTitle('Procedimentos Administrativos');drawTable('tblProcedimentosPreview',{repeatTitle:'Procedimentos Administrativos'});
       drawSubTitle('Animais Resgatados, Entregues Voluntariamente ou Apreendidos de Forma Avulsa');drawTable('tblAnimaisPreview',{repeatTitle:'Animais Resgatados / Entregues / Apreendidos'});
       drawSectionTitle('6 · QUADRO DE INFORMAÇÕES COMPLEMENTARES',12);drawTable('tblComplementaresPreview');
-      drawPassage();
+      await drawPassage();
 
       const pages=pdf.getNumberOfPages?.()||pageNo;
       for(let p=1;p<=pages;p++){
