@@ -1,7 +1,7 @@
 {
   "name": "BPMA Digital",
   "short_name": "BPMA",
-  "description": "Central de Relatórios e Gestão Operacional do BPMA — versão 4.0",
+  "description": "Central de Relatórios e Gestão Operacional do BPMA — versão 4.0.5",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

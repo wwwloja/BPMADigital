@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>BPMA Digital — CPU · 4.0</title>
+<title>BPMA Digital — CPU · 4.0.5</title>
 <meta name="theme-color" content="#064e3b">
 <link rel="manifest" href="../manifest.webmanifest">
 <link rel="icon" type="image/png" href="https://png.pngtree.com/png-vector/20240531/ourlarge/pngtree-crested-caracara-bird-png-image_12588698.png">
@@ -97,6 +97,16 @@ button{border:0;border-radius:9px;padding:10px 14px;font-weight:700;cursor:point
   box-sizing:border-box;
 }
 .edit-table input{text-align:center}
+
+.edit-table .col-vtr,
+#tblRecursos td:first-child{
+  white-space:nowrap;
+}
+#tblRecursos td:first-child input{
+  min-width:105px;
+  text-align:center;
+  white-space:nowrap;
+}
 .edit-table textarea.efetivo{
   text-align:left;
   resize:vertical;
@@ -111,10 +121,10 @@ button{border:0;border-radius:9px;padding:10px 14px;font-weight:700;cursor:point
   font-weight:800;
   color:#233d35;
 }
-.col-vtr{width:7%}
-.col-efetivo{width:33%}
-.col-num{width:5.5%}
-.col-action{width:6.5%}
+.col-vtr{width:10%}
+.col-efetivo{width:31%}
+.col-num{width:5%}
+.col-action{width:6%}
 .row-actions{
   display:flex;
   justify-content:flex-end;
@@ -177,9 +187,16 @@ button{border:0;border-radius:9px;padding:10px 14px;font-weight:700;cursor:point
     word-break:break-word!important;
     line-height:1.2!important;
   }
+
+  #tblRecursos td:first-child input{
+    min-width:0!important;
+    width:100%!important;
+    white-space:nowrap!important;
+    font-size:9px!important;
+  }
   .no-print,.row-actions{display:none!important}
-  .col-vtr{width:7%!important}
-  .col-efetivo{width:36%!important}
+  .col-vtr{width:11%!important}
+  .col-efetivo{width:34%!important}
   .col-num{width:5.25%!important}
 }
 
@@ -1350,8 +1367,8 @@ input,select,textarea{max-width:100%;min-width:0}
   }
 
   /* Mais espaço para textos e menos para números */
-  .col-vtr{width:7%!important}
-  .col-efetivo{width:36%!important}
+  .col-vtr{width:11%!important}
+  .col-efetivo{width:34%!important}
   .col-num{width:5.25%!important}
 
   .alter-table .tipo{width:17%!important}
@@ -1584,7 +1601,9 @@ body{padding-bottom:74px}
 
 
 .combo-stack{display:grid;gap:4px}.combo-stack select,.combo-stack input{width:100%;min-width:0}.desfechos{display:flex;flex-wrap:wrap;gap:3px 7px;margin:0 0 4px;font-size:10px}.desfechos label{display:inline-flex;align-items:center;gap:3px;white-space:nowrap}.desfechos input[type="checkbox"]{width:auto!important;min-width:0!important;margin:0}.stats-tag{font-size:9px;color:#31584c}
-@media print{.combo-stack{gap:2px}.desfechos{font-size:8pt;gap:2px 5px}}
+.ufr-wrap{display:grid;grid-template-columns:minmax(120px,170px) 1fr;gap:8px;align-items:center;margin:7px 0 4px;padding:8px;border:1px solid #b9ddd0;border-radius:9px;background:#edf8f3}.ufr-wrap[hidden]{display:none!important}.ufr-wrap label{font-size:10px;font-weight:800;color:#145b46}.ufr-wrap input{min-height:34px!important;background:#fff!important}.ufr-wrap small{font-size:9px;line-height:1.3;color:#4d6b60}.ufr-wrap .ufr-field{display:flex;align-items:center;gap:6px}.ufr-wrap .ufr-field input{width:92px!important;min-width:92px!important;text-align:center;font-weight:800}.ufr-wrap .ufr-unit{font-size:10px;font-weight:800;color:#145b46}
+@media(max-width:620px){.ufr-wrap{grid-template-columns:1fr}.ufr-wrap .ufr-field input{width:120px!important}}
+@media print{.combo-stack{gap:2px}.desfechos{font-size:8pt;gap:2px 5px}.ufr-wrap{padding:4px 6px;margin:4px 0 2px;grid-template-columns:115px 1fr;background:#fff!important}.ufr-wrap label,.ufr-wrap small,.ufr-wrap .ufr-unit{font-size:7.5pt}.ufr-wrap .ufr-field input{min-height:24px!important;width:74px!important;min-width:74px!important;font-size:8pt!important}}
 </style>
 
 <style id="bpma-cpu-2113-legibilidade">
@@ -1918,7 +1937,7 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
         </thead>
         <tbody id="recursosBody">
           <tr>
-            <td><input aria-label="VTR prefixo" inputmode="numeric" maxlength="5" pattern="[0-9]{0,5}" placeholder="00000"></td>
+            <td><input aria-label="VTR prefixo" type="text" maxlength="12" autocomplete="off" placeholder="AMB 01-9140"></td>
             <td><textarea class="efetivo" aria-label="Efetivo dia" rows="2" placeholder="Posto/Grad., matrícula e nome"></textarea></td>
             <td><input type="number" min="0" max="99" value="0" inputmode="numeric" aria-label="Ordinário dia"></td>
             <td><input type="number" min="0" max="99" value="0" inputmode="numeric" aria-label="POR dia"></td>
@@ -2163,7 +2182,7 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
             <tr>
               <td><textarea rows="2" aria-label="VTR ou guarnição autuante" placeholder="VTR/GU e autuante"></textarea></td>
               <td><div class="combo-stack"><select class="natureza-cat" aria-label="Categoria ambiental"><option value="">Natureza</option><option>Fauna</option><option>Flora</option><option>Poluição</option><option>Mineração</option><option>Pesca</option><option>Recursos Hídricos</option><option>Unidade de Conservação</option><option>Queimada/Incêndio</option><option>Licenciamento Ambiental</option><option>Outros</option></select><select class="natureza-sub" aria-label="Subnatureza"><option value="">Subnatureza</option></select><input class="natureza-outro" placeholder="Outra natureza" hidden></div></td>
-              <td><div class="desfechos" aria-label="Desfechos"><label><input type="checkbox" value="TCO"> TCO</label><label><input type="checkbox" value="APF"> APF</label><label><input type="checkbox" value="Procedimento administrativo"> Proc. adm.</label><label><input type="checkbox" value="Apreensão"> Apreensão</label><label><input type="checkbox" value="Encaminhamento"> Encaminhamento</label></div><textarea rows="2" aria-label="Conclusão do procedimento" placeholder="Resultado, nº do termo/auto, providências adotadas..."></textarea></td>
+              <td><div class="desfechos" aria-label="Desfechos"><label><input type="checkbox" value="TCO"> TCO</label><label><input type="checkbox" value="APF"> APF</label><label><input type="checkbox" value="Procedimento administrativo" data-proc-adm> Proc. adm.</label><label><input type="checkbox" value="Apreensão"> Apreensão</label><label><input type="checkbox" value="Encaminhamento"> Encaminhamento</label></div><div class="ufr-wrap" hidden><label>UFR-PB aplicadas</label><div class="ufr-field"><input class="ufr-pb" type="number" min="0" step="1" inputmode="numeric" placeholder="0" aria-label="Quantidade de UFR-PB aplicadas"><span class="ufr-unit">UFR-PB</span></div><small>Informe a quantidade de UFR-PB aplicadas neste procedimento administrativo.</small></div><textarea rows="2" aria-label="Conclusão do procedimento" placeholder="Resultado, nº do termo/auto, providências adotadas..."></textarea></td>
               <td><textarea rows="2" aria-label="Itens apreendidos" placeholder="Animais, veículos ou materiais apreendidos"></textarea></td>
               <td class="no-print" style="text-align:center;vertical-align:middle"><button type="button" class="btn-del" data-del-proc>Excluir</button></td>
             </tr>
@@ -2398,7 +2417,7 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
 
   function recursoRow(){
     return `<tr>
-      <td><input aria-label="VTR prefixo" inputmode="numeric" maxlength="5" pattern="[0-9]{0,5}" placeholder="00000"></td>
+      <td><input aria-label="VTR prefixo" type="text" maxlength="12" autocomplete="off" placeholder="AMB 01-9140"></td>
       <td><textarea class="efetivo" rows="2" placeholder="Posto/Grad., matrícula e nome"></textarea></td>
       <td><input type="number" min="0" max="99" value="0" inputmode="numeric"></td>
       <td><input type="number" min="0" max="99" value="0" inputmode="numeric"></td>
@@ -2522,15 +2541,34 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
       const oldNat=natCell.querySelector('textarea,input')?.value||'', oldConc=concCell.querySelector('textarea')?.value||'';
       natCell.innerHTML='<div class="combo-stack"><select class="natureza-cat"><option value="">Natureza</option><option>Fauna</option><option>Flora</option><option>Poluição</option><option>Mineração</option><option>Pesca</option><option>Recursos Hídricos</option><option>Unidade de Conservação</option><option>Queimada/Incêndio</option><option>Licenciamento Ambiental</option><option>Outros</option></select><select class="natureza-sub"><option value="">Subnatureza</option></select><input class="natureza-outro" placeholder="Outra natureza" hidden></div>';
       const cat=guessNatureza(oldNat); natCell.querySelector('.natureza-cat').value=cat; syncNaturezaCombo(row,false); if(cat==='Outros')natCell.querySelector('.natureza-outro').value=oldNat;
-      concCell.innerHTML='<div class="desfechos"><label><input type="checkbox" value="TCO"> TCO</label><label><input type="checkbox" value="APF"> APF</label><label><input type="checkbox" value="Procedimento administrativo"> Proc. adm.</label><label><input type="checkbox" value="Apreensão"> Apreensão</label><label><input type="checkbox" value="Encaminhamento"> Encaminhamento</label></div><textarea rows="2" placeholder="Resultado, nº do termo/auto, providências adotadas..."></textarea>';
+      concCell.innerHTML='<div class="desfechos"><label><input type="checkbox" value="TCO"> TCO</label><label><input type="checkbox" value="APF"> APF</label><label><input type="checkbox" value="Procedimento administrativo" data-proc-adm> Proc. adm.</label><label><input type="checkbox" value="Apreensão"> Apreensão</label><label><input type="checkbox" value="Encaminhamento"> Encaminhamento</label></div><div class="ufr-wrap" hidden><label>UFR-PB aplicadas</label><div class="ufr-field"><input class="ufr-pb" type="number" min="0" step="1" inputmode="numeric" placeholder="0"><span class="ufr-unit">UFR-PB</span></div><small>Informe a quantidade de UFR-PB aplicadas neste procedimento administrativo.</small></div><textarea rows="2" placeholder="Resultado, nº do termo/auto, providências adotadas..."></textarea>';
       concCell.querySelector('textarea').value=oldConc; const lc=oldConc.toLowerCase();
       if(/\btco\b/.test(lc))concCell.querySelector('input[value="TCO"]').checked=true; if(/\bapf\b|auto de prisão|auto de prisao|flagrante/.test(lc))concCell.querySelector('input[value="APF"]').checked=true;
       if(/apreens/.test(lc))concCell.querySelector('input[value="Apreensão"]').checked=true; if(/encaminh/.test(lc))concCell.querySelector('input[value="Encaminhamento"]').checked=true;
     });
   }
+  function syncUfrField(row,clearWhenOff=true){
+    if(!row)return;
+    const cb=row.querySelector('input[data-proc-adm], .desfechos input[value="Procedimento administrativo"]');
+    const conclusion=cb?.closest('td');
+    let wrap=row.querySelector('.ufr-wrap');
+    if(!wrap && conclusion){
+      wrap=document.createElement('div');
+      wrap.className='ufr-wrap';
+      wrap.hidden=true;
+      wrap.innerHTML='<label>UFR-PB aplicadas</label><div class="ufr-field"><input class="ufr-pb" type="number" min="0" step="1" inputmode="numeric" placeholder="0" aria-label="Quantidade de UFR-PB aplicadas"><span class="ufr-unit">UFR-PB</span></div><small>Informe a quantidade de UFR-PB aplicadas neste procedimento administrativo.</small>';
+      conclusion.querySelector('.desfechos')?.insertAdjacentElement('afterend',wrap);
+    }
+    const input=row.querySelector('.ufr-pb');
+    if(!wrap)return;
+    const on=!!cb?.checked;
+    wrap.hidden=!on;
+    if(!on && clearWhenOff && input)input.value='';
+  }
   document.addEventListener('change',e=>{
     if(e.target.matches('.atividade-tipo'))syncAtividadeCombo(e.target.closest('tr'));
     if(e.target.matches('.natureza-cat'))syncNaturezaCombo(e.target.closest('tr'),false);
+    if(e.target.matches('input[data-proc-adm], .desfechos input[value="Procedimento administrativo"]'))syncUfrField(e.target.closest('tr'),true);
   });
   // ===== Ações ambientais =====
   const procBody=q('#procBody');
@@ -2542,7 +2580,7 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
     return `<tr>
       <td><textarea rows="2" placeholder="VTR/GU e autuante"></textarea></td>
       <td><div class="combo-stack"><select class="natureza-cat"><option value="">Natureza</option><option>Fauna</option><option>Flora</option><option>Poluição</option><option>Mineração</option><option>Pesca</option><option>Recursos Hídricos</option><option>Unidade de Conservação</option><option>Queimada/Incêndio</option><option>Licenciamento Ambiental</option><option>Outros</option></select><select class="natureza-sub"><option value="">Subnatureza</option></select><input class="natureza-outro" placeholder="Outra natureza" hidden></div></td>
-      <td><div class="desfechos"><label><input type="checkbox" value="TCO"> TCO</label><label><input type="checkbox" value="APF"> APF</label><label><input type="checkbox" value="Procedimento administrativo"> Proc. adm.</label><label><input type="checkbox" value="Apreensão"> Apreensão</label><label><input type="checkbox" value="Encaminhamento"> Encaminhamento</label></div><textarea rows="2" placeholder="Resultado, nº do termo/auto, providências adotadas..."></textarea></td>
+      <td><div class="desfechos"><label><input type="checkbox" value="TCO"> TCO</label><label><input type="checkbox" value="APF"> APF</label><label><input type="checkbox" value="Procedimento administrativo" data-proc-adm> Proc. adm.</label><label><input type="checkbox" value="Apreensão"> Apreensão</label><label><input type="checkbox" value="Encaminhamento"> Encaminhamento</label></div><div class="ufr-wrap" hidden><label>UFR-PB aplicadas</label><div class="ufr-field"><input class="ufr-pb" type="number" min="0" step="1" inputmode="numeric" placeholder="0"><span class="ufr-unit">UFR-PB</span></div><small>Informe a quantidade de UFR-PB aplicadas neste procedimento administrativo.</small></div><textarea rows="2" placeholder="Resultado, nº do termo/auto, providências adotadas..."></textarea></td>
       <td><textarea rows="2" placeholder="Animais, veículos ou materiais apreendidos"></textarea></td>
       <td class="no-print" style="text-align:center;vertical-align:middle"><button type="button" class="btn-del" data-del-proc>Excluir</button></td>
     </tr>`;
@@ -2565,6 +2603,7 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
     procBody.insertAdjacentHTML('beforeend',procRow());
     growAll(procBody.rows[procBody.rows.length-1]);
     syncNaturezaCombo(procBody.rows[procBody.rows.length-1],false);
+    syncUfrField(procBody.rows[procBody.rows.length-1],false);
   });
 
   addAnimal?.addEventListener('click',()=>{
@@ -2612,7 +2651,7 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
 <script src="../supabase-config.js"></script>
 <script src="../supabase-auth.js"></script>
 <script src="../security.js"></script>
-<script src="../print-helper.js"></script>
+<script src="../print-helper.js?v=4.0.5"></script>
 <script src="../supabase-cpu.js"></script>
 
 <script id="bpma-cpu-35-integration">
@@ -2801,7 +2840,7 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
     upgradeLegacyRows();
     setCoordinatorSignature(state.coordinatorSignature||'');
     $$('#ativBody tr').forEach(syncAtividadeCombo);
-    $$('#procBody tr').forEach(row=>syncNaturezaCombo(row,true));
+    $$('#procBody tr').forEach(row=>{syncNaturezaCombo(row,true);syncUfrField(row,false)});
 
     $$('textarea').forEach(el=>el.dispatchEvent(new Event('input',{bubbles:true})));
     $('#recursosBody input')?.dispatchEvent(new Event('input',{bubbles:true}));
@@ -2896,6 +2935,7 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
 
   function rowHasContent(row){
     return $$('input,textarea,select',row).some(el=>{
+      if(el.type==='checkbox' || el.type==='radio') return !!el.checked;
       if(el.tagName==='SELECT') return !!String(el.value||'').trim();
       if(el.type==='number') return numValue(el)>0;
       return !!String(el.value||'').trim();
@@ -2921,7 +2961,7 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
 
   function extractCPUStats(){
     const stats={
-      version:2,
+      version:3,
       dataServico:$('[name="inicioData"]')?.value || String(record?.updatedAt||'').slice(0,10),
       recursos:{
         vtrEquipes:0,efetivoDia:0,ordinarioDia:0,porDia:0,
@@ -2937,7 +2977,7 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
         objetosApreendidos:0,objetosRecuperados:0
       },
       ambientais:{
-        procedimentos:0,tco:0,apf:0,semProcedimento:0,
+        procedimentos:0,tco:0,apf:0,procAdm:0,ufrPb:0,semProcedimento:0,
         natureza:{fauna:0,flora:0,poluicao:0,mineracao:0,pesca:0,recursosHidricos:0,uc:0,queimadaIncendio:0,licenciamento:0,outros:0},
         animaisTotal:0,
         resgateQtd:0,entregaQtd:0,apreensaoQtd:0,
@@ -3013,7 +3053,11 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
       const outcomes=[...row.querySelectorAll('.desfechos input:checked')].map(x=>x.value);
       if(outcomes.includes('TCO'))stats.ambientais.tco++;
       if(outcomes.includes('APF'))stats.ambientais.apf++;
-      if(!outcomes.includes('TCO')&&!outcomes.includes('APF'))stats.ambientais.semProcedimento++;
+      if(outcomes.includes('Procedimento administrativo')){
+        stats.ambientais.procAdm++;
+        stats.ambientais.ufrPb += numValue(row.querySelector('.ufr-pb'));
+      }
+      if(!outcomes.includes('TCO')&&!outcomes.includes('APF')&&!outcomes.includes('Procedimento administrativo'))stats.ambientais.semProcedimento++;
     });
 
     // 5B. Animais por origem e quantidade
@@ -3336,16 +3380,32 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
     $('#bpmaEdit').onclick=enableFinalEdit;
     $('#bpmaClear').onclick=clearCurrentReport;
     $('#bpmaFinalize').onclick=async()=>{
+      const fin=$('#bpmaFinalize');
+      if(fin?.disabled)return;
       if(record?.status==='Finalizado'){
         await window.BPMA_CPU_PRINT_NOW?.();
         return;
       }
       if(!confirm('Finalizar este Relatório CPU e gerar o PDF?')) return;
-      const ok=await persist('Finalizado',false,false,true);
-      if(!ok) return;
-      // A confirmação visual será o próprio modal do PDF pronto.
-      // Evita sobrepor mensagem de sucesso ao modal de geração no celular.
-      await window.BPMA_CPU_PRINT_NOW?.();
+      if(fin)fin.disabled=true;
+      try{
+        clearTimeout(saveTimer);
+        if(revisionPromise && !(await revisionPromise))return;
+        for(let i=0;saving && i<120;i++) await new Promise(resolve=>setTimeout(resolve,50));
+        if(saving){
+          alert('O salvamento automático ainda está em andamento. Aguarde alguns segundos e tente novamente.');
+          return;
+        }
+        pendingSave=false;
+        const ok=await persist('Finalizado',true,true,true);
+        if(!ok)return;
+        await window.BPMA_CPU_PRINT_NOW?.();
+      }catch(err){
+        console.error('Finalização CPU:',err);
+        alert(window.BPMA_CPU?.friendlyError?.(err)||err.message||'Não foi possível finalizar e gerar o PDF.');
+      }finally{
+        updateToolbar();
+      }
     };
   }
 
