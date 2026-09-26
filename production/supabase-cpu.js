@@ -80,13 +80,18 @@
     };
   }
 
-  function numberForNewCPU(){
+  function isTestUser(session){
+    const u=String(session?.user||session?.usuario||'').trim().toLowerCase();
+    return u==='testecpu' || u==='testeop';
+  }
+
+  function numberForNewCPU(test=false){
     const d=new Date();
     const pad=n=>String(n).padStart(2,'0');
     const day=`${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}`;
     const time=`${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}`;
     const rand=Math.random().toString(36).slice(2,5).toUpperCase();
-    return `TESTE-CPU-${day}-${time}-${rand}`;
+    return `${test?'TESTE-CPU':'CPU'}-${day}-${time}-${rand}`;
   }
 
   function encodeObjectPath(path){
@@ -120,7 +125,7 @@
     if(!session?.id) throw new Error('Sessão inválida.');
     const payload={
       tipo:'CPU',
-      numero:numberForNewCPU(),
+      numero:numberForNewCPU(isTestUser(session)),
       status:'Rascunho',
       unidade:session.unit,
       author_id:session.id,
@@ -132,8 +137,8 @@
           usuario:session.user,
           email:session.email||'',
           lazyCreated:true,
-          testMode:true,
-          semValidadeOperacional:true
+          testMode:isTestUser(session),
+          semValidadeOperacional:isTestUser(session)
         }
       },
       stats:null
@@ -164,11 +169,11 @@
       meta:{
         ...(record?.dados?.meta||{}),
         autor:record?.autor||record?.dados?.meta?.autor||'Usuário',
-        testMode:true,
-        semValidadeOperacional:true
+        testMode:!!record?.dados?.meta?.testMode,
+        semValidadeOperacional:!!record?.dados?.meta?.testMode
       }
     };
-    const body={dados,stats};
+    const body={dados,stats:record?.dados?.meta?.testMode?null:stats};
     if(numero) body.numero=numero;
     return patch(record.id,body);
   }
@@ -182,15 +187,15 @@
       ...(record?.dados||{}),
       state,
       prefilledFromTemplate:false,
-      testMode:true,
-      semValidadeOperacional:true,
+      testMode:!!record?.dados?.meta?.testMode,
+      semValidadeOperacional:!!record?.dados?.meta?.testMode,
       version:{number,history},
       serviceIdentity: record?.dados?.serviceIdentity || {dataServico:stats?.dataServico||'',createdAt:record?.createdAt||now},
       audit:{...(record?.dados?.audit||{}),lastFinalizedAt:now,corrections:Math.max(0,number-1)}
     };
     const body={
       dados,
-      stats,
+      stats:record?.dados?.meta?.testMode?null:stats,
       status:'Finalizado',
       finalized_at:now
     };

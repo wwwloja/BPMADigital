@@ -6,13 +6,18 @@
     return window.BPMA_LOCAL_REPORTS;
   }
 
-  function numberForNewRFA(){
+  function isTestUser(session){
+    const u=String(session?.user||session?.usuario||'').trim().toLowerCase();
+    return u==='testecpu' || u==='testeop';
+  }
+
+  function numberForNewRFA(test=false){
     const d=new Date();
     const pad=n=>String(n).padStart(2,'0');
     const day=`${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}`;
     const time=`${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}`;
     const rand=Math.random().toString(36).slice(2,5).toUpperCase();
-    return `RFA-${day}-${time}-${rand}`;
+    return `${test?'TESTE-RFA':'RFA'}-${day}-${time}-${rand}`;
   }
 
   async function listVisible(){
@@ -34,11 +39,11 @@
     if(!session?.id) throw new Error('Sessão inválida.');
     const now=new Date().toISOString();
     const row={
-      id:store().newId('rfa'),tipo:TYPE,numero:numberForNewRFA(),status:'Rascunho',
+      id:store().newId('rfa'),tipo:TYPE,numero:numberForNewRFA(isTestUser(session)),status:'Rascunho',
       unidade:session.unit||'',authorId:session.id,autor:session.name||session.user||'Usuário',
       createdAt:now,updatedAt:now,finalizedAt:null,
       state:initialState||null,prefilledFromTemplate:false,
-      dados:{state:initialState||null,prefilledFromTemplate:false,meta:{autor:session.name||'',usuario:session.user||'',email:session.email||'',localOnly:true}}
+      dados:{state:initialState||null,prefilledFromTemplate:false,meta:{autor:session.name||'',usuario:session.user||'',email:session.email||'',localOnly:true,testMode:isTestUser(session)}}
     };
     return store().put(row);
   }
