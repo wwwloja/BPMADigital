@@ -1,6 +1,6 @@
 (() => {
   const DB_NAME='bpma-digital-local-reports';
-  const DB_VERSION=2; // 4.0: limpeza única dos dados locais de desenvolvimento
+  const DB_VERSION=3; // 4.0 final: limpeza única dos dados locais antes da operação real
   const STORE='reports';
   let dbPromise=null;
 
@@ -15,7 +15,7 @@
           store=db.createObjectStore(STORE,{keyPath:'id'});
         }else{
           store=req.transaction.objectStore(STORE);
-          // Migração 4.0: inicia a operação real sem BO/RFA/rascunhos locais antigos.
+          // Migração 4.0 final: inicia a operação real sem BO/RFA/rascunhos locais anteriores.
           store.clear();
         }
         if(!store.indexNames.contains('tipo')) store.createIndex('tipo','tipo',{unique:false});

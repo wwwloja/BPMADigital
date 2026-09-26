@@ -79,8 +79,15 @@
     document.getElementById('bpmaPrintModal')?.remove();
   }
 
+  function dismissTransientMessages(){
+    // Relatórios antigos/auxiliares podem deixar toast/snackbar visível no instante
+    // em que o PDF termina. O modal do PDF deve ser a única mensagem em primeiro plano.
+    document.querySelectorAll('.toast.show,.snackbar.show,[data-bpma-toast].show').forEach(el=>el.classList.remove('show'));
+  }
+
   function modalBase(title,body){
     removeModal();
+    dismissTransientMessages();
     const modal=document.createElement('div');
     modal.id='bpmaPrintModal';
     modal.className='no-print';

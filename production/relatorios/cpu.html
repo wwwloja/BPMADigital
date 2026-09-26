@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>BPMA Digital — CPU · 3.9.19</title>
+<title>BPMA Digital — CPU · 4.0</title>
 <meta name="theme-color" content="#064e3b">
 <link rel="manifest" href="../manifest.webmanifest">
 <link rel="icon" type="image/png" href="https://png.pngtree.com/png-vector/20240531/ourlarge/pngtree-crested-caracara-bird-png-image_12588698.png">
@@ -3237,7 +3237,11 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
   function updateToolbar(){
     const title=$('#bpmaRecordTitle');
     const sub=$('#bpmaRecordSub');
-    if(title) title.textContent=record?.id ? `CPU TESTE · ${record?.numero||'CPU'}` : 'CPU TESTE · Novo relatório';
+    if(title){
+      const isTest=!!record?.dados?.meta?.testMode;
+      const prefix=isTest?'CPU TESTE':'CPU';
+      title.textContent=record?.id ? `${prefix} · ${record?.numero||'CPU'}` : `${prefix} · Novo relatório`;
+    }
     if(sub) sub.textContent=record?.id
       ? `${record?.status||'Rascunho'}${record?.dados?.version?.number?` · v${record.dados.version.number}`:''} · ${record?.unidade||''} · ${record?.autor||''}`
       : `Não salvo · o rascunho será criado após o primeiro preenchimento · ${record?.unidade||''}`;
@@ -3339,7 +3343,8 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
       if(!confirm('Finalizar este Relatório CPU e gerar o PDF?')) return;
       const ok=await persist('Finalizado',false,false,true);
       if(!ok) return;
-      alert('Relatório finalizado com sucesso. O PDF será preparado agora.');
+      // A confirmação visual será o próprio modal do PDF pronto.
+      // Evita sobrepor mensagem de sucesso ao modal de geração no celular.
       await window.BPMA_CPU_PRINT_NOW?.();
     };
   }

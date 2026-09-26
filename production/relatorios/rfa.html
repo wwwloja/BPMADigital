@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>BPMA Digital — RFA · 3.9.4</title>
+<title>BPMA Digital — RFA · 4.0</title>
 <meta name="theme-color" content="#064e3b">
 <link rel="manifest" href="../manifest.webmanifest">
 <link rel="icon" type="image/png" href="https://png.pngtree.com/png-vector/20240531/ourlarge/pngtree-crested-caracara-bird-png-image_12588698.png">
@@ -1426,7 +1426,8 @@ body{padding-bottom:74px}
           setReadonly();
           return true;
         }
-        if(showMessage) alert('RFA finalizado neste aparelho. O PDF será preparado para guardar ou compartilhar. O RFA não é enviado ao banco do Supabase.');
+        // Não exibe mensagem intermediária de sucesso antes do PDF.
+        // O modal 'PDF A4 pronto' é a confirmação final para o usuário.
         location.replace('../index.html#rfa');
         return true;
       }
