@@ -1,4 +1,4 @@
-const CACHE='bpma-digital-4.0.26-pdf-vetorial-rfa-sem-botao';
+const CACHE='bpma-digital-4.0.27-pdf-cpu-organizado';
 const SHELL=[
   '/',
   '/index.html',
