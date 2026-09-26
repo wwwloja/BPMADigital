@@ -1,4 +1,4 @@
-const CACHE='bpma-digital-4.0.19-reconstruido-base-4.0.11';
+const CACHE='bpma-digital-4.0.20-icones-cards-pdf-cpu';
 const SHELL=[
   '/',
   '/index.html',

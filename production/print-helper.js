@@ -788,7 +788,8 @@
     const wrap=document.createElement('main');
     wrap.className='wrap';
     wrap.style.cssText=`width:${CONTENT_W_MM}mm!important;max-width:${CONTENT_W_MM}mm!important;min-width:0!important;height:auto!important;margin:0!important;padding:0!important;overflow:visible!important;background:#fff!important;box-sizing:border-box!important`;
-    wrap.appendChild(element.cloneNode(true));
+    const clonedChild=element.cloneNode(true);
+    wrap.appendChild(clonedChild);
     host.appendChild(wrap);
     document.body.appendChild(host);
     const style=document.createElement('style');
@@ -796,17 +797,19 @@
     style.textContent=collectPrintCss()+`
       .bpma-cpu-fragment-host,.bpma-cpu-fragment-host *{box-sizing:border-box!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
       .bpma-cpu-fragment-host .wrap{width:${CONTENT_W_MM}mm!important;max-width:${CONTENT_W_MM}mm!important;margin:0!important;padding:0!important;overflow:visible!important;transform:none!important}
+      .bpma-cpu-fragment-host .wrap>*{width:100%!important;max-width:100%!important;margin-left:0!important;margin-right:0!important;overflow:visible!important}
       .bpma-cpu-fragment-host .no-print,.bpma-cpu-fragment-host .cpu-signature-main,.bpma-cpu-fragment-host button{display:none!important}
     `;
     document.head.appendChild(style);
     try{
       await inlineImages(wrap);
       await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
-      const rect=wrap.getBoundingClientRect();
-      const width=Math.max(1,Math.ceil(rect.width));
-      const height=Math.max(1,Math.ceil(wrap.scrollHeight||rect.height));
+      const measured=clonedChild || wrap;
+      const rect=measured.getBoundingClientRect();
+      const width=Math.max(1,Math.ceil(wrap.getBoundingClientRect().width));
+      const height=Math.max(1,Math.ceil(measured.scrollHeight||rect.height||wrap.scrollHeight));
       const worker=window.html2pdf().set({
-        html2canvas:{scale:1,useCORS:true,allowTaint:false,logging:false,backgroundColor:'#ffffff',width,height,windowWidth:Math.max(760,width),scrollX:0,scrollY:0,removeContainer:true,imageTimeout:8000},
+        html2canvas:{scale:1.35,useCORS:true,allowTaint:false,logging:false,backgroundColor:'#ffffff',width,height,windowWidth:width,scrollX:0,scrollY:0,removeContainer:true,imageTimeout:12000},
         jsPDF:{unit:'mm',format:'a4',orientation:'portrait',compress:true}
       }).from(wrap).toCanvas();
       return await worker.get('canvas');
