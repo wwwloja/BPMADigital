@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#064e3b">
 <link rel="manifest" href="../manifest.webmanifest">
-<title>BPMA Digital — BO · 4.0.7</title>
+<title>BPMA Digital — BO · 4.0.11</title>
 <link rel="icon" type="image/png" href="https://png.pngtree.com/png-vector/20240531/ourlarge/pngtree-crested-caracara-bird-png-image_12588698.png">
 <link rel="shortcut icon" type="image/png" href="https://png.pngtree.com/png-vector/20240531/ourlarge/pngtree-crested-caracara-bird-png-image_12588698.png">
 <link rel="apple-touch-icon" href="https://png.pngtree.com/png-vector/20240531/ourlarge/pngtree-crested-caracara-bird-png-image_12588698.png">
@@ -201,14 +201,16 @@ body.bpma-signing #view-bo .toolbar{display:none!important}
   padding:12px 0 4px
 }
 #view-bo .bo-print-bottom button{
-  border:1px solid #08764f!important;
-  border-radius:9px!important;
-  padding:10px 14px!important;
-  min-height:40px!important;
-  background:#08764f!important;
+  width:min(100%,460px)!important;
+  border:1px solid #075d49!important;
+  border-radius:10px!important;
+  padding:12px 18px!important;
+  min-height:54px!important;
+  background:#075d49!important;
   color:#fff!important;
-  font-weight:800!important;
-  font-size:12px!important;
+  font-weight:900!important;
+  font-size:14px!important;
+  box-shadow:0 4px 12px rgba(7,93,73,.14)!important;
   cursor:pointer
 }
 
@@ -279,6 +281,13 @@ body.bpma-signing #view-bo .toolbar{display:none!important}
   #view-fisc .toolbar .tbtn-limpar:hover,
   #view-serv .toolbar .tbtn-limpar:hover{background:#941b23!important}
 }
+</style>
+
+<style id="bpma-4011-bo-actions">
+/* 4.0.11 · botão final do BO no mesmo padrão visual */
+#view-bo .bo-print-bottom{display:flex!important;justify-content:flex-end!important;width:100%!important}
+#view-bo #bpmaBoPrintA4{width:min(100%,520px)!important;max-width:none!important;min-height:56px!important;padding:13px 20px!important;border-radius:12px!important;font-size:15px!important;background:linear-gradient(180deg,#0b6b4f,#075d49)!important;box-shadow:0 5px 14px rgba(7,93,73,.18)!important}
+@media(max-width:720px){#view-bo .bo-print-bottom{display:block!important}#view-bo #bpmaBoPrintA4{width:100%!important;min-height:56px!important}}
 </style>
 </head>
 <body>

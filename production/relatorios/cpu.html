@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>BPMA Digital — CPU · 4.0.7</title>
+<title>BPMA Digital — CPU · 4.0.11</title>
 <meta name="theme-color" content="#064e3b">
 <link rel="manifest" href="../manifest.webmanifest">
 <link rel="icon" type="image/png" href="https://png.pngtree.com/png-vector/20240531/ourlarge/pngtree-crested-caracara-bird-png-image_12588698.png">
@@ -1094,6 +1094,7 @@ button{border:0;border-radius:9px;padding:10px 14px;font-weight:700;cursor:point
 }
 .report-final-actions .save-action{background:#08764f;color:#fff}
 .report-final-actions .finalize-action{background:#174d3b;color:#fff}
+.report-final-actions .finalize-action{width:min(100%,460px);min-height:54px;padding:12px 18px;font-size:14px;font-weight:900;border-radius:10px;background:#075d49;color:#fff;box-shadow:0 4px 12px rgba(7,93,73,.14)}
 html,body{max-width:100%;overflow-x:hidden}
 .wrap,.card,.card-body,.fields,.field{min-width:0}
 input,select,textarea{max-width:100%;min-width:0}
@@ -1868,6 +1869,13 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
 }
 </style>
 
+
+<style id="bpma-4011-cpu-actions">
+/* 4.0.11 · botão final do CPU no mesmo padrão visual */
+.report-final-actions{display:flex!important;justify-content:flex-end!important;width:100%!important}
+.report-final-actions .finalize-action{width:min(100%,520px)!important;max-width:none!important;min-height:56px!important;padding:13px 20px!important;border-radius:12px!important;font-size:15px!important;background:linear-gradient(180deg,#0b6b4f,#075d49)!important;box-shadow:0 5px 14px rgba(7,93,73,.18)!important}
+@media(max-width:720px){.report-final-actions{display:block!important}.report-final-actions .finalize-action{width:100%!important;min-height:56px!important}}
+</style>
 </head>
 <body>
 <!-- Barra de ações CPU: markup estático para permanecer visível no desktop mesmo antes da inicialização dos dados. -->
@@ -2651,7 +2659,7 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
 <script src="../supabase-config.js"></script>
 <script src="../supabase-auth.js"></script>
 <script src="../security.js"></script>
-<script src="../print-helper.js?v=4.0.7"></script>
+<script src="../print-helper.js?v=4.0.11"></script>
 <script src="../supabase-cpu.js"></script>
 
 <script id="bpma-cpu-35-integration">

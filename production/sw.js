@@ -1,4 +1,4 @@
-const CACHE='bpma-digital-4.0.7-fix-rascunho-finalizar-pdf';
+const CACHE='bpma-digital-4.0.11-estatisticas-profissionais';
 const SHELL=[
   '/',
   '/index.html',

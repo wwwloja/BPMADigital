@@ -147,8 +147,8 @@
     card._printPages=[];
     card.innerHTML=`
       <div class="annex-thumb"><span class="annex-placeholder">${mime==='application/pdf'?'PDF':'IMG'}</span></div>
-      <div class="annex-info"><b>${safeText(name||'Anexo')}</b><span class="annex-kind">${mime==='application/pdf'?'PDF':'Imagem'} · preparando...</span></div>
-      <button type="button" class="btn danger annex-remove">Excluir</button>`;
+      <div class="annex-info"><b>${safeText(name||'Anexo')}</b><span class="annex-ok">✓ Anexado</span><span class="annex-kind">${mime==='application/pdf'?'PDF':'Imagem'} · preparando...</span></div>
+      <button type="button" class="btn danger annex-remove">🗑 Remover</button>`;
     $(listSel)?.appendChild(card);
     updateStatus();
     return card;

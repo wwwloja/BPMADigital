@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>BPMA Digital — RFA · 4.0.7</title>
+<title>BPMA Digital — RFA · 4.0.11</title>
 <meta name="theme-color" content="#064e3b">
 <link rel="manifest" href="../manifest.webmanifest">
 <link rel="icon" type="image/png" href="https://png.pngtree.com/png-vector/20240531/ourlarge/pngtree-crested-caracara-bird-png-image_12588698.png">
@@ -176,16 +176,21 @@ textarea.mini{min-height:76px}
 .print-actions{
   display:flex;
   justify-content:flex-end;
-  margin-top:16px;
+  margin:16px 0 12px;
+  width:100%;
 }
 .print-actions button{
-  border:0;
-  border-radius:9px;
-  background:#08764f;
+  width:min(100%,460px);
+  min-height:54px;
+  border:1px solid #075d49;
+  border-radius:10px;
+  background:#075d49;
   color:#fff;
-  padding:11px 15px;
-  font-weight:800;
+  padding:12px 18px;
+  font-weight:900;
+  font-size:14px;
   cursor:pointer;
+  box-shadow:0 4px 12px rgba(7,93,73,.14);
 }
 @media(max-width:760px){
   .page{width:calc(100% - 16px);margin-top:8px}
@@ -673,6 +678,7 @@ body{padding-bottom:74px}
 .annex-info span{font-size:11px;color:#6b7772}
 .annex-remove{align-self:center}
 .annex-print-pages{display:none}
+.annex-file-main{width:100%!important;min-width:0!important;min-height:56px!important;padding:13px 18px!important;background:#eef8f3!important;color:#075d49!important;border:2px dashed #b9d0c6!important;border-radius:12px!important;font-size:14px!important;font-weight:900!important;box-shadow:none!important}.annex-file-main:hover{background:#e4f4ec!important;border-color:#7eaa97!important}.annex-file-hint{margin:8px 0 0!important;color:#75827d!important}.annex-item{grid-template-columns:64px minmax(0,1fr) auto!important;padding:10px 11px!important;border-radius:12px!important;background:#fbfdfc!important}.annex-thumb{width:64px!important;height:70px!important}.annex-info{display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;align-items:center!important;gap:5px 8px!important}.annex-info b{font-size:13px!important}.annex-info .annex-kind{grid-column:1/-1}.annex-ok{display:inline-flex;align-items:center;gap:4px;background:#e5f6ec;color:#087548;border-radius:999px;padding:4px 8px;font-size:10.5px;font-weight:900;white-space:nowrap}.annex-remove{border-color:#e2a9ad!important;color:#b4232c!important;background:#fff!important;font-weight:900!important}
 @media(max-width:650px){
   .annex-actions{display:grid;grid-template-columns:1fr 1fr}
   .annex-actions .btn{width:100%;min-height:44px}
@@ -740,6 +746,14 @@ body{padding-bottom:74px}
 
 </style>
 
+
+<style id="bpma-4011-rfa-actions">
+/* 4.0.11 · ações finais e anexos padronizados */
+.print-actions{display:flex!important;justify-content:flex-end!important;width:100%!important;margin:16px 0 12px!important}
+#printRelatorioCompleto{width:min(100%,520px)!important;min-height:56px!important;border-radius:12px!important;padding:13px 20px!important;font-size:15px!important;font-weight:900!important;background:linear-gradient(180deg,#0b6b4f,#075d49)!important;border:1px solid #075d49!important;color:#fff!important;box-shadow:0 5px 14px rgba(7,93,73,.18)!important}
+.annex-file-main{min-height:58px!important;border-radius:14px!important;background:linear-gradient(180deg,#f4fbf8,#eaf6f1)!important;border:2px dashed #9fc2b4!important;color:#075d49!important;font-size:15px!important;letter-spacing:.1px!important}.annex-file-main:hover{background:#e3f4ec!important;border-color:#5f9c84!important}.annex-file-hint{font-size:11.5px!important;color:#74827c!important}.annex-item{border:1px solid #cfded7!important;box-shadow:0 3px 10px rgba(6,76,56,.045)!important}.annex-ok{background:#e0f5e8!important;color:#087548!important}.annex-remove{min-height:38px!important;border:1px solid #d9474e!important;color:#b4232c!important;background:#fff!important}
+@media(max-width:720px){.print-actions{display:block!important}#printRelatorioCompleto{width:100%!important;max-width:none!important;min-height:56px!important}.annex-file-main{width:100%!important}}
+</style>
 </head>
 <body>
 <div class="page">
@@ -751,8 +765,9 @@ body{padding-bottom:74px}
   <div class="card-head">ANEXO DOCUMENTAL</div>
   <div class="card-body">
     <div class="annex-actions">
-      <button class="btn primary annex-file-main" type="button" id="annexFileBtn">📎 Anexar arquivo</button>
+      <button class="btn primary annex-file-main" type="button" id="annexFileBtn">📎 Adicionar anexo</button>
     </div>
+    <p class="annex-help annex-file-hint">Foto, imagem ou PDF</p>
     <div class="annex-help" style="margin-top:9px">Selecione imagem ou PDF.</div>
     <div class="annex-status" id="annexStatus">Nenhum anexo adicionado.</div>
     <div class="annex-list" id="annexList"></div>
@@ -906,8 +921,9 @@ body{padding-bottom:74px}
   <div class="card-head">ANEXO DOCUMENTAL FINAL</div>
   <div class="card-body">
     <div class="annex-actions">
-      <button class="btn primary annex-file-main" type="button" id="finalAnnexFileBtn">📎 Anexar arquivo</button>
+      <button class="btn primary annex-file-main" type="button" id="finalAnnexFileBtn">📎 Adicionar anexo</button>
     </div>
+    <p class="annex-help annex-file-hint">Foto, imagem ou PDF</p>
     <div class="annex-status" id="finalAnnexStatus">Nenhum anexo adicionado.</div>
     <div class="annex-list" id="finalAnnexList"></div>
     <input id="finalAnnexFileInput" type="file" accept="application/pdf,image/*" multiple hidden>
