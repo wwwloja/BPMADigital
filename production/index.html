@@ -703,7 +703,7 @@ th,td{padding:10px;border-bottom:1px solid #edf1ef;text-align:left;white-space:n
 <script src="supabase-system.js"></script>
 <script src="security.js"></script>
 <script src="pwa.js"></script>
-<script src="print-helper.js"></script>
+<script src="print-helper.js?v=4.0.2"></script>
 <script>
 const USERS_KEY='bpma_local_users_v1';
 const SESSION_KEY='bpma_local_session_v1';
@@ -926,8 +926,11 @@ function canEditRecord(r){
   return owner;
 }
 function canDeleteRecord(r){
+  // Admin pode excluir qualquer relatório visível, inclusive CPU finalizado.
+  // Demais perfis mantêm as regras restritivas existentes.
+  if(session.role==='admin') return true;
   if(r?.tipo==='CPU' && (r.status==='Finalizado'||r.status==='Em revisão'||r.status==='Cancelado')) return false;
-  if(session.role==='admin'||session.role==='p3') return true;
+  if(session.role==='p3') return true;
   const owner=String(r.authorId)===String(session.id);
   return owner && (r.status==='Rascunho'||r.status==='Reaberto'||r.status==='Em revisão');
 }
@@ -2062,12 +2065,27 @@ function useCpuAsModel(id){
   location.href=`relatorios/cpu.html?new=1&model=${encodeURIComponent(r.id)}`;
 }
 
+function confirmAdminPermanentDelete(r){
+  if(session.role!=='admin') return true;
+  const numero=String(r?.numero||'').trim();
+  const typed=prompt(
+    `EXCLUSÃO DEFINITIVA\n\nRelatório: ${numero||r?.tipo||''}\nTipo: ${r?.tipo||''}\nStatus: ${r?.status||''}\n\nEsta ação não pode ser desfeita. Para confirmar, digite exatamente o número do relatório:`
+  );
+  if(typed===null) return false;
+  if(String(typed).trim()!==numero){
+    alert('Número diferente. O relatório não foi excluído.');
+    return false;
+  }
+  return confirm(`Confirmar exclusão definitiva de ${numero}?`);
+}
+
 async function deleteReport(id){
   const r=getReports().find(x=>String(x.id)===String(id));
   if(!r||!canDeleteRecord(r))return;
+  if(session.role==='admin' && !confirmAdminPermanentDelete(r)) return;
 
   if(r.tipo==='BO'){
-    if(!confirm(`Excluir ${r.numero}? Esta ação remove o BO somente deste aparelho.`))return;
+    if(session.role!=='admin' && !confirm(`Excluir ${r.numero}? Esta ação remove o BO somente deste aparelho.`))return;
     try{
       await window.BPMA_BO.remove(r.id);
       remoteBOCache=remoteBOCache.filter(x=>String(x.id)!==String(r.id));
@@ -2079,7 +2097,7 @@ async function deleteReport(id){
   }
 
   if(r.tipo==='RFA'){
-    if(!confirm(`Excluir ${r.numero}? Esta ação remove o RFA, fotos e anexos somente deste aparelho.`))return;
+    if(session.role!=='admin' && !confirm(`Excluir ${r.numero}? Esta ação remove o RFA, fotos e anexos somente deste aparelho.`))return;
     try{
       await window.BPMA_RFA.remove(r.id);
       remoteRFACache=remoteRFACache.filter(x=>String(x.id)!==String(r.id));
@@ -2091,7 +2109,7 @@ async function deleteReport(id){
   }
 
   if(r.tipo==='CPU'){
-    if(!confirm(`Excluir ${r.numero}? Esta ação remove o Relatório CPU do Supabase.`))return;
+    if(session.role!=='admin' && !confirm(`Excluir ${r.numero}? Esta ação remove o Relatório CPU do Supabase.`))return;
     try{
       await window.BPMA_CPU.remove(r.id);
       remoteCPUCache=remoteCPUCache.filter(x=>String(x.id)!==String(r.id));

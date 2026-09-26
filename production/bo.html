@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#064e3b">
-<link rel="manifest" href="manifest.json">
-<title>BPMA Digital — BO · 3.9.6</title>
+<link rel="manifest" href="../manifest.webmanifest">
+<title>BPMA Digital — BO · 4.0</title>
 <link rel="icon" type="image/png" href="https://png.pngtree.com/png-vector/20240531/ourlarge/pngtree-crested-caracara-bird-png-image_12588698.png">
 <link rel="shortcut icon" type="image/png" href="https://png.pngtree.com/png-vector/20240531/ourlarge/pngtree-crested-caracara-bird-png-image_12588698.png">
 <link rel="apple-touch-icon" href="https://png.pngtree.com/png-vector/20240531/ourlarge/pngtree-crested-caracara-bird-png-image_12588698.png">
@@ -390,7 +390,7 @@ body.bpma-signing #view-bo .toolbar{display:none!important}
 <table class="form"><tr><td class="section-title">Recibo de apresentação / entrega</td></tr></table><div class="receipt-line">Recebi às <span class="manual-line"></span> h <span class="manual-line"></span> min., de <span class="manual-line"></span>/<span class="manual-line"></span>/<span class="manual-line"></span>, o(s) acusado(s), arma(s), objeto(s), veículo(s) e/ou demais itens descritos neste documento.</div><div class="receipt-grid"><div>Nome: <span class="manual-line"></span></div><div>Matrícula: <span class="manual-line"></span></div><div>Assinatura: <span class="manual-line"></span></div></div>
 </div></section>
 <div class="bo-print-bottom no-print">
-  <button type="button" id="bpmaBoPrintA4">Imprimir / Salvar PDF A4</button>
+  <button type="button" id="bpmaBoPrintA4">📄 Finalizar e gerar PDF</button>
 </div>
 </div>
 </main>
@@ -598,7 +598,7 @@ body.bpma-signing #view-bo .toolbar{display:none!important}
 
 <div class="toolbar">
   <button type="button" class="tbtn tbtn-voltar" onclick="showView('home')">Voltar</button>
-  <button class="tbtn tbtn-pdf" type="button" onclick="FISC.gerarPDF()">Gerar PDF</button>
+  <button class="tbtn tbtn-pdf" type="button" onclick="FISC.gerarPDF()">Finalizar e gerar PDF</button>
   <button class="tbtn tbtn-limpar" type="button" onclick="FISC.limpar()">← Limpar</button>
 </div>
 <div class="toast" id="toast"></div>
@@ -803,7 +803,7 @@ body.bpma-signing #view-bo .toolbar{display:none!important}
 
 <div class="toolbar">
   <button class="tbtn tbtn-voltar" type="button" onclick="showView('home')">Voltar</button>
-  <button class="tbtn tbtn-pdf" type="button" onclick="SERV.gerarPDF()">Gerar PDF</button>
+  <button class="tbtn tbtn-pdf" type="button" onclick="SERV.gerarPDF()">Finalizar e gerar PDF</button>
   <button class="tbtn tbtn-limpar" type="button" onclick="SERV.limparTudo()">← Limpar</button>
 </div>
 
@@ -1452,7 +1452,7 @@ window.SERV = {addAnimal,addAtividade,addProcedimento,addRecurso,gerarPDF,go,lim
 <script src="../supabase-config.js"></script>
 <script src="../supabase-auth.js"></script>
 <script src="../security.js"></script>
-<script src="../print-helper.js"></script>
+<script src="../print-helper.js?v=4.0.2"></script>
 <script src="../vendor/html2pdf.bundle.min.js"></script>
 <script src="../bo-pdf.js"></script>
 <script src="../local-report-store.js"></script>

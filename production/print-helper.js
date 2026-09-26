@@ -79,10 +79,53 @@
     document.getElementById('bpmaPrintModal')?.remove();
   }
 
-  function dismissTransientMessages(){
-    // Relatórios antigos/auxiliares podem deixar toast/snackbar visível no instante
-    // em que o PDF termina. O modal do PDF deve ser a única mensagem em primeiro plano.
-    document.querySelectorAll('.toast.show,.snackbar.show,[data-bpma-toast].show').forEach(el=>el.classList.remove('show'));
+  let transientNoticeObserver=null;
+  let transientNoticeTimer=null;
+
+  function isLegacyFinalizeNotice(el){
+    if(!el || el.id==='bpmaPrintModal' || el.closest?.('#bpmaPrintModal')) return false;
+    const txt=String(el.textContent||'').replace(/\s+/g,' ').trim();
+    if(!txt || txt.length>700) return false;
+    return /relat[oó]rio\s+finalizado\s+com\s+sucesso/i.test(txt)
+      || /pdf\s+ser[aá]\s+preparad[oa]\s+agora/i.test(txt);
+  }
+
+  function removeLegacyFinalizeNotice(el){
+    if(!isLegacyFinalizeNotice(el)) return false;
+    const container=el.closest?.('[role="dialog"],dialog,.modal,.modal-overlay,.overlay,.popup,.toast,.snackbar,.notification,.message,.alert') || el;
+    if(container && container!==document.body && container.id!=='bpmaPrintModal'){
+      try{container.remove();return true}catch{}
+    }
+    try{el.remove();return true}catch{}
+    return false;
+  }
+
+  function dismissTransientMessages(keepWatching=true){
+    // Remove avisos antigos de finalização que ainda podem ser disparados por scripts
+    // legados/cache. O modal do PDF deve ser a única confirmação visual.
+    document.querySelectorAll('.toast.show,.snackbar.show,[data-bpma-toast].show').forEach(el=>{
+      if(el.closest?.('#bpmaPrintModal')) return;
+      el.classList.remove('show');
+    });
+    document.querySelectorAll('div,section,aside,dialog,[role="dialog"],[role="alert"],[role="status"]').forEach(removeLegacyFinalizeNotice);
+
+    if(!keepWatching) return;
+    try{transientNoticeObserver?.disconnect?.()}catch{}
+    clearTimeout(transientNoticeTimer);
+    transientNoticeObserver=new MutationObserver(mutations=>{
+      for(const m of mutations){
+        for(const n of m.addedNodes||[]){
+          if(!(n instanceof Element)) continue;
+          removeLegacyFinalizeNotice(n);
+          n.querySelectorAll?.('div,section,aside,dialog,[role="dialog"],[role="alert"],[role="status"]').forEach(removeLegacyFinalizeNotice);
+        }
+      }
+    });
+    transientNoticeObserver.observe(document.body,{childList:true,subtree:true});
+    transientNoticeTimer=setTimeout(()=>{
+      try{transientNoticeObserver?.disconnect?.()}catch{}
+      transientNoticeObserver=null;
+    },6000);
   }
 
   function modalBase(title,body){
@@ -185,6 +228,7 @@
   }
 
   function showReady(blob,filename){
+    dismissTransientMessages(true);
     currentPdf=blob;
     currentPdfName=safeName(filename);
     const m=modalBase(
