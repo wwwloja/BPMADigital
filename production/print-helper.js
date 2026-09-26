@@ -947,9 +947,15 @@
       return window.BPMA_BO_PDF.nativePrint();
     }
     if(opts.selector==='main.wrap'){
-      if(isMobile()) generateCpuMobilePdf(opts);
-      else generateCpuDesktopPdf(opts);
-      return true;
+      if(isMobile()){
+        generateCpuMobilePdf(opts);
+        return true;
+      }
+      // No computador, use o mecanismo nativo do navegador. Ele pagina tabelas
+      // e conteúdo A4 com mais fidelidade do que rasterizar a tela em canvas.
+      prepareSafe(opts.prepare);
+      autoPrepare();
+      return nativePrint();
     }
     if(isMobile()){
       generateMobilePdf(opts);

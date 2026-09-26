@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>BPMA Digital — CPU · 4.0.22</title>
+<title>BPMA Digital — CPU · 4.0.23</title>
 <meta name="theme-color" content="#064e3b">
 <link rel="manifest" href="../manifest.webmanifest">
 <link rel="icon" type="image/png" href="https://png.pngtree.com/png-vector/20240531/ourlarge/pngtree-crested-caracara-bird-png-image_12588698.png">
@@ -1914,6 +1914,34 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
 @media(max-width:720px){.report-final-actions{display:grid!important;grid-template-columns:1fr!important}.report-final-actions .finalize-action{width:100%!important;min-height:56px!important}}
 .report-final-actions .secondary-action{background:#fff!important;color:#075d49!important;border:2px solid #0b6b4f!important;box-shadow:none!important}
 </style>
+
+<style id="bpma-cpu-print-4023-final">
+@media print{
+  @page{size:A4 portrait;margin:7mm!important}
+  html,body{margin:0!important;padding:0!important;background:#fff!important;width:auto!important;min-width:0!important;overflow:visible!important}
+  body{font-family:"Times New Roman",Times,serif!important;color:#111!important}
+  main.wrap,.wrap{width:auto!important;max-width:none!important;min-width:0!important;margin:0!important;padding:0!important;overflow:visible!important;transform:none!important}
+  main.wrap>*{width:100%!important;max-width:100%!important;min-width:0!important;margin-left:0!important;margin-right:0!important;box-sizing:border-box!important}
+  .topbar{width:100%!important;grid-template-columns:58px minmax(0,1fr) 58px!important;padding:7px 10px!important;gap:8px!important;border-radius:9px!important;box-shadow:none!important}
+  .topbar img{max-width:48px!important;max-height:48px!important}
+  .head b{font-size:12pt!important;line-height:1.05!important}.head .sub{font-size:9pt!important}
+  .title-row{margin:6px 0!important}.title-row h1{font-size:14pt!important}
+  .card{width:100%!important;max-width:100%!important;margin:0 0 5mm!important;border-radius:0!important;box-shadow:none!important;overflow:visible!important;break-inside:auto!important;page-break-inside:auto!important}
+  .card-head{padding:5px 7px!important;font-size:9.5pt!important}
+  .card-body{padding:6px!important;overflow:visible!important}
+  .table-wrap{width:100%!important;max-width:100%!important;min-width:0!important;overflow:visible!important;border-radius:0!important}
+  table,.edit-table,.amb-table,.comp-table{width:100%!important;max-width:100%!important;min-width:0!important;table-layout:fixed!important;border-collapse:collapse!important;margin:0!important}
+  thead{display:table-header-group!important}
+  tfoot{display:table-footer-group!important}
+  tr{break-inside:avoid!important;page-break-inside:avoid!important}
+  th,td{box-sizing:border-box!important;overflow-wrap:anywhere!important;word-break:normal!important}
+  input,select,textarea,.bpma-print-value{max-width:100%!important;box-sizing:border-box!important;font-family:"Times New Roman",Times,serif!important;font-size:9pt!important}
+  .no-print,.bpma-system-toolbar,.bpma-readonly-notice,.report-final-actions,.report-final-note,.cpu-signature-actions,.cpu-signature-main{display:none!important}
+  .ufr-wrap{display:inline-flex!important;width:auto!important;max-width:100%!important;padding:0!important;margin:1px 0!important;border:0!important;background:transparent!important;gap:3px!important}
+  .ufr-wrap label,.ufr-wrap .ufr-unit{font-size:7pt!important;margin:0!important}
+  .ufr-wrap .ufr-field input{width:38px!important;min-width:38px!important;min-height:16px!important;height:16px!important;padding:0 2px!important;font-size:7pt!important}
+}
+</style>
 </head>
 <body>
 <!-- Barra de ações CPU: markup estático para permanecer visível no desktop mesmo antes da inicialização dos dados. -->
@@ -1924,8 +1952,8 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
   </div>
   <div class="bpma-actions">
     <button type="button" id="bpmaBack" onclick="if(!this.dataset.bound){location.href='../index.html#cpu'}">← Voltar</button>
-    <button type="button" id="bpmaEdit" hidden>✏️ Corrigir este CPU</button>
-    <button type="button" id="bpmaNewFromThis" hidden>➕ Criar novo CPU a partir deste</button>
+    <button type="button" id="bpmaEdit" hidden>Corrigir</button>
+    <button type="button" id="bpmaNewFromThis" hidden>Criar novo a partir deste</button>
     <button type="button" id="bpmaCancelCorrection" hidden>↩ Cancelar correção</button>
     <button type="button" id="bpmaClear">Limpar</button>
 
@@ -2706,7 +2734,7 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
 <script src="../supabase-config.js"></script>
 <script src="../supabase-auth.js"></script>
 <script src="../security.js"></script>
-<script src="../print-helper.js?v=4.0.22"></script>
+<script src="../print-helper.js?v=4.0.23"></script>
 <script src="../supabase-cpu.js"></script>
 
 <script id="bpma-cpu-35-integration">
@@ -2980,7 +3008,7 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
     const notice=document.createElement('div');
     notice.className='bpma-readonly-notice';
     notice.textContent=record?.status==='Finalizado'
-      ? 'Relatório finalizado — versão oficial protegida. Use “Corrigir este CPU” ou “Criar novo CPU a partir deste”.'
+      ? 'Relatório finalizado — versão oficial protegida. Use “Corrigir” ou “Criar novo a partir deste”.'
       : 'Seu perfil possui acesso somente para visualização deste relatório.';
     document.body.prepend(notice);
 
@@ -3229,7 +3257,7 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
       const officialDate=record?.dados?.serviceIdentity?.dataServico;
       if(officialDate && stats.dataServico!==officialDate){
         const dataEl=$('[name="inicioData"]'); if(dataEl)dataEl.value=officialDate;
-        if(showMessage) alert(`A data-base deste CPU é ${officialDate}. Para outro dia, use “Criar novo CPU a partir deste”.`);
+        if(showMessage) alert(`A data-base deste CPU é ${officialDate}. Para outro dia, use “Criar novo a partir deste”.`);
         return false;
       }
       if(!record.id) await ensureRecord(state);
@@ -3340,7 +3368,7 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
     const fin=$('#bpmaFinalize'),clear=$('#bpmaClear'),edit=$('#bpmaEdit'),newFrom=$('#bpmaNewFromThis'),cancel=$('#bpmaCancelCorrection');
     if(fin){fin.disabled=!(canEdit() || record?.status==='Finalizado');fin.textContent=record?.status==='Finalizado'&&!correction?'📄 Gerar PDF oficial':(correction?'📄 Finalizar correção e gerar PDF':'📄 Finalizar e gerar PDF');}
     if(clear){clear.disabled=!canEdit();clear.hidden=record?.status==='Finalizado';}
-    if(edit){edit.hidden=!canRevise();edit.disabled=false;edit.textContent='✏️ Corrigir este CPU';}
+    if(edit){edit.hidden=!canRevise();edit.disabled=false;edit.textContent='Corrigir';}
     if(newFrom){newFrom.hidden=!(record?.status==='Finalizado'&&!correction);newFrom.disabled=false;}
     if(cancel){cancel.hidden=!correction;cancel.disabled=false;}
   }
@@ -3386,23 +3414,19 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
       if(correctionActive()){alert('Este CPU está em correção. Finalize a correção para gerar a nova versão oficial.');return;}
       window.BPMA_CPU_SYNC_PRINT_VALUES?.();
       const filename=`CPU_${String(record?.numero||'BPMA').replace(/[^a-zA-Z0-9_-]+/g,'_')}_v${record?.dados?.version?.number||1}.pdf`;
-      if(window.BPMA_PRINT?.generateMobilePdf){
-        const generated=await window.BPMA_PRINT.generateMobilePdf({
-          selector:'main.wrap',filename,
-          prepare:()=>{
-            window.BPMA_CPU_SYNC_PRINT_VALUES?.();
-            window.BPMA_CPU_buildPrintMirrors?.();
-          }
-        });
+      const printOpts={
+        selector:'main.wrap',filename,
+        prepare:()=>{
+          window.BPMA_CPU_SYNC_PRINT_VALUES?.();
+          window.BPMA_CPU_buildPrintMirrors?.();
+        }
+      };
+      if(window.BPMA_PRINT?.printCurrent){
+        const generated=await window.BPMA_PRINT.printCurrent(printOpts);
+        if(generated===false) throw new Error('Não foi possível preparar a impressão/PDF A4.');
+      }else if(window.BPMA_PRINT?.generateMobilePdf){
+        const generated=await window.BPMA_PRINT.generateMobilePdf(printOpts);
         if(generated===false) throw new Error('Não foi possível gerar o PDF A4.');
-      }else if(window.BPMA_PRINT?.printCurrent){
-        window.BPMA_PRINT.printCurrent({
-          selector:'main.wrap',filename,
-          prepare:()=>{
-            window.BPMA_CPU_SYNC_PRINT_VALUES?.();
-            window.BPMA_CPU_buildPrintMirrors?.();
-          }
-        });
       }else window.print();
     }catch(err){
       console.error('Impressão CPU:',err);
@@ -3414,7 +3438,7 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
     let bar=document.getElementById('bpmaSystemToolbar') || document.querySelector('.bpma-system-toolbar');
     if(!bar){
       bar=document.createElement('div');bar.id='bpmaSystemToolbar';bar.className='bpma-system-toolbar no-print';
-      bar.innerHTML=`<div class="bpma-meta"><b id="bpmaRecordTitle">CPU · Relatório</b><small id="bpmaRecordSub"></small></div><div class="bpma-actions"><button type="button" id="bpmaBack">← Voltar</button><button type="button" id="bpmaEdit" hidden>✏️ Corrigir este CPU</button><button type="button" id="bpmaNewFromThis" hidden>➕ Criar novo CPU a partir deste</button><button type="button" id="bpmaCancelCorrection" hidden>↩ Cancelar correção</button><button type="button" id="bpmaClear">Limpar</button></div>`;
+      bar.innerHTML=`<div class="bpma-meta"><b id="bpmaRecordTitle">CPU · Relatório</b><small id="bpmaRecordSub"></small></div><div class="bpma-actions"><button type="button" id="bpmaBack">← Voltar</button><button type="button" id="bpmaEdit" hidden>Corrigir</button><button type="button" id="bpmaNewFromThis" hidden>Criar novo a partir deste</button><button type="button" id="bpmaCancelCorrection" hidden>↩ Cancelar correção</button><button type="button" id="bpmaClear">Limpar</button></div>`;
       document.body.appendChild(bar);
     }
     $('#bpmaBack').onclick=()=>leaveReport('../index.html#cpu');

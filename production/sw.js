@@ -1,4 +1,4 @@
-const CACHE='bpma-digital-4.0.22-cpu-regra-oficial-pdf-dinamico';
+const CACHE='bpma-digital-4.0.23-cpu-pdf-final-botoes';
 const SHELL=[
   '/',
   '/index.html',
