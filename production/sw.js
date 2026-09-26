@@ -1,4 +1,4 @@
-const CACHE='bpma-digital-3.9.19-pdf-finalizacao';
+const CACHE='bpma-digital-3.9.20-homologacao';
 const SHELL=[
   '/',
   '/index.html',

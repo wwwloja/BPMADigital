@@ -86,7 +86,7 @@
     const day=`${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}`;
     const time=`${pad(d.getHours())}${pad(d.getMinutes())}${pad(d.getSeconds())}`;
     const rand=Math.random().toString(36).slice(2,5).toUpperCase();
-    return `CPU-${day}-${time}-${rand}`;
+    return `TESTE-CPU-${day}-${time}-${rand}`;
   }
 
   function encodeObjectPath(path){
@@ -131,7 +131,9 @@
           autor:session.name,
           usuario:session.user,
           email:session.email||'',
-          lazyCreated:true
+          lazyCreated:true,
+          testMode:true,
+          semValidadeOperacional:true
         }
       },
       stats:null
@@ -161,7 +163,9 @@
       prefilledFromTemplate:false,
       meta:{
         ...(record?.dados?.meta||{}),
-        autor:record?.autor||record?.dados?.meta?.autor||'Usuário'
+        autor:record?.autor||record?.dados?.meta?.autor||'Usuário',
+        testMode:true,
+        semValidadeOperacional:true
       }
     };
     const body={dados,stats};
@@ -178,6 +182,8 @@
       ...(record?.dados||{}),
       state,
       prefilledFromTemplate:false,
+      testMode:true,
+      semValidadeOperacional:true,
       version:{number,history},
       serviceIdentity: record?.dados?.serviceIdentity || {dataServico:stats?.dataServico||'',createdAt:record?.createdAt||now},
       audit:{...(record?.dados?.audit||{}),lastFinalizedAt:now,corrections:Math.max(0,number-1)}

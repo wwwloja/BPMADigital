@@ -1320,6 +1320,7 @@ function renderStats(){
   const units=[...new Set(allCpu.map(r=>r.unidade).filter(Boolean))].sort();
 
   let rows=allCpu.filter(r=>r.stats && r.stats.version>=1);
+  rows=rows.filter(r=>!(r?.tipo==='CPU' && (r?.dados?.testMode===true || r?.dados?.meta?.testMode===true || String(r?.numero||'').startsWith('TESTE-'))));
 
   if(statsFilters.status){
     rows=rows.filter(r=>r.status===statsFilters.status);
