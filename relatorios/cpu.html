@@ -1,0 +1,3780 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>BPMA Digital — CPU · 4.0.11</title>
+<meta name="theme-color" content="#064e3b">
+<link rel="manifest" href="../manifest.webmanifest">
+<link rel="icon" type="image/png" href="https://png.pngtree.com/png-vector/20240531/ourlarge/pngtree-crested-caracara-bird-png-image_12588698.png">
+<link rel="shortcut icon" type="image/png" href="https://png.pngtree.com/png-vector/20240531/ourlarge/pngtree-crested-caracara-bird-png-image_12588698.png">
+<link rel="apple-touch-icon" href="https://png.pngtree.com/png-vector/20240531/ourlarge/pngtree-crested-caracara-bird-png-image_12588698.png">
+<style>
+:root{--verde:#064e3b;--verde2:#08764f;--verde3:#e6f3ee;--amarelo:#e7cc00;--borda:#d7e0dc;--fundo:#f3f6f5;--texto:#18231f;--muted:#68736f;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--fundo);color:var(--texto);font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
+.wrap{max-width:1120px;margin:0 auto;padding:18px 16px 32px}
+.topbar{background:#fff;border:1px solid var(--borda);border-radius:16px;padding:12px 18px;display:grid;grid-template-columns:90px 1fr 90px;align-items:center;gap:12px;box-shadow:0 7px 22px rgba(0,0,0,.06)}
+.topbar img{max-width:72px;max-height:72px;object-fit:contain;margin:auto}
+.topbar .right-slot{display:flex;justify-content:flex-end}
+.topbar .right-slot img{margin:0 0 0 auto}
+.head{text-align:center} .head b{display:block;font-size:15px} .head .sub{font-size:12px;font-weight:700;margin-top:3px}
+.title-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:16px 2px 10px}
+.title-row h1{font-size:20px;margin:0;color:#075d49} .status{font-size:12px;color:var(--muted)}
+.card{background:#fff;border:1px solid var(--borda);border-radius:14px;box-shadow:0 5px 18px rgba(0,0,0,.035);overflow:hidden;margin-bottom:12px}
+.card-head{padding:11px 14px;border-bottom:3px solid var(--amarelo);font-weight:800;font-size:13px;color:#075d49}
+.card-body{padding:13px}
+.fields{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:9px}
+.field{grid-column:span 3;min-width:0} .s3{grid-column:span 3} .s4{grid-column:span 4} .s12{grid-column:span 12}
+label{display:block;font-size:10px;font-weight:800;margin:0 0 5px;color:#3e4d48;text-transform:uppercase}
+input{width:100%;border:1px solid #d8e0dc;border-radius:7px;background:#fff;color:#000;padding:10px 10px;outline:none;font-size:14px;min-height:42px}
+input:focus{border-color:#0b7c55;box-shadow:0 0 0 3px rgba(11,124,85,.10)}
+.actions{display:flex;justify-content:flex-end;gap:8px;margin-top:12px;flex-wrap:wrap}
+button{border:0;border-radius:9px;padding:10px 14px;font-weight:700;cursor:pointer;background:#064e3b;color:white}
+.note{font-size:12px;color:var(--muted);margin-top:9px}
+@media(max-width:720px){.wrap{padding:10px 8px 24px}.topbar{grid-template-columns:54px 1fr 54px;padding:10px}.topbar img{max-width:46px;max-height:46px}.head b{font-size:12px}.head .sub{font-size:10px}.title-row{align-items:flex-start;flex-direction:column}.fields{grid-template-columns:1fr}.field,.s3,.s4,.s12{grid-column:1/-1}input{font-size:16px}}
+@page{size:A4 portrait;margin:10mm}
+@media print{
+  *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+  html,body{background:var(--fundo)!important}
+  body{margin:0!important}
+  .wrap{width:190mm!important;max-width:190mm!important;margin:0 auto!important;padding:18px 16px 32px!important}
+  .topbar{background:#fff!important;border:1px solid var(--borda)!important;border-radius:16px!important;padding:12px 18px!important;display:grid!important;grid-template-columns:90px 1fr 90px!important;align-items:center!important;gap:12px!important;box-shadow:0 7px 22px rgba(0,0,0,.06)!important;break-inside:avoid}
+  .topbar img{max-width:72px!important;max-height:72px!important}
+  .topbar>div:last-child{display:block!important}
+  .head b{font-size:15px!important}.head .sub{font-size:12px!important}
+  .title-row{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:12px!important;margin:16px 2px 10px!important;flex-direction:row!important}
+  .title-row h1{font-size:20px!important}.status{font-size:12px!important}
+  .card{background:#fff!important;border:1px solid var(--borda)!important;border-radius:14px!important;box-shadow:0 5px 18px rgba(0,0,0,.035)!important;overflow:hidden!important;margin-bottom:12px!important;break-inside:avoid}
+  .card-head{padding:11px 14px!important;border-bottom:3px solid var(--amarelo)!important;font-size:13px!important;color:#075d49!important}
+  .card-body{padding:13px!important}
+  .fields{display:grid!important;grid-template-columns:repeat(12,minmax(0,1fr))!important;gap:9px!important}
+  .field{grid-column:span 3!important}.s3{grid-column:span 3!important}.s4{grid-column:span 4!important}.s12{grid-column:span 12!important}
+  label{font-size:10px!important;margin:0 0 5px!important}
+  input{border:1px solid #d8e0dc!important;border-radius:7px!important;background:#fff!important;color:#000!important;padding:10px 10px!important;font-size:14px!important;min-height:42px!important}
+  .actions,.note{display:none!important}
+}
+
+
+.table-wrap{
+  width:100%;
+  overflow-x:auto;
+  border:1px solid #d8e0dc;
+  border-radius:10px;
+  background:#fff;
+}
+.edit-table{
+  width:100%;
+  border-collapse:collapse;
+  table-layout:fixed;
+  min-width:900px;
+}
+.edit-table th,
+.edit-table td{
+  border-right:1px solid #d8e0dc;
+  border-bottom:1px solid #d8e0dc;
+  padding:7px;
+  vertical-align:middle;
+  text-align:center;
+}
+.edit-table th:last-child,
+.edit-table td:last-child{border-right:0}
+.edit-table thead th{
+  background:#eef5f2;
+  color:#26443a;
+  font-size:10px;
+  text-transform:uppercase;
+  font-weight:800;
+}
+.edit-table input,
+.edit-table textarea{
+  width:100%;
+  min-height:38px;
+  padding:8px;
+  border:1px solid #d6dfdb;
+  border-radius:6px;
+  font-size:13px;
+  box-sizing:border-box;
+}
+.edit-table input{text-align:center}
+
+.edit-table .col-vtr,
+#tblRecursos td:first-child{
+  white-space:nowrap;
+}
+#tblRecursos td:first-child input{
+  min-width:105px;
+  text-align:center;
+  white-space:nowrap;
+}
+.edit-table textarea.efetivo{
+  text-align:left;
+  resize:vertical;
+  min-height:44px;
+  line-height:1.25;
+  overflow-wrap:anywhere;
+  word-break:break-word;
+  white-space:pre-wrap;
+}
+.total-row td{
+  background:#f7faf9;
+  font-weight:800;
+  color:#233d35;
+}
+.col-vtr{width:10%}
+.col-efetivo{width:31%}
+.col-num{width:5%}
+.col-action{width:6%}
+.row-actions{
+  display:flex;
+  justify-content:flex-end;
+  margin-top:10px;
+}
+.btn-mini{
+  border:0;
+  border-radius:8px;
+  padding:9px 12px;
+  font-weight:700;
+  cursor:pointer;
+  background:#064e3b;
+  color:#fff;
+}
+.btn-remove{
+  background:#8f1d2c;
+  padding:7px 9px;
+  border-radius:7px;
+  font-size:12px;
+}
+@media(max-width:720px){
+  .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .edit-table{min-width:860px}
+}
+@media print{
+  .table-wrap{
+    overflow:visible!important;
+    border:1px solid #d8e0dc!important;
+    border-radius:10px!important;
+  }
+  .edit-table{
+    min-width:0!important;
+    width:100%!important;
+    table-layout:fixed!important;
+  }
+  .edit-table th,
+  .edit-table td{
+    padding:5px!important;
+    font-size:9px!important;
+  }
+  .edit-table thead th{font-size:8px!important}
+  .edit-table input,
+  .edit-table textarea{
+    min-height:32px!important;
+    padding:5px!important;
+    font-size:9.5px!important;
+    border:1px solid #d6dfdb!important;
+    border-radius:6px!important;
+    background:#fff!important;
+    color:#111!important;
+    box-sizing:border-box!important;
+  }
+  .edit-table textarea.efetivo{
+    height:auto!important;
+    min-height:40px!important;
+    overflow:visible!important;
+    resize:none!important;
+    white-space:pre-wrap!important;
+    overflow-wrap:anywhere!important;
+    word-break:break-word!important;
+    line-height:1.2!important;
+  }
+
+  #tblRecursos td:first-child input{
+    min-width:0!important;
+    width:100%!important;
+    white-space:nowrap!important;
+    font-size:9px!important;
+  }
+  .no-print,.row-actions{display:none!important}
+  .col-vtr{width:11%!important}
+  .col-efetivo{width:34%!important}
+  .col-num{width:5.25%!important}
+}
+
+
+  @media print{
+    @page{ size:A4 portrait; margin:8mm; }
+    body{ overflow:visible!important; }
+    .page{
+      width:100%!important;
+      max-width:none!important;
+      margin:0!important;
+      padding:0!important;
+    }
+    .card{
+      break-inside:avoid;
+      page-break-inside:avoid;
+    }
+    .table-wrap{
+      width:100%!important;
+      max-width:100%!important;
+    }
+    .edit-table{
+      width:100%!important;
+      max-width:100%!important;
+      font-size:9px!important;
+    }
+    .edit-table td,
+    .edit-table th{
+      overflow:visible!important;
+      white-space:normal!important;
+      word-break:break-word!important;
+    }
+    .edit-table input[type="number"]{
+      appearance:textfield;
+      -moz-appearance:textfield;
+    }
+    .edit-table input[type="number"]::-webkit-outer-spin-button,
+    .edit-table input[type="number"]::-webkit-inner-spin-button{
+      -webkit-appearance:none;
+      margin:0;
+    }
+  }
+
+
+.edit-table textarea.efetivo{
+  overflow:hidden!important;
+  scrollbar-width:none;
+  field-sizing:content;
+}
+.edit-table textarea.efetivo::-webkit-scrollbar{display:none}
+.edit-table td:has(textarea.efetivo){
+  vertical-align:top;
+}
+.edit-table input[aria-label="VTR prefixo"]{
+  min-width:0;
+  padding-left:4px;
+  padding-right:4px;
+  letter-spacing:.4px;
+}
+.edit-table input[type="number"]{
+  min-width:0;
+  padding-left:3px;
+  padding-right:3px;
+}
+@media print{
+  .edit-table textarea.efetivo{
+    overflow:visible!important;
+    height:auto!important;
+    min-height:0!important;
+    max-height:none!important;
+    field-sizing:content;
+  }
+  .edit-table td:has(textarea.efetivo){
+    height:auto!important;
+    min-height:0!important;
+  }
+  .edit-table .no-print{
+    display:none!important;
+    width:0!important;
+    padding:0!important;
+    border:0!important;
+  }
+  .edit-table th.no-print,
+  .edit-table td.no-print{
+    display:none!important;
+  }
+}
+
+
+.alter-table{
+  width:100%;
+  border-collapse:collapse;
+  table-layout:fixed;
+}
+.alter-table th,
+.alter-table td{
+  border-right:1px solid #d8e0dc;
+  border-bottom:1px solid #d8e0dc;
+  padding:7px;
+  vertical-align:top;
+}
+.alter-table th:last-child,
+.alter-table td:last-child{border-right:0}
+.alter-table thead th{
+  background:#eef5f2;
+  color:#26443a;
+  font-size:10px;
+  text-transform:uppercase;
+  font-weight:800;
+  text-align:center;
+}
+.alter-table .tipo{
+  width:18%;
+  font-weight:800;
+  text-align:center;
+  vertical-align:middle;
+  color:#233d35;
+  background:#f7faf9;
+}
+.alter-table .qtd{
+  width:8%;
+  text-align:center;
+  vertical-align:middle;
+}
+.alter-table .descricao{
+  width:74%;
+}
+.alter-table input[type="number"]{
+  width:100%;
+  min-height:38px;
+  padding:6px 3px;
+  border:1px solid #d6dfdb;
+  border-radius:6px;
+  box-sizing:border-box;
+  text-align:center;
+  font-size:13px;
+}
+.alter-table textarea{
+  width:100%;
+  min-height:46px;
+  padding:8px;
+  border:1px solid #d6dfdb;
+  border-radius:6px;
+  box-sizing:border-box;
+  font-size:13px;
+  line-height:1.25;
+  resize:vertical;
+  overflow:hidden;
+  white-space:pre-wrap;
+  overflow-wrap:anywhere;
+  word-break:break-word;
+  field-sizing:content;
+}
+.alter-table textarea::-webkit-scrollbar{display:none}
+@media(max-width:720px){
+  .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .alter-table{min-width:680px}
+}
+@media print{
+  @page{size:A4 portrait;margin:8mm}
+  .alter-table{
+    min-width:0!important;
+    width:100%!important;
+    table-layout:fixed!important;
+  }
+  .alter-table th,
+  .alter-table td{
+    padding:5px!important;
+    font-size:9px!important;
+    overflow:visible!important;
+    white-space:normal!important;
+    word-break:break-word!important;
+  }
+  .alter-table .tipo{width:18%!important}
+  .alter-table .qtd{width:7%!important}
+  .alter-table .descricao{width:75%!important}
+  .alter-table input[type="number"]{
+    min-height:30px!important;
+    padding:4px 2px!important;
+    font-size:9px!important;
+    background:#fff!important;
+    color:#111!important;
+    appearance:textfield;
+    -moz-appearance:textfield;
+  }
+  .alter-table input[type="number"]::-webkit-outer-spin-button,
+  .alter-table input[type="number"]::-webkit-inner-spin-button{
+    -webkit-appearance:none;
+    margin:0;
+  }
+  .alter-table textarea{
+    height:auto!important;
+    min-height:36px!important;
+    max-height:none!important;
+    overflow:visible!important;
+    resize:none!important;
+    padding:5px!important;
+    font-size:9px!important;
+    line-height:1.2!important;
+    background:#fff!important;
+    color:#111!important;
+  }
+}
+
+
+.alter-table td.tipo{
+  font-size:11px;
+  line-height:1.15;
+  letter-spacing:.1px;
+}
+@media print{
+  .alter-table td.tipo{
+    font-size:8.5px!important;
+    line-height:1.12!important;
+  }
+}
+
+
+.ativ-table{
+  width:100%;
+  border-collapse:collapse;
+  table-layout:fixed;
+  min-width:900px;
+}
+.ativ-table th,.ativ-table td{
+  border-right:1px solid #d8e0dc;
+  border-bottom:1px solid #d8e0dc;
+  padding:7px;
+  vertical-align:top;
+}
+.ativ-table th:last-child,.ativ-table td:last-child{border-right:0}
+.ativ-table thead th{
+  background:#eef5f2;
+  color:#26443a;
+  font-size:10px;
+  text-transform:uppercase;
+  font-weight:800;
+  text-align:center;
+}
+.col-acao{width:21%}
+.col-local{width:23%}
+.col-desc{width:36%}
+.col-ordem{width:13%}
+.col-del{width:7%}
+.ativ-table textarea,
+.ativ-table input{
+  width:100%;
+  box-sizing:border-box;
+  border:1px solid #d6dfdb;
+  border-radius:6px;
+  padding:8px;
+  font-size:13px;
+  background:#fff;
+  color:#111;
+}
+.ativ-table textarea{
+  min-height:46px;
+  line-height:1.25;
+  resize:vertical;
+  overflow:hidden;
+  white-space:pre-wrap;
+  overflow-wrap:anywhere;
+  word-break:break-word;
+  field-sizing:content;
+}
+.ativ-table input{
+  min-height:40px;
+}
+.ativ-table textarea::-webkit-scrollbar{display:none}
+.ativ-table .remove-row{
+  width:100%;
+  min-height:38px;
+  border:0;
+  border-radius:7px;
+  background:#8f1d2c;
+  color:#fff;
+  font-weight:800;
+  cursor:pointer;
+}
+@media(max-width:720px){
+  .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .ativ-table{min-width:860px}
+}
+@media print{
+  @page{size:A4 portrait;margin:8mm}
+  .ativ-table{
+    min-width:0!important;
+    width:100%!important;
+    table-layout:fixed!important;
+  }
+  .ativ-table th,.ativ-table td{
+    padding:5px!important;
+    font-size:9px!important;
+    overflow:visible!important;
+    white-space:normal!important;
+    word-break:break-word!important;
+  }
+  .ativ-table textarea,.ativ-table input{
+    font-size:9px!important;
+    padding:5px!important;
+    background:#fff!important;
+    color:#111!important;
+    border:1px solid #d6dfdb!important;
+  }
+  .ativ-table textarea{
+    height:auto!important;
+    min-height:36px!important;
+    max-height:none!important;
+    overflow:visible!important;
+    resize:none!important;
+    line-height:1.2!important;
+  }
+  .ativ-table .no-print{display:none!important;width:0!important;padding:0!important;border:0!important}
+  .col-acao{width:22%!important}
+  .col-local{width:24%!important}
+  .col-desc{width:40%!important}
+  .col-ordem{width:14%!important}
+}
+
+
+.ativ-table .remove-row{
+  width:auto!important;
+  min-width:58px;
+  min-height:32px!important;
+  padding:6px 8px!important;
+  font-size:11px!important;
+  line-height:1!important;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  white-space:nowrap;
+}
+.ativ-table td.no-print{
+  text-align:center;
+  vertical-align:middle;
+}
+
+
+.ordem-block{display:grid;gap:16px}
+.subbox{
+  border:1px solid #d8e0dc;
+  border-radius:10px;
+  overflow:hidden;
+  background:#fff;
+}
+.subbox-title{
+  background:#e8f1ed;
+  color:#173f33;
+  font-size:12px;
+  font-weight:900;
+  text-align:center;
+  padding:9px 10px;
+  border-bottom:1px solid #d8e0dc;
+  text-transform:uppercase;
+}
+.ordem-table{
+  width:100%;
+  border-collapse:collapse;
+  table-layout:fixed;
+}
+.ordem-table th,
+.ordem-table td{
+  border-right:1px solid #d8e0dc;
+  border-bottom:1px solid #d8e0dc;
+  padding:7px;
+  vertical-align:top;
+}
+.ordem-table th:last-child,
+.ordem-table td:last-child{border-right:0}
+.ordem-table tr:last-child td{border-bottom:0}
+.ordem-table thead th{
+  background:#f3f7f5;
+  color:#26443a;
+  font-size:9.5px;
+  text-transform:uppercase;
+  font-weight:800;
+  text-align:center;
+}
+.ordem-table td.cat{
+  font-size:10.5px;
+  font-weight:800;
+  text-align:center;
+  vertical-align:middle;
+  background:#f8faf9;
+  line-height:1.15;
+}
+.ordem-table input,
+.ordem-table textarea{
+  width:100%;
+  box-sizing:border-box;
+  border:1px solid #d6dfdb;
+  border-radius:6px;
+  background:#fff;
+  color:#111;
+  font-size:12px;
+}
+.ordem-table input{
+  min-height:36px;
+  padding:6px 4px;
+  text-align:center;
+}
+.ordem-table textarea{
+  min-height:44px;
+  padding:7px;
+  line-height:1.25;
+  resize:vertical;
+  overflow:hidden;
+  white-space:pre-wrap;
+  overflow-wrap:anywhere;
+  word-break:break-word;
+  field-sizing:content;
+}
+.ordem-table textarea::-webkit-scrollbar{display:none}
+.w-cat{width:14%}
+.w-tipo{width:19%}
+.w-num{width:10%}
+.w-num2{width:12%}
+.w-conclusao{width:45%}
+.w-descobj{width:67%}
+.w-qtdobj{width:19%}
+.w-catobj{width:14%}
+.w-catvr{width:18%}
+.w-apr{width:41%}
+.w-rec{width:41%}
+@media(max-width:720px){
+  .subbox{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .ordem-table{min-width:760px}
+}
+@media print{
+  @page{size:A4 portrait;margin:8mm}
+  .ordem-block{gap:10px!important}
+  .subbox{
+    overflow:visible!important;
+    break-inside:avoid;
+    page-break-inside:avoid;
+    border-radius:8px!important;
+  }
+  .ordem-table{
+    min-width:0!important;
+    width:100%!important;
+    table-layout:fixed!important;
+  }
+  .ordem-table th,
+  .ordem-table td{
+    padding:4px!important;
+    font-size:8px!important;
+    overflow:visible!important;
+    white-space:normal!important;
+    word-break:break-word!important;
+  }
+  .ordem-table thead th{font-size:7.5px!important}
+  .ordem-table td.cat{font-size:8px!important}
+  .ordem-table input,
+  .ordem-table textarea{
+    font-size:8px!important;
+    padding:4px!important;
+    background:#fff!important;
+    color:#111!important;
+    border:1px solid #d6dfdb!important;
+  }
+  .ordem-table input{
+    min-height:28px!important;
+    appearance:textfield;
+    -moz-appearance:textfield;
+  }
+  .ordem-table input[type="number"]::-webkit-outer-spin-button,
+  .ordem-table input[type="number"]::-webkit-inner-spin-button{
+    -webkit-appearance:none;
+    margin:0;
+  }
+  .ordem-table textarea{
+    height:auto!important;
+    min-height:32px!important;
+    max-height:none!important;
+    overflow:visible!important;
+    resize:none!important;
+    line-height:1.15!important;
+  }
+  .w-cat{width:13%!important}
+  .w-tipo{width:19%!important}
+  .w-num{width:9%!important}
+  .w-num2{width:10%!important}
+  .w-conclusao{width:49%!important}
+  .w-catobj{width:13%!important}
+  .w-descobj{width:72%!important}
+  .w-qtdobj{width:15%!important}
+  .w-catvr{width:16%!important}
+  .w-apr{width:42%!important}
+  .w-rec{width:42%!important}
+}
+
+
+/* ===== BLOCO 6 · AÇÕES AMBIENTAIS ===== */
+.amb-stack{display:grid;gap:16px}
+.amb-box{
+  border:1px solid #d8e0dc;
+  border-radius:10px;
+  overflow:hidden;
+  background:#fff;
+}
+.amb-title{
+  background:#08745f;
+  color:#fff;
+  text-align:center;
+  font-weight:900;
+  text-transform:uppercase;
+  font-size:11px;
+  padding:9px 10px;
+}
+.amb-table{
+  width:100%;
+  border-collapse:collapse;
+  table-layout:fixed;
+}
+.amb-table th,.amb-table td{
+  border-right:1px solid #d8e0dc;
+  border-bottom:1px solid #d8e0dc;
+  padding:7px;
+  vertical-align:top;
+}
+.amb-table th:last-child,.amb-table td:last-child{border-right:0}
+.amb-table tr:last-child td{border-bottom:0}
+.amb-table thead th{
+  background:#eef5f2;
+  color:#26443a;
+  font-size:9.5px;
+  font-weight:800;
+  text-transform:uppercase;
+  text-align:center;
+  line-height:1.15;
+}
+.amb-table input,.amb-table textarea,.amb-table select{
+  width:100%;
+  box-sizing:border-box;
+  border:1px solid #d6dfdb;
+  border-radius:6px;
+  background:#fff;
+  color:#111;
+  font-size:12px;
+  padding:7px;
+}
+.amb-table input,.amb-table select{min-height:38px}
+.amb-table textarea{
+  min-height:46px;
+  line-height:1.25;
+  resize:vertical;
+  overflow:hidden;
+  white-space:pre-wrap;
+  overflow-wrap:anywhere;
+  word-break:break-word;
+  field-sizing:content;
+}
+.amb-table textarea::-webkit-scrollbar{display:none}
+.amb-table input[type="number"]{
+  text-align:center;
+  padding-left:3px;
+  padding-right:3px;
+}
+.amb-table .btn-del{
+  width:auto;
+  min-width:56px;
+  min-height:32px;
+  padding:6px 8px;
+  border:0;
+  border-radius:7px;
+  background:#8f1d2c;
+  color:#fff;
+  font-size:11px;
+  font-weight:800;
+  cursor:pointer;
+  white-space:nowrap;
+}
+.amb-actions{
+  display:flex;
+  justify-content:flex-end;
+  gap:8px;
+  padding:9px 0 0;
+}
+.amb-actions button{
+  border:0;
+  border-radius:8px;
+  background:#064e3b;
+  color:#fff;
+  font-weight:800;
+  padding:9px 12px;
+  cursor:pointer;
+}
+.proc-vtr{width:13%}
+.proc-nat{width:25%}
+.proc-conc{width:31%}
+.proc-apr{width:24%}
+.proc-del{width:7%}
+
+.an-termo{width:10%}
+.an-origem{width:17%}
+.an-vtr{width:11%}
+.an-local{width:18%}
+.an-animal{width:14%}
+.an-qtd{width:7%}
+.an-dest{width:16%}
+.an-del{width:7%}
+
+@media(max-width:720px){
+  .amb-box{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .amb-table{min-width:900px}
+}
+@media print{
+  @page{size:A4 portrait;margin:8mm}
+  .amb-stack{gap:10px!important}
+  .amb-box{
+    overflow:visible!important;
+    break-inside:auto;
+    page-break-inside:auto;
+    border-radius:8px!important;
+  }
+  .amb-table{
+    min-width:0!important;
+    width:100%!important;
+    table-layout:fixed!important;
+  }
+  .amb-table thead{display:table-header-group}
+  .amb-table tr{break-inside:avoid;page-break-inside:avoid}
+  .amb-table th,.amb-table td{
+    padding:4px!important;
+    font-size:8px!important;
+    overflow:visible!important;
+    white-space:normal!important;
+    word-break:break-word!important;
+  }
+  .amb-table thead th{font-size:7px!important}
+  .amb-table input,.amb-table textarea,.amb-table select{
+    font-size:8px!important;
+    padding:4px!important;
+    color:#111!important;
+    background:#fff!important;
+    border:1px solid #d6dfdb!important;
+  }
+  .amb-table textarea{
+    height:auto!important;
+    min-height:32px!important;
+    max-height:none!important;
+    overflow:visible!important;
+    resize:none!important;
+    line-height:1.15!important;
+  }
+  .amb-table input{min-height:28px!important}
+  .amb-table input[type="number"]{
+    appearance:textfield;
+    -moz-appearance:textfield;
+  }
+  .amb-table input[type="number"]::-webkit-outer-spin-button,
+  .amb-table input[type="number"]::-webkit-inner-spin-button{
+    -webkit-appearance:none;margin:0;
+  }
+  .amb-actions,.no-print{display:none!important}
+  .proc-vtr{width:12%!important}
+  .proc-nat{width:25%!important}
+  .proc-conc{width:36%!important}
+  .proc-apr{width:27%!important}
+
+  .an-termo{width:10%!important}
+  .an-origem{width:11%!important}
+  .an-vtr{width:11%!important}
+  .an-local{width:23%!important}
+  .an-animal{width:16%!important}
+  .an-qtd{width:7%!important}
+  .an-dest{width:22%!important}
+}
+
+
+/* ===== BLOCO 7 · INFORMAÇÕES COMPLEMENTARES ===== */
+.comp-table{
+  width:100%;
+  border-collapse:collapse;
+  table-layout:fixed;
+}
+.comp-table th,
+.comp-table td{
+  border-right:1px solid #d8e0dc;
+  border-bottom:1px solid #d8e0dc;
+  padding:7px;
+  vertical-align:top;
+}
+.comp-table th:last-child,
+.comp-table td:last-child{border-right:0}
+.comp-table tr:last-child td{border-bottom:0}
+.comp-table thead th{
+  background:#eef5f2;
+  color:#26443a;
+  font-size:9.5px;
+  text-transform:uppercase;
+  font-weight:800;
+  text-align:center;
+}
+.comp-table .categoria{
+  width:18%;
+  background:#f7faf9;
+  color:#233d35;
+  font-size:10.5px;
+  font-weight:800;
+  text-align:center;
+  vertical-align:middle;
+}
+.comp-table .descricao{width:82%}
+.comp-table textarea{
+  width:100%;
+  min-height:54px;
+  box-sizing:border-box;
+  border:1px solid #d6dfdb;
+  border-radius:6px;
+  padding:8px;
+  background:#fff;
+  color:#111;
+  font-size:13px;
+  line-height:1.3;
+  resize:vertical;
+  overflow:hidden;
+  white-space:pre-wrap;
+  overflow-wrap:anywhere;
+  word-break:break-word;
+  field-sizing:content;
+}
+.comp-table textarea::-webkit-scrollbar{display:none}
+
+@media(max-width:720px){
+  .comp-table .categoria{width:24%}
+  .comp-table .descricao{width:76%}
+}
+
+@media print{
+  @page{size:A4 portrait;margin:8mm}
+  .comp-table{
+    width:100%!important;
+    table-layout:fixed!important;
+  }
+  .comp-table th,
+  .comp-table td{
+    padding:5px!important;
+    font-size:8.5px!important;
+    overflow:visible!important;
+    white-space:normal!important;
+    word-break:break-word!important;
+  }
+  .comp-table .categoria{
+    width:16%!important;
+    font-size:8px!important;
+  }
+  .comp-table .descricao{
+    width:84%!important;
+  }
+  .comp-table textarea{
+    min-height:36px!important;
+    height:auto!important;
+    max-height:none!important;
+    overflow:visible!important;
+    resize:none!important;
+    font-size:8.5px!important;
+    line-height:1.2!important;
+    padding:5px!important;
+    background:#fff!important;
+    color:#111!important;
+    border:1px solid #d6dfdb!important;
+  }
+}
+
+
+/* ===== BLOCO 8 · PASSAGEM DE SERVIÇO ===== */
+.pass-grid{
+  display:grid;
+  grid-template-columns:repeat(12,minmax(0,1fr));
+  gap:10px;
+}
+.pass-field{grid-column:span 12}
+.pass-field.s3{grid-column:span 3}
+.pass-field.s6{grid-column:span 6}
+.pass-field.s9{grid-column:span 9}
+.pass-field label{
+  display:block;
+  margin:0 0 5px;
+  color:#3e4d48;
+  font-size:10px;
+  font-weight:800;
+  text-transform:uppercase;
+}
+.pass-field input,
+.pass-field textarea{
+  width:100%;
+  box-sizing:border-box;
+  border:1px solid #d8e0dc;
+  border-radius:7px;
+  background:#fff;
+  color:#111;
+  font-size:13px;
+  padding:9px 10px;
+}
+.pass-field input{
+  min-height:40px;
+}
+.pass-field textarea{
+  min-height:58px;
+  line-height:1.35;
+  resize:vertical;
+  overflow:hidden;
+  white-space:pre-wrap;
+  overflow-wrap:anywhere;
+  word-break:break-word;
+  field-sizing:content;
+}
+.pass-field textarea[name="passagemTexto"]{
+  min-height:90px;
+}
+.pass-field textarea::-webkit-scrollbar{display:none}
+.signature-box{
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-end;
+  min-height:78px;
+  padding:0 14px 6px;
+}
+.signature-line{
+  border-top:1px solid #333;
+  padding-top:6px;
+  text-align:center;
+  font-size:11px;
+  font-weight:800;
+  color:#222;
+}
+@media(max-width:720px){
+  .pass-field.s3,
+  .pass-field.s6,
+  .pass-field.s9{
+    grid-column:span 12;
+  }
+}
+@media print{
+  @page{size:A4 portrait;margin:8mm}
+  .pass-grid{
+    gap:6px!important;
+  }
+  .pass-field label{
+    font-size:7.5px!important;
+    margin-bottom:2px!important;
+  }
+  .pass-field input,
+  .pass-field textarea{
+    font-size:8.5px!important;
+    padding:5px!important;
+    color:#111!important;
+    background:#fff!important;
+    border:1px solid #d8e0dc!important;
+  }
+  .pass-field input{
+    min-height:30px!important;
+  }
+  .pass-field textarea{
+    height:auto!important;
+    min-height:36px!important;
+    max-height:none!important;
+    overflow:visible!important;
+    resize:none!important;
+    line-height:1.2!important;
+  }
+  .pass-field textarea[name="passagemTexto"]{
+    min-height:52px!important;
+  }
+  .signature-box{
+    min-height:62px!important;
+    padding:0 10px 4px!important;
+  }
+  .signature-line{
+    font-size:8.5px!important;
+    padding-top:4px!important;
+  }
+}
+
+
+/* ===== RELATÓRIO CPU COMPLETO ===== */
+.card{margin-bottom:14px}
+.report-final-actions{
+  display:flex;
+  justify-content:flex-end;
+  gap:8px;
+  margin:16px 0 8px;
+}
+.report-final-actions button{
+  border:0;
+  border-radius:9px;
+  padding:11px 16px;
+  font-weight:800;
+  cursor:pointer;
+}
+.report-final-actions .primary{
+  background:#064e3b;
+  color:#fff;
+}
+.report-final-actions .save-action{background:#08764f;color:#fff}
+.report-final-actions .finalize-action{background:#174d3b;color:#fff}
+.report-final-actions .finalize-action{width:min(100%,460px);min-height:54px;padding:12px 18px;font-size:14px;font-weight:900;border-radius:10px;background:#075d49;color:#fff;box-shadow:0 4px 12px rgba(7,93,73,.14)}
+html,body{max-width:100%;overflow-x:hidden}
+.wrap,.card,.card-body,.fields,.field{min-width:0}
+input,select,textarea{max-width:100%;min-width:0}
+
+.report-final-note{
+  margin:0 0 22px;
+  font-size:11px;
+  color:#68736f;
+  line-height:1.4;
+}
+@media print{
+  @page{size:A4 portrait;margin:8mm}
+  html,body{
+    width:100%!important;
+    margin:0!important;
+    padding:0!important;
+    background:#fff!important;
+    overflow:visible!important;
+  }
+  .page{
+    width:100%!important;
+    max-width:none!important;
+    margin:0!important;
+    padding:0!important;
+    box-shadow:none!important;
+    background:#fff!important;
+  }
+  .status,.report-final-actions,.report-final-note,.no-print{
+    display:none!important;
+  }
+  .card{
+    box-shadow:none!important;
+    margin-bottom:8px!important;
+    overflow:visible!important;
+    break-inside:auto;
+    page-break-inside:auto;
+  }
+  .card-head{
+    break-after:avoid;
+    page-break-after:avoid;
+  }
+  thead{display:table-header-group}
+  tr{
+    break-inside:avoid;
+    page-break-inside:avoid;
+  }
+}
+
+
+/* ===== PADRÃO FINAL DE IMPRESSÃO · TIMES NEW ROMAN 10 PT ===== */
+@media print{
+  @page{
+    size:A4 portrait;
+    margin:8mm;
+  }
+
+  html, body{
+    width:100%!important;
+    margin:0!important;
+    padding:0!important;
+    background:#fff!important;
+    color:#000!important;
+    font-family:"Times New Roman", Times, serif!important;
+    font-size:10pt!important;
+    line-height:1.15!important;
+    -webkit-print-color-adjust:exact!important;
+    print-color-adjust:exact!important;
+  }
+
+  body *{
+    font-family:"Times New Roman", Times, serif!important;
+  }
+
+  .page{
+    width:100%!important;
+    max-width:none!important;
+    margin:0!important;
+    padding:0!important;
+    background:#fff!important;
+    box-shadow:none!important;
+  }
+
+  /* Cabeçalho */
+  .topbar,
+  .report-header,
+  header{
+    font-family:"Times New Roman", Times, serif!important;
+  }
+
+  .head,
+  .head *,
+  .topbar *,
+  .report-header *{
+    font-family:"Times New Roman", Times, serif!important;
+  }
+
+  .head b,
+  .head-title,
+  .report-title{
+    font-size:10pt!important;
+    font-weight:700!important;
+    line-height:1.1!important;
+  }
+
+  .head .sub,
+  .head-sub,
+  .report-subtitle{
+    font-size:10pt!important;
+    line-height:1.1!important;
+  }
+
+  /* Títulos e rótulos */
+  .title-row h1,
+  .card-head,
+  .card-title,
+  .amb-title,
+  .subbox-title{
+    font-size:10pt!important;
+    font-weight:700!important;
+    line-height:1.1!important;
+  }
+
+  label,
+  .lbl,
+  .field label,
+  .pass-field label{
+    font-size:10pt!important;
+    font-weight:700!important;
+    line-height:1.1!important;
+    text-transform:none!important;
+  }
+
+  /* Conteúdo dos campos */
+  input,
+  select,
+  textarea,
+  .print-render,
+  .print-textarea-value{
+    font-family:"Times New Roman", Times, serif!important;
+    font-size:10pt!important;
+    line-height:1.15!important;
+    color:#000!important;
+    -webkit-text-fill-color:#000!important;
+    opacity:1!important;
+  }
+
+  input,
+  select,
+  textarea{
+    padding:2px 3px!important;
+    min-height:0!important;
+    border:1px solid #999!important;
+    border-radius:0!important;
+    background:#fff!important;
+    box-shadow:none!important;
+  }
+
+  textarea{
+    height:auto!important;
+    max-height:none!important;
+    overflow:visible!important;
+    resize:none!important;
+    white-space:pre-wrap!important;
+    overflow-wrap:anywhere!important;
+    word-break:normal!important;
+  }
+
+  input::placeholder,
+  textarea::placeholder{
+    color:transparent!important;
+    -webkit-text-fill-color:transparent!important;
+  }
+
+  /* Tabelas */
+  .table-wrap,
+  .amb-box,
+  .subbox{
+    width:100%!important;
+    overflow:visible!important;
+    border-radius:0!important;
+  }
+
+  table,
+  table.edit-table,
+  .edit-table,
+  .alter-table,
+  .ativ-table,
+  .ordem-table,
+  .amb-table,
+  .comp-table{
+    width:100%!important;
+    min-width:0!important;
+    max-width:100%!important;
+    table-layout:fixed!important;
+    border-collapse:collapse!important;
+    font-family:"Times New Roman", Times, serif!important;
+    font-size:10pt!important;
+  }
+
+  thead{
+    display:table-header-group!important;
+  }
+
+  th,
+  td,
+  .edit-table th,
+  .edit-table td,
+  .alter-table th,
+  .alter-table td,
+  .ativ-table th,
+  .ativ-table td,
+  .ordem-table th,
+  .ordem-table td,
+  .amb-table th,
+  .amb-table td,
+  .comp-table th,
+  .comp-table td{
+    font-family:"Times New Roman", Times, serif!important;
+    font-size:10pt!important;
+    line-height:1.1!important;
+    padding:2px 3px!important;
+    vertical-align:top!important;
+    overflow:visible!important;
+    white-space:normal!important;
+    overflow-wrap:anywhere!important;
+    word-break:normal!important;
+    border-color:#777!important;
+  }
+
+  th,
+  .edit-table th,
+  .alter-table thead th,
+  .ativ-table thead th,
+  .ordem-table thead th,
+  .amb-table thead th,
+  .comp-table thead th{
+    font-size:10pt!important;
+    font-weight:700!important;
+    text-transform:none!important;
+    text-align:center!important;
+  }
+
+  .cat,
+  .tipo,
+  .categoria,
+  .alter-table td.tipo,
+  .ordem-table td.cat,
+  .comp-table .categoria{
+    font-size:10pt!important;
+    font-weight:700!important;
+    line-height:1.1!important;
+  }
+
+  /* Campos numéricos compactos */
+  input[type="number"],
+  input[inputmode="numeric"]{
+    font-size:10pt!important;
+    text-align:center!important;
+    padding:1px!important;
+  }
+
+  input[type="number"]{
+    appearance:textfield!important;
+    -moz-appearance:textfield!important;
+  }
+
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button{
+    -webkit-appearance:none!important;
+    margin:0!important;
+  }
+
+  /* Mais espaço para textos e menos para números */
+  .col-vtr{width:11%!important}
+  .col-efetivo{width:34%!important}
+  .col-num{width:5.25%!important}
+
+  .alter-table .tipo{width:17%!important}
+  .alter-table .qtd{width:7%!important}
+  .alter-table .descricao{width:76%!important}
+
+  .col-acao{width:21%!important}
+  .col-local{width:23%!important}
+  .col-desc{width:42%!important}
+  .col-ordem{width:14%!important}
+
+  .w-cat{width:13%!important}
+  .w-tipo{width:18%!important}
+  .w-num{width:9%!important}
+  .w-num2{width:10%!important}
+  .w-conclusao{width:50%!important}
+
+  .w-catobj{width:13%!important}
+  .w-descobj{width:72%!important}
+  .w-qtdobj{width:15%!important}
+
+  .w-catvr{width:16%!important}
+  .w-apr{width:42%!important}
+  .w-rec{width:42%!important}
+
+  .proc-vtr{width:12%!important}
+  .proc-nat{width:24%!important}
+  .proc-conc{width:37%!important}
+  .proc-apr{width:27%!important}
+
+  .an-termo{width:10%!important}
+  .an-origem{width:11%!important}
+  .an-vtr{width:11%!important}
+  .an-local{width:23%!important}
+  .an-animal{width:16%!important}
+  .an-qtd{width:7%!important}
+  .an-dest{width:22%!important}
+
+  .comp-table .categoria{width:16%!important}
+  .comp-table .descricao{width:84%!important}
+
+  /* Quebras de página */
+  .card{
+    margin:0 0 6px!important;
+    padding:0!important;
+    box-shadow:none!important;
+    border-radius:0!important;
+    overflow:visible!important;
+    break-inside:auto!important;
+    page-break-inside:auto!important;
+  }
+
+  .card-head{
+    padding:3px 4px!important;
+    break-after:avoid!important;
+    page-break-after:avoid!important;
+  }
+
+  tr{
+    break-inside:avoid!important;
+    page-break-inside:avoid!important;
+  }
+
+  .signature-box,
+  .signature-line{
+    font-size:10pt!important;
+  }
+
+  /* Elementos que não devem sair no PDF */
+  .no-print,
+  .status,
+  .row-actions,
+  .amb-actions,
+  .report-final-actions,
+  .report-final-note,
+  button,
+  .btn,
+  .remove-row,
+  .btn-del{
+    display:none!important;
+  }
+}
+
+
+/* ===== IMPRESSÃO · VISUAL CLARO PADRÃO RFA ===== */
+@media print{
+  /* Molduras gerais dos blocos */
+  .card{
+    border:0.1pt solid #cfcfcf!important;
+  }
+
+  .topbar,
+  .head{
+    border-color:#cfcfcf!important;
+  }
+
+  .topbar{
+    border-bottom:0.1pt solid #cfcfcf!important;
+  }
+
+  .card-head{
+    border-bottom-width:0.1pt!important;
+    border-bottom-color:#ddd27a!important;
+  }
+
+  /* Tabelas e células */
+  table{
+    border-collapse:collapse!important;
+  }
+
+  table,
+  table th,
+  table td,
+  .edit-table,
+  .edit-table th,
+  .edit-table td,
+  .alter-table,
+  .alter-table th,
+  .alter-table td,
+  .ativ-table,
+  .ativ-table th,
+  .ativ-table td,
+  .ordem-table,
+  .ordem-table th,
+  .ordem-table td,
+  .amb-table,
+  .amb-table th,
+  .amb-table td,
+  .comp-table,
+  .comp-table th,
+  .comp-table td{
+    border-width:0.1pt!important;
+    border-style:solid!important;
+    border-color:#d4d4d4!important;
+  }
+
+  /* Campos */
+  input,
+  select,
+  textarea{
+    border:0.1pt solid #d6d6d6!important;
+    box-shadow:none!important;
+    outline:none!important;
+  }
+
+  /* Áreas e subcaixas */
+  .subbox,
+  .amb-box,
+  .table-wrap,
+  .signature-box{
+    border-color:#d4d4d4!important;
+  }
+
+  /* Linhas de assinatura */
+  .signature-line{
+    border-top-width:0.1pt!important;
+    border-top-color:#cfcfcf!important;
+  }
+}
+
+
+/* ===== BPMA DIGITAL · CONTROLES DO SISTEMA LOCAL ===== */
+body{padding-bottom:74px}
+.bpma-system-toolbar{
+  position:fixed!important;left:0!important;right:0!important;bottom:0!important;z-index:99999!important;
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:10px 14px;background:rgba(255,255,255,.97);
+  border-top:1px solid #d8e1dd;box-shadow:0 -8px 24px rgba(0,0,0,.08);
+  backdrop-filter:blur(10px);font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+  visibility:visible!important;opacity:1!important
+}
+.bpma-system-toolbar .bpma-meta{min-width:0}
+.bpma-system-toolbar .bpma-meta b{display:block;color:#075d49;font-size:13px}
+.bpma-system-toolbar .bpma-meta small{display:block;color:#68736f;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bpma-system-toolbar .bpma-actions{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}
+.bpma-system-toolbar button{
+  border:1px solid #cfd9d5;background:#fff;color:#174d3b;border-radius:9px;
+  padding:9px 11px;font-weight:800;font-size:12px;cursor:pointer
+}
+.bpma-system-toolbar #bpmaClear{background:#b4232c;color:#fff;border-color:#9b1d26}
+.bpma-system-toolbar #bpmaClear:hover{background:#941b23}
+.bpma-system-toolbar button.primary{background:#08764f;color:#fff;border-color:#08764f}
+.bpma-system-toolbar button.finalize{background:#174d3b;color:#fff;border-color:#174d3b}
+.bpma-system-toolbar button:disabled{opacity:.45;cursor:not-allowed}
+.bpma-system-toolbar #bpmaEdit[hidden]{display:none!important}
+.bpma-system-toolbar #bpmaBack{
+  background:#17563e;color:#fff;border:2px solid #c8ac5b;
+  font-weight:900;min-height:48px;box-shadow:0 2px 8px rgba(10,55,38,.22)
+}
+.bpma-readonly-notice{
+  position:sticky;top:0;z-index:9998;background:#fff4d7;color:#6c5200;
+  border-bottom:1px solid #ead99c;padding:9px 12px;text-align:center;font-weight:800;font-size:12px
+}
+@media screen and (min-width:721px){
+  .wrap{max-width:1280px;width:calc(100% - 28px);padding-left:14px;padding-right:14px}
+  .bpma-system-toolbar{padding-left:max(14px,calc((100vw - 1280px)/2 + 14px));padding-right:max(14px,calc((100vw - 1280px)/2 + 14px))}
+  .bpma-system-toolbar .bpma-actions{flex-wrap:nowrap}
+  .bpma-system-toolbar button{white-space:nowrap;min-height:42px}
+}
+@media screen and (min-width:721px) and (max-width:1050px){
+  .bpma-system-toolbar .bpma-meta{display:none}
+  .bpma-system-toolbar .bpma-actions{width:100%;justify-content:center;flex-wrap:wrap}
+  .bpma-system-toolbar button{flex:1 1 150px}
+}
+@media(max-width:720px){
+  body{padding-bottom:calc(154px + env(safe-area-inset-bottom,0px));overflow-x:hidden}
+  .bpma-system-toolbar{align-items:flex-start;flex-direction:column;padding:10px 14px calc(10px + env(safe-area-inset-bottom,0px))}
+  .bpma-system-toolbar .bpma-meta{width:100%}
+  .bpma-system-toolbar .bpma-actions{width:100%;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:7px}
+  .bpma-system-toolbar button{width:100%;min-width:0;min-height:48px;padding:9px 8px}
+  .card-body{padding:10px;min-width:0}
+  .fields,.field,.s3,.s4,.s12{min-width:0!important;max-width:100%!important}
+  input,select,textarea{display:block;width:100%!important;max-width:100%!important;min-width:0!important}
+  input[type="date"],input[type="time"],input[type="number"]{-webkit-appearance:none;appearance:none}
+  .table-wrap{width:100%;max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .cpu-end-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .cpu-end-actions #printRelatorioCompleto{grid-column:1/-1}
+  .cpu-end-actions button{width:100%;min-width:0;min-height:48px}
+}
+@media screen and (max-width:430px){
+  .wrap{padding-left:6px;padding-right:6px}
+  .card{border-radius:10px}
+  .card-head{padding:10px}
+  .bpma-system-toolbar .bpma-meta small{white-space:normal;line-height:1.25}
+}
+@media print{
+  body{padding-bottom:0!important}
+  .bpma-system-toolbar,.bpma-readonly-notice{display:none!important}
+}
+
+
+.combo-stack{display:grid;gap:4px}.combo-stack select,.combo-stack input{width:100%;min-width:0}.desfechos{display:flex;flex-wrap:wrap;gap:3px 7px;margin:0 0 4px;font-size:10px}.desfechos label{display:inline-flex;align-items:center;gap:3px;white-space:nowrap}.desfechos input[type="checkbox"]{width:auto!important;min-width:0!important;margin:0}.stats-tag{font-size:9px;color:#31584c}
+.ufr-wrap{display:grid;grid-template-columns:minmax(120px,170px) 1fr;gap:8px;align-items:center;margin:7px 0 4px;padding:8px;border:1px solid #b9ddd0;border-radius:9px;background:#edf8f3}.ufr-wrap[hidden]{display:none!important}.ufr-wrap label{font-size:10px;font-weight:800;color:#145b46}.ufr-wrap input{min-height:34px!important;background:#fff!important}.ufr-wrap small{font-size:9px;line-height:1.3;color:#4d6b60}.ufr-wrap .ufr-field{display:flex;align-items:center;gap:6px}.ufr-wrap .ufr-field input{width:92px!important;min-width:92px!important;text-align:center;font-weight:800}.ufr-wrap .ufr-unit{font-size:10px;font-weight:800;color:#145b46}
+@media(max-width:620px){.ufr-wrap{grid-template-columns:1fr}.ufr-wrap .ufr-field input{width:120px!important}}
+@media print{.combo-stack{gap:2px}.desfechos{font-size:8pt;gap:2px 5px}.ufr-wrap{padding:4px 6px;margin:4px 0 2px;grid-template-columns:115px 1fr;background:#fff!important}.ufr-wrap label,.ufr-wrap small,.ufr-wrap .ufr-unit{font-size:7.5pt}.ufr-wrap .ufr-field input{min-height:24px!important;width:74px!important;min-width:74px!important;font-size:8pt!important}}
+</style>
+
+<style id="bpma-cpu-2113-legibilidade">
+/* ===== TELA: tabela de animais mais equilibrada ===== */
+.amb-table select[aria-label="Origem"]{
+  font-size:12px;
+  padding-left:5px;
+  padding-right:5px;
+}
+
+/* Valor espelho criado somente para impressão. */
+.bpma-print-value{
+  display:none;
+}
+
+@media print{
+  @page{
+    size:A4 portrait;
+    margin:7mm;
+  }
+
+  /* Tipografia maior e proporcional */
+  html,body{
+    font-family:"Times New Roman",Times,serif!important;
+    font-size:11pt!important;
+    line-height:1.18!important;
+  }
+
+  .head b,
+  .head-title,
+  .report-title{
+    font-size:12pt!important;
+    line-height:1.08!important;
+  }
+
+  .head .sub,
+  .head-sub,
+  .report-subtitle{
+    font-size:10pt!important;
+    line-height:1.1!important;
+  }
+
+  .title-row h1{
+    font-size:14pt!important;
+    line-height:1.1!important;
+  }
+
+  .card-head,
+  .card-title,
+  .amb-title,
+  .subbox-title{
+    font-size:11pt!important;
+    line-height:1.12!important;
+  }
+
+  label,
+  .lbl,
+  .field label,
+  .pass-field label{
+    font-size:10pt!important;
+    line-height:1.12!important;
+  }
+
+  table,
+  table.edit-table,
+  .edit-table,
+  .alter-table,
+  .ativ-table,
+  .ordem-table,
+  .amb-table,
+  .comp-table{
+    font-size:10.5pt!important;
+  }
+
+  th,
+  .edit-table th,
+  .alter-table thead th,
+  .ativ-table thead th,
+  .ordem-table thead th,
+  .amb-table thead th,
+  .comp-table thead th{
+    font-size:9.5pt!important;
+    line-height:1.08!important;
+    padding:3px!important;
+  }
+
+  td,
+  .edit-table td,
+  .alter-table td,
+  .ativ-table td,
+  .ordem-table td,
+  .amb-table td,
+  .comp-table td{
+    font-size:10.5pt!important;
+    line-height:1.17!important;
+    padding:3px!important;
+    height:auto!important;
+    min-height:0!important;
+    max-height:none!important;
+    overflow:visible!important;
+    white-space:normal!important;
+    overflow-wrap:anywhere!important;
+    word-break:normal!important;
+  }
+
+  /*
+    Regra central: durante a impressão, os controles são substituídos
+    visualmente por texto expansível. Assim SELECT, INPUT e TEXTAREA
+    podem quebrar linha e crescer sem cortar conteúdo.
+  */
+  .bpma-print-source{
+    display:none!important;
+  }
+
+  .bpma-print-value{
+    display:block!important;
+    width:100%!important;
+    box-sizing:border-box!important;
+    min-height:1.15em!important;
+    height:auto!important;
+    max-height:none!important;
+    padding:1px 2px!important;
+    margin:0!important;
+    border:0!important;
+    background:transparent!important;
+    color:#000!important;
+    font-family:"Times New Roman",Times,serif!important;
+    font-size:10.5pt!important;
+    line-height:1.18!important;
+    font-weight:400!important;
+    white-space:pre-wrap!important;
+    overflow:visible!important;
+    overflow-wrap:anywhere!important;
+    word-break:normal!important;
+    text-overflow:clip!important;
+  }
+
+  /* Campos vazios continuam ocupando uma linha mínima. */
+  .bpma-print-value.is-empty{
+    min-height:1.2em!important;
+  }
+
+  /* Origem dos animais: prioridade de largura e centralização */
+  .an-termo{width:9%!important}
+  .an-origem{width:17%!important}
+  .an-vtr{width:11%!important}
+  .an-local{width:20%!important}
+  .an-animal{width:14%!important}
+  .an-qtd{width:6%!important}
+  .an-dest{width:23%!important}
+
+  #tblAnimaisPreview td:nth-child(2) .bpma-print-value{
+    text-align:center!important;
+    font-weight:700!important;
+  }
+
+  /* Nada pode esconder conteúdo no PDF. */
+  .card,
+  .table-wrap,
+  .amb-box,
+  .subbox,
+  table,
+  tbody,
+  tr,
+  td,
+  th{
+    max-height:none!important;
+    overflow:visible!important;
+  }
+
+  textarea,
+  input,
+  select{
+    max-height:none!important;
+    text-overflow:clip!important;
+  }
+
+  /*
+    Se uma linha tiver muito texto, permitimos que o navegador
+    a distribua entre páginas em vez de cortar o conteúdo.
+  */
+  .edit-table tr,
+  .alter-table tr,
+  .ativ-table tr,
+  .ordem-table tr,
+  .amb-table tr,
+  .comp-table tr{
+    break-inside:auto!important;
+    page-break-inside:auto!important;
+  }
+
+  thead tr{
+    break-inside:avoid!important;
+    page-break-inside:avoid!important;
+  }
+
+  /* Mantém as molduras claras do padrão aprovado. */
+  table,
+  th,
+  td{
+    border-color:#d4d4d4!important;
+  }
+}
+</style>
+
+<style id="bpma-cpu-fontes-preenchimento">
+@media screen{
+  main.wrap input,main.wrap select,main.wrap textarea{
+    font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif!important;
+  }
+}
+@media print{
+  main.wrap input,main.wrap select,main.wrap textarea,main.wrap .bpma-print-value{
+    font-family:"Times New Roman",Times,serif!important;
+    font-size:10pt!important;
+  }
+}
+</style>
+<style id="bpma-cpu-assinatura-coordenador">
+.cpu-signature-preview{display:flex;align-items:flex-end;justify-content:center;min-height:0}
+.cpu-signature-preview img{display:block;max-width:100%;max-height:68px;object-fit:contain}
+.cpu-signature-preview img[hidden],.cpu-signature-actions button[hidden]{display:none!important}
+.cpu-signature-actions{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:10px}
+.cpu-signature-actions button{background:#17563e;color:#fff;border:1px solid #17563e;min-height:42px}
+.cpu-signature-actions button.secondary{background:#fff;color:#17563e}
+.cpu-signature-main{display:inline-flex;align-items:center;justify-content:center;gap:7px;width:100%;min-height:50px;margin-top:10px;background:#17563e;color:#fff;border:2px solid #c8ac5b;border-radius:10px;font-size:14px;font-weight:900;box-shadow:0 2px 8px rgba(10,55,38,.22)}
+.cpu-signature-main:disabled{opacity:.45}
+body.cpu-signing{overflow:hidden}
+body.cpu-signing .bpma-system-toolbar{display:none!important}
+#cpuSignatureModal{position:fixed;inset:0;z-index:100100;display:none;align-items:center;justify-content:center;padding:10px;background:rgba(15,23,42,.8)}
+#cpuSignatureModal.open{display:flex}
+#cpuSignatureModal .cpu-signature-dialog{width:min(920px,100%);height:min(700px,96dvh);background:#fff;border-radius:16px;padding:12px;display:grid;grid-template-rows:auto minmax(0,1fr) auto;gap:9px}
+#cpuSignatureModal .cpu-signature-head,#cpuSignatureModal .cpu-signature-footer{display:flex;align-items:center;justify-content:space-between;gap:8px}
+#cpuSignatureModal .cpu-signature-head h2{margin:0;font-size:17px;color:#173f31}
+#cpuSignatureModal .cpu-signature-canvas{border:2px solid #17563e;border-radius:10px;min-height:0;overflow:hidden;background:#fff;touch-action:none}
+#cpuSignatureModal canvas{display:block;width:100%;height:100%;touch-action:none}
+#cpuSignatureModal .cpu-signature-footer button{min-height:46px}
+#cpuSignatureConfirm{flex:1;background:#17563e;border:1px solid #17563e}
+@media(max-width:720px){
+  #cpuSignatureModal{padding:0}
+  #cpuSignatureModal .cpu-signature-dialog{width:100%;height:100dvh;border-radius:0;padding-bottom:max(12px,env(safe-area-inset-bottom))}
+}
+@media print{
+  #cpuSignatureModal,.cpu-signature-actions,.cpu-signature-main{display:none!important}
+  .cpu-signature-preview img{max-height:45px!important}
+}
+#bpmaPdfStaging .cpu-signature-main{display:none!important}
+</style>
+
+<style id="bpma-cpu-3-9-19-print-fix">
+@media print{
+  .comp-table .categoria{
+    width:18%!important;
+    font-size:9pt!important;
+    white-space:nowrap!important;
+    overflow-wrap:normal!important;
+    word-break:keep-all!important;
+    hyphens:none!important;
+  }
+  .comp-table .descricao{width:82%!important}
+  .comp-table th,.comp-table td{hyphens:none!important}
+}
+</style>
+
+
+<style id="bpma-4011-cpu-actions">
+/* 4.0.11 · botão final do CPU no mesmo padrão visual */
+.report-final-actions{display:flex!important;justify-content:flex-end!important;width:100%!important}
+.report-final-actions .finalize-action{width:min(100%,520px)!important;max-width:none!important;min-height:56px!important;padding:13px 20px!important;border-radius:12px!important;font-size:15px!important;background:linear-gradient(180deg,#0b6b4f,#075d49)!important;box-shadow:0 5px 14px rgba(7,93,73,.18)!important}
+@media(max-width:720px){.report-final-actions{display:block!important}.report-final-actions .finalize-action{width:100%!important;min-height:56px!important}}
+</style>
+
+<style id="bpma-cpu-mobile-cards-v4012">
+@media screen and (max-width:720px){
+  html,body{max-width:100%;overflow-x:hidden}
+  .wrap{width:100%!important;max-width:100%!important;box-sizing:border-box}
+  .table-wrap,.amb-box{overflow:visible!important;border:0!important;background:transparent!important}
+  .edit-table,.alter-table,.ativ-table,.ordem-table,.amb-table,.comp-table{min-width:0!important;width:100%!important;table-layout:auto!important}
+  .mobile-card-table thead{display:none!important}
+  .mobile-card-table,.mobile-card-table tbody{display:block!important;width:100%!important}
+  .mobile-card-table tr{display:block!important;width:100%!important;margin:0 0 12px!important;padding:8px!important;border:1px solid #d7e2dd!important;border-radius:12px!important;background:#fff!important;box-sizing:border-box!important}
+  .mobile-card-table td{display:grid!important;grid-template-columns:minmax(92px,36%) minmax(0,1fr)!important;gap:8px!important;align-items:center!important;width:100%!important;box-sizing:border-box!important;border:0!important;border-bottom:1px solid #edf1ef!important;padding:8px 4px!important;text-align:left!important;white-space:normal!important}
+  .mobile-card-table td:last-child{border-bottom:0!important}
+  .mobile-card-table td::before{content:attr(data-label);font-size:10px;font-weight:900;color:#31584c;text-transform:uppercase;line-height:1.15}
+  .mobile-card-table td[data-label=""]::before{display:none}
+  .mobile-card-table input,.mobile-card-table select,.mobile-card-table textarea{width:100%!important;max-width:100%!important;min-width:0!important;font-size:16px!important;box-sizing:border-box!important}
+  .mobile-card-table textarea{min-height:70px!important}
+  .mobile-card-table .no-print button,.mobile-card-table button{width:100%;min-height:42px}
+  .mobile-card-table .total-row{background:#f3f8f5!important}
+  .ufr-wrap .ufr-field input{width:100%!important;max-width:160px!important}
+}
+</style>
+
+<style id="bpma-cpu-mobile-v4013">
+/* 4.0.13 — formulário mobile; não altera o layout de impressão A4 */
+@media screen and (max-width:720px){
+  /* Bloco 1: linha de equipe como cartão e totais legíveis */
+  #tblRecursos tfoot{display:block!important;width:100%!important;margin-top:10px!important}
+  #tblRecursos tfoot tr{display:grid!important;grid-template-columns:1fr 1fr!important;gap:8px!important;width:100%!important;padding:10px!important;border:1px solid #d7e2dd!important;border-radius:12px!important;background:#f3f8f5!important;box-sizing:border-box!important}
+  #tblRecursos tfoot td{display:flex!important;align-items:center!important;justify-content:space-between!important;min-height:42px!important;padding:8px 10px!important;border:1px solid #e2ebe7!important;border-radius:9px!important;background:#fff!important;font-weight:800!important;box-sizing:border-box!important}
+  #tblRecursos tfoot td:first-child,#tblRecursos tfoot td.no-print{display:none!important}
+  #tblRecursos tfoot td:nth-child(2)::before{content:"Dia";font-size:11px;color:#527064}
+  #tblRecursos tfoot td:nth-child(3)::before{content:"Ordinário";font-size:11px;color:#527064}
+  #tblRecursos tfoot td:nth-child(4)::before{content:"P.O.R.";font-size:11px;color:#527064}
+  #tblRecursos tfoot td:nth-child(5)::before{content:"Noite";font-size:11px;color:#527064}
+  #tblRecursos tfoot td:nth-child(6)::before{content:"Ordinário";font-size:11px;color:#527064}
+  #tblRecursos tfoot td:nth-child(7)::before{content:"P.O.R.";font-size:11px;color:#527064}
+
+  /* Bloco 4: prisões/apreensões em cartões, sem rolagem horizontal */
+  #tblPrisoesPreview{min-width:0!important;width:100%!important;table-layout:auto!important;display:block!important}
+  #tblPrisoesPreview thead{display:none!important}
+  #tblPrisoesPreview tbody{display:block!important;width:100%!important}
+  #tblPrisoesPreview tr{display:block!important;width:100%!important;margin:0 0 12px!important;padding:10px!important;border:1px solid #d7e2dd!important;border-radius:12px!important;background:#fff!important;box-sizing:border-box!important}
+  #tblPrisoesPreview td{display:grid!important;grid-template-columns:112px minmax(0,1fr)!important;gap:9px!important;align-items:center!important;width:100%!important;padding:8px 4px!important;border:0!important;border-bottom:1px solid #edf1ef!important;box-sizing:border-box!important;text-align:left!important}
+  #tblPrisoesPreview td:last-child{border-bottom:0!important}
+  #tblPrisoesPreview td::before{content:attr(data-label);font-size:10px;font-weight:900;color:#31584c;text-transform:uppercase;line-height:1.15}
+  #tblPrisoesPreview td.cat{display:none!important}
+  #tblPrisoesPreview input[type="number"]{width:86px!important;max-width:86px!important;min-height:44px!important;justify-self:start!important;font-size:16px!important}
+  #tblPrisoesPreview textarea{width:100%!important;min-height:96px!important;font-size:16px!important;line-height:1.3!important;box-sizing:border-box!important}
+  #tblPrisoesPreview td:last-child{grid-template-columns:112px minmax(0,1fr)!important}
+  #tblPrisoesPreview td:last-child textarea{min-height:110px!important}
+  #tblPrisoesPreview .mobile-category{display:block!important;margin:-2px 0 7px!important;padding:5px 8px!important;border-radius:7px!important;background:#eef6f2!important;color:#174f3e!important;font-size:11px!important;font-weight:900!important;text-transform:uppercase!important}
+
+  /* Procedimentos administrativos: conclusão ganha mais espaço */
+  #procBody .desfechos{display:flex!important;flex-wrap:wrap!important;gap:8px 12px!important}
+  #procBody .desfechos label{white-space:nowrap!important}
+  #procBody textarea[aria-label="Conclusão do procedimento"]{min-height:110px!important}
+}
+</style>
+
+
+<style id="bpma-cpu-mobile-v4014">
+/* 4.0.14: correção estável de responsividade sem tocar no A4 */
+@media screen and (max-width:720px){
+  #recursos .table-wrap,#tblPrisoesPreview.closest-table-wrap{overflow:visible!important}
+  #tblRecursos{display:block!important;min-width:0!important;width:100%!important}
+  #tblRecursos thead{display:none!important}
+  #tblRecursos tbody{display:block!important;width:100%!important}
+  #tblRecursos tbody tr{display:grid!important;grid-template-columns:1fr 1fr!important;gap:10px!important;width:100%!important;padding:12px!important;margin:0 0 12px!important;border:1px solid #d7e2dd!important;border-radius:12px!important;background:#fff!important;box-sizing:border-box!important}
+  #tblRecursos tbody td{display:block!important;width:auto!important;padding:0!important;border:0!important;box-sizing:border-box!important}
+  #tblRecursos tbody td:nth-child(1),#tblRecursos tbody td:nth-child(2),#tblRecursos tbody td:nth-child(5),#tblRecursos tbody td:nth-child(8){grid-column:1/-1!important}
+  #tblRecursos tbody td::before{display:block!important;margin:0 0 5px!important;font-size:10px!important;font-weight:900!important;color:#31584c!important;text-transform:uppercase!important}
+  #tblRecursos tbody td:nth-child(1)::before{content:'VTR (PREFIXO)'}
+  #tblRecursos tbody td:nth-child(2)::before{content:'EFETIVO (07H ÀS 19H)'}
+  #tblRecursos tbody td:nth-child(3)::before{content:'ORDINÁRIO · DIA'}
+  #tblRecursos tbody td:nth-child(4)::before{content:'P.O.R. · DIA'}
+  #tblRecursos tbody td:nth-child(5)::before{content:'EFETIVO (19H ÀS 07H)'}
+  #tblRecursos tbody td:nth-child(6)::before{content:'ORDINÁRIO · NOITE'}
+  #tblRecursos tbody td:nth-child(7)::before{content:'P.O.R. · NOITE'}
+  #tblRecursos tbody td:nth-child(8)::before{content:'AÇÃO'}
+  #tblRecursos input,#tblRecursos textarea,#tblRecursos button{width:100%!important;max-width:100%!important;min-width:0!important;box-sizing:border-box!important;font-size:16px!important}
+  #tblRecursos textarea{min-height:82px!important}
+  #tblRecursos input[type=number]{min-height:48px!important;text-align:center!important}
+  #tblRecursos tfoot{display:block!important;width:100%!important;margin-top:8px!important}
+  #tblRecursos tfoot tr{display:grid!important;grid-template-columns:1fr 1fr!important;gap:8px!important;padding:10px!important;border:1px solid #d7e2dd!important;border-radius:12px!important;background:#f3f8f5!important;box-sizing:border-box!important}
+  #tblRecursos tfoot td{display:flex!important;justify-content:space-between!important;align-items:center!important;min-height:44px!important;padding:8px 10px!important;border:1px solid #e2ebe7!important;border-radius:8px!important;background:#fff!important;box-sizing:border-box!important}
+  #tblRecursos tfoot td:first-child,#tblRecursos tfoot td:last-child{display:none!important}
+  #tblRecursos tfoot td:nth-child(2)::before{content:'TOTAL DIA'}
+  #tblRecursos tfoot td:nth-child(3)::before{content:'ORD.'}
+  #tblRecursos tfoot td:nth-child(4)::before{content:'P.O.R.'}
+  #tblRecursos tfoot td:nth-child(5)::before{content:'TOTAL NOITE'}
+  #tblRecursos tfoot td:nth-child(6)::before{content:'ORD.'}
+  #tblRecursos tfoot td:nth-child(7)::before{content:'P.O.R.'}
+  #tblPrisoesPreview{display:block!important;min-width:0!important;width:100%!important}
+  #tblPrisoesPreview thead{display:none!important}
+  #tblPrisoesPreview tbody{display:block!important}
+  #tblPrisoesPreview tbody tr{display:block!important;margin:0 0 12px!important;padding:12px!important;border:1px solid #d7e2dd!important;border-radius:12px!important;background:#fff!important}
+  #tblPrisoesPreview tbody td{display:grid!important;grid-template-columns:105px minmax(0,1fr)!important;gap:10px!important;width:100%!important;padding:8px 0!important;border:0!important;border-bottom:1px solid #edf1ef!important;box-sizing:border-box!important}
+  #tblPrisoesPreview tbody td::before{content:attr(data-label)!important;font-size:10px!important;font-weight:900!important;color:#31584c!important;text-transform:uppercase!important}
+  #tblPrisoesPreview tbody td.cat{display:none!important}
+  #tblPrisoesPreview input[type=number]{width:72px!important;max-width:72px!important;min-height:44px!important;text-align:center!important;font-size:16px!important}
+  #tblPrisoesPreview textarea{width:100%!important;min-height:125px!important;font-size:16px!important;box-sizing:border-box!important}
+}
+@media print{#bpma-cpu-mobile-v4014{display:none!important}}
+</style>
+</head>
+<body>
+<!-- Barra de ações CPU: markup estático para permanecer visível no desktop mesmo antes da inicialização dos dados. -->
+<div class="bpma-system-toolbar no-print" id="bpmaSystemToolbar">
+  <div class="bpma-meta">
+    <b id="bpmaRecordTitle">CPU · Relatório</b>
+    <small id="bpmaRecordSub">Carregando dados do relatório…</small>
+  </div>
+  <div class="bpma-actions">
+    <button type="button" id="bpmaBack" onclick="if(!this.dataset.bound){location.href='../index.html#cpu'}">← Voltar</button>
+    <button type="button" id="bpmaEdit" hidden>✏️ Corrigir relatório</button>
+    <button type="button" id="bpmaClear">Limpar</button>
+
+  </div>
+</div>
+<main class="wrap">
+<header class="topbar">
+  <img src="data:image/jpeg;base64,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" alt="BPMA">
+  <div class="head">
+    <b>POLÍCIA MILITAR DA PARAÍBA</b>
+    <div class="sub">BATALHÃO ESPECIALIZADO EM POLICIAMENTO DO MEIO AMBIENTE</div>
+  </div>
+  <div class="right-slot"><img src="../assets/pmpb.jpg" alt="Brasão PMPB"></div>
+</header>
+<div class="title-row"><h1>Relatório de Serviço CPU</h1><span class="status">Relatório completo · Prévia final</span></div>
+
+
+
+
+
+
+
+<section class="card" id="servIdentificacao">
+  <div class="card-head">IDENTIFICAÇÃO DO SERVIÇO</div>
+  <div class="card-body">
+    <div class="fields">
+      <div class="field s4"><label>Identificação do serviço</label><input name="identificacaoServico" placeholder="Ex.: CPU"></div>
+      <div class="field s4"><label>OPM responsável</label><input name="opmResponsavel" placeholder="Ex.: 1ª CPMA/BPMA"></div>
+      <div class="field s4"><label>Coordenador de policiamento</label><input name="coordenador" placeholder="Posto/Grad., matrícula e nome"></div>
+      <div class="field s3"><label>Início - Data</label><input type="date" name="inicioData"></div>
+      <div class="field s3"><label>Início - Hora</label><input type="time" name="inicioHora"></div>
+      <div class="field s3"><label>Término - Data</label><input type="date" name="fimData"></div>
+      <div class="field s3"><label>Término - Hora</label><input type="time" name="fimHora"></div>
+      <div class="field s12"><label>Área de policiamento</label><input name="areaPoliciamento" placeholder="Ex.: Região Metropolitana de João Pessoa"></div>
+    </div>
+    
+    
+  </div>
+</section>
+
+<section class="card" id="recursos">
+  <div class="card-head">1 · QUADRO DE RECURSOS OPERACIONAIS</div>
+  <div class="card-body">
+    <div class="table-wrap">
+      <table class="edit-table" id="tblRecursos">
+        <thead>
+          <tr>
+            <th class="col-vtr">VTR (Prefixo)</th>
+            <th class="col-efetivo">Efetivo (07h às 19h)</th>
+            <th class="col-num">Ordinário</th>
+            <th class="col-num">P.O.R.</th>
+            <th class="col-efetivo">Efetivo (19h às 07h)</th>
+            <th class="col-num">Ordinário</th>
+            <th class="col-num">P.O.R.</th>
+            <th class="col-action no-print">Ação</th>
+          </tr>
+        </thead>
+        <tbody id="recursosBody">
+          <tr>
+            <td><input aria-label="VTR prefixo" type="text" maxlength="12" autocomplete="off" placeholder="AMB 01-9140"></td>
+            <td><textarea class="efetivo" aria-label="Efetivo dia" rows="2" placeholder="Posto/Grad., matrícula e nome"></textarea></td>
+            <td><input type="number" min="0" max="99" value="0" inputmode="numeric" aria-label="Ordinário dia"></td>
+            <td><input type="number" min="0" max="99" value="0" inputmode="numeric" aria-label="POR dia"></td>
+            <td><textarea class="efetivo" aria-label="Efetivo noite" rows="2" placeholder="Posto/Grad., matrícula e nome"></textarea></td>
+            <td><input type="number" min="0" max="99" value="0" inputmode="numeric" aria-label="Ordinário noite"></td>
+            <td><input type="number" min="0" max="99" value="0" inputmode="numeric" aria-label="POR noite"></td>
+            <td class="no-print"><button type="button" class="btn-mini btn-remove" data-remove>Excluir</button></td>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr class="total-row">
+            <td></td>
+            <td>TOTAL</td>
+            <td id="totOrdDia">00</td>
+            <td id="totPorDia">00</td>
+            <td>TOTAL</td>
+            <td id="totOrdNoite">00</td>
+            <td id="totPorNoite">00</td>
+            <td class="no-print"></td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+
+    <div class="row-actions no-print">
+      <button type="button" class="btn-mini" id="addEquipe">+ Adicionar VTR/equipe</button>
+    </div>
+
+    
+    
+  </div>
+</section>
+
+<section class="card" id="alteracoes">
+  <div class="card-head">2 · QUADRO DE ALTERAÇÕES ADMINISTRATIVAS</div>
+  <div class="card-body">
+    <div class="table-wrap">
+      <table class="alter-table" id="tblAlteracoes">
+        <thead>
+          <tr>
+            <th class="tipo">Tipo</th>
+            <th class="qtd">Qtd</th>
+            <th class="descricao">Descrição</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="tipo">FALTAS</td>
+            <td class="qtd"><input type="number" min="0" max="99" value="0" inputmode="numeric" aria-label="Quantidade de faltas"></td>
+            <td class="descricao"><textarea rows="2" aria-label="Descrição de faltas" placeholder="Descreva a alteração administrativa, policial envolvido, matrícula e demais informações necessárias."></textarea></td>
+          </tr>
+          <tr>
+            <td class="tipo">PERMUTAS</td>
+            <td class="qtd"><input type="number" min="0" max="99" value="0" inputmode="numeric" aria-label="Quantidade de permutas"></td>
+            <td class="descricao"><textarea rows="2" aria-label="Descrição de permutas" placeholder="Descreva a permuta, militares envolvidos, serviço e demais informações necessárias."></textarea></td>
+          </tr>
+          <tr>
+            <td class="tipo">ATESTADOS MÉDICOS</td>
+            <td class="qtd"><input type="number" min="0" max="99" value="0" inputmode="numeric" aria-label="Quantidade de atestados médicos"></td>
+            <td class="descricao"><textarea rows="2" aria-label="Descrição de atestados médicos" placeholder="Descreva as informações administrativas necessárias."></textarea></td>
+          </tr>
+          <tr>
+            <td class="tipo">DISPENSAS</td>
+            <td class="qtd"><input type="number" min="0" max="99" value="0" inputmode="numeric" aria-label="Quantidade de dispensas"></td>
+            <td class="descricao"><textarea rows="2" aria-label="Descrição de dispensas" placeholder="Descreva as informações administrativas necessárias."></textarea></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    
+    <div class="note">Campos de descrição crescem automaticamente e todo o conteúdo é mantido visível na impressão A4.</div>
+  </div>
+</section>
+
+<section class="card" id="atividades">
+  <div class="card-head">3 · QUADRO DE ATIVIDADES DESEMPENHADAS</div>
+  <div class="card-body">
+    <div class="table-wrap">
+      <table class="ativ-table" id="tblAtividadesPreview">
+        <thead>
+          <tr>
+            <th class="col-acao">Ações</th>
+            <th class="col-local">Local / Município</th>
+            <th class="col-desc">Descrição</th>
+            <th class="col-ordem">Nº da Ordem de Operação / Serviço</th>
+            <th class="col-del no-print">Ação</th>
+          </tr>
+        </thead>
+        <tbody id="ativBody">
+          <tr>
+            <td><div class="combo-stack"><select class="atividade-tipo" aria-label="Tipo de ação"><option value="">Selecione</option><option>Operação</option><option>Fiscalização</option><option>Patrulhamento</option><option>Apoio</option><option>Unidade de Conservação</option><option>Ação educativa</option><option>Outros</option></select><input class="atividade-outro" aria-label="Outra ação" placeholder="Outra ação" hidden></div></td>
+            <td><textarea rows="2" aria-label="Local ou município" placeholder="Local, bairro e município"></textarea></td>
+            <td><textarea rows="2" aria-label="Descrição da atividade" placeholder="Descreva a atividade desempenhada, resultado e informações relevantes."></textarea></td>
+            <td><input aria-label="Número da ordem" placeholder="Nº da ordem"></td>
+            <td class="no-print"><button type="button" class="remove-row" data-remove>Excluir</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="row-actions no-print">
+      <button type="button" class="btn-mini" id="addAtividade">+ Adicionar atividade</button>
+    </div>
+    
+    <div class="note">Campos de texto crescem automaticamente. Na impressão A4, a coluna de exclusão é removida e o espaço é redistribuído para evitar cortes.</div>
+  </div>
+</section>
+
+<section class="card" id="ordemPublica">
+  <div class="card-head">4 · QUADRO DE AÇÕES DE PRESERVAÇÃO DA ORDEM PÚBLICA</div>
+  <div class="card-body">
+    <div class="ordem-block">
+
+      <div class="subbox">
+        <div class="subbox-title">Prisões / Apreensões de Pessoas</div>
+        <table class="ordem-table" id="tblPrisoesPreview">
+          <thead>
+            <tr>
+              <th class="w-cat">Categoria</th>
+              <th class="w-tipo">Tipo de prisão</th>
+              <th class="w-num">Qtd. prisões / apreensões</th>
+              <th class="w-num2">Qtd. TCO digital lavrado</th>
+              <th class="w-conclusao">Conclusão (nome do conduzido, nº ROPM)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="cat" rowspan="2">ADULTO</td>
+              <td>Flagrante Delito</td>
+              <td><input type="number" min="0" max="99" value="0" inputmode="numeric" aria-label="Adulto flagrante quantidade"></td>
+              <td><input type="number" min="0" max="99" value="0" inputmode="numeric" aria-label="Adulto flagrante TCO"></td>
+              <td><textarea rows="2" aria-label="Conclusão adulto flagrante" placeholder="Nome do conduzido, nº ROPM e demais informações."></textarea></td>
+            </tr>
+            <tr>
+              <td>Mandado de Prisão</td>
+              <td><input type="number" min="0" max="99" value="0" inputmode="numeric"></td>
+              <td><input type="number" min="0" max="99" value="0" inputmode="numeric"></td>
+              <td><textarea rows="2" placeholder="Nome do conduzido, nº ROPM e demais informações."></textarea></td>
+            </tr>
+            <tr>
+              <td class="cat" rowspan="2">MENOR</td>
+              <td>Flagrante de Ato Infracional</td>
+              <td><input type="number" min="0" max="99" value="0" inputmode="numeric"></td>
+              <td><input type="number" min="0" max="99" value="0" inputmode="numeric"></td>
+              <td><textarea rows="2" placeholder="Nome do conduzido, nº ROPM e demais informações."></textarea></td>
+            </tr>
+            <tr>
+              <td>Apreensão</td>
+              <td><input type="number" min="0" max="99" value="0" inputmode="numeric"></td>
+              <td><input type="number" min="0" max="99" value="0" inputmode="numeric"></td>
+              <td><textarea rows="2" placeholder="Nome do conduzido, nº ROPM e demais informações."></textarea></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="subbox">
+        <div class="subbox-title">Armas, Munições e Drogas Apreendidas</div>
+        <table class="ordem-table" id="tblObjetosPreview">
+          <thead>
+            <tr>
+              <th class="w-catobj">Categoria</th>
+              <th class="w-descobj">Descrição do objeto</th>
+              <th class="w-qtdobj">Qtd. total / volume total</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="cat">ARMA DE FOGO</td>
+              <td><textarea rows="2" placeholder="Ex.: revólver cal. .38, pistola, espingarda..."></textarea></td>
+              <td><input inputmode="numeric" maxlength="5" placeholder="00"></td>
+            </tr>
+            <tr>
+              <td class="cat">MUNIÇÕES</td>
+              <td><textarea rows="2" placeholder="Descrição das munições apreendidas."></textarea></td>
+              <td><input inputmode="numeric" maxlength="5" placeholder="00"></td>
+            </tr>
+            <tr>
+              <td class="cat">ARMA BRANCA</td>
+              <td><textarea rows="2" placeholder="Descrição do objeto apreendido."></textarea></td>
+              <td><input inputmode="numeric" maxlength="5" placeholder="00"></td>
+            </tr>
+            <tr>
+              <td class="cat">DROGAS</td>
+              <td><textarea rows="2" placeholder="Tipo da substância e demais informações."></textarea></td>
+              <td><input placeholder="00 unid / 00g"></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="subbox">
+        <div class="subbox-title">Veículos e Objetos Apreendidos e Recuperados</div>
+        <table class="ordem-table" id="tblVeiculosObjetosPreview">
+          <thead>
+            <tr>
+              <th class="w-catvr">Categoria</th>
+              <th class="w-apr">Apreendidos</th>
+              <th class="w-rec">Recuperados</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="cat">VEÍCULOS</td>
+              <td><textarea rows="2" placeholder="Informe os veículos apreendidos."></textarea></td>
+              <td><textarea rows="2" placeholder="Informe os veículos recuperados."></textarea></td>
+            </tr>
+            <tr>
+              <td class="cat">OBJETOS / MATERIAIS</td>
+              <td><textarea rows="2" placeholder="Informe objetos ou materiais apreendidos."></textarea></td>
+              <td><textarea rows="2" placeholder="Informe objetos ou materiais recuperados."></textarea></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+
+    
+    <div class="note">Os campos de texto crescem automaticamente; os campos numéricos são compactos e a impressão A4 redistribui o espaço para evitar cortes.</div>
+  </div>
+</section>
+
+<section class="card" id="ambientais">
+  <div class="card-head">5 · QUADRO DE AÇÕES AMBIENTAIS</div>
+  <div class="card-body">
+    <div class="amb-stack">
+
+      <div class="amb-box">
+        <div class="amb-title">Procedimentos Administrativos</div>
+        <table class="amb-table" id="tblProcedimentosPreview">
+          <thead>
+            <tr>
+              <th class="proc-vtr">VTR/GU (Autuante)</th>
+              <th class="proc-nat">Natureza da infração</th>
+              <th class="proc-conc">Conclusão</th>
+              <th class="proc-apr">Animais / Veículos / Materiais apreendidos</th>
+              <th class="proc-del no-print">Ação</th>
+            </tr>
+          </thead>
+          <tbody id="procBody">
+            <tr>
+              <td><textarea rows="2" aria-label="VTR ou guarnição autuante" placeholder="VTR/GU e autuante"></textarea></td>
+              <td><div class="combo-stack"><select class="natureza-cat" aria-label="Categoria ambiental"><option value="">Natureza</option><option>Fauna</option><option>Flora</option><option>Poluição</option><option>Mineração</option><option>Pesca</option><option>Recursos Hídricos</option><option>Unidade de Conservação</option><option>Queimada/Incêndio</option><option>Licenciamento Ambiental</option><option>Outros</option></select><select class="natureza-sub" aria-label="Subnatureza"><option value="">Subnatureza</option></select><input class="natureza-outro" placeholder="Outra natureza" hidden></div></td>
+              <td><div class="desfechos" aria-label="Desfechos"><label><input type="checkbox" value="TCO"> TCO</label><label><input type="checkbox" value="APF"> APF</label><label><input type="checkbox" value="Procedimento administrativo" data-proc-adm> Proc. adm.</label><label><input type="checkbox" value="Apreensão"> Apreensão</label></div><div class="ufr-wrap" hidden><label>UFR-PB aplicadas</label><div class="ufr-field"><input class="ufr-pb" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="0" aria-label="Quantidade de UFR-PB aplicadas"><span class="ufr-unit">UFR-PB</span></div><small>Informe a quantidade de UFR-PB aplicadas neste procedimento administrativo.</small></div><textarea rows="2" aria-label="Conclusão do procedimento" placeholder="Resultado, nº do termo/auto, providências adotadas..."></textarea></td>
+              <td><textarea rows="2" aria-label="Itens apreendidos" placeholder="Animais, veículos ou materiais apreendidos"></textarea></td>
+              <td class="no-print" style="text-align:center;vertical-align:middle"><button type="button" class="btn-del" data-del-proc>Excluir</button></td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="amb-actions no-print">
+          <button type="button" id="addProc">+ Adicionar procedimento</button>
+        </div>
+      </div>
+
+      <div class="amb-box">
+        <div class="amb-title">Animais Resgatados, Entregues Voluntariamente ou Apreendidos de Forma Avulsa</div>
+        <table class="amb-table" id="tblAnimaisPreview">
+          <thead>
+            <tr>
+              <th class="an-termo">Nº Termo de Animais</th>
+              <th class="an-origem">Origem</th>
+              <th class="an-vtr">VTR/CMT da Guarnição</th>
+              <th class="an-local">Local / Bairro / Município</th>
+              <th class="an-animal">Animal</th>
+              <th class="an-qtd">Qtd</th>
+              <th class="an-dest">Destino</th>
+              <th class="an-del no-print">Ação</th>
+            </tr>
+          </thead>
+          <tbody id="animalBody">
+            <tr>
+              <td><input inputmode="numeric" maxlength="5" aria-label="Número do termo" placeholder="00000"></td>
+              <td>
+                <select aria-label="Origem">
+                  <option value="">Selecione</option>
+                  <option>Resgate</option>
+                  <option>Entrega voluntária</option>
+                  <option>Apreensão avulsa</option>
+                </select>
+              </td>
+              <td><textarea rows="2" aria-label="VTR e comandante" placeholder="VTR / CMT"></textarea></td>
+              <td><textarea rows="2" aria-label="Local do animal" placeholder="Local, bairro e município"></textarea></td>
+              <td><textarea rows="2" aria-label="Animal" placeholder="Espécie / nome comum"></textarea></td>
+              <td><input type="number" min="0" max="999" value="0" inputmode="numeric" aria-label="Quantidade"></td>
+              <td><textarea rows="2" aria-label="Destino do animal" placeholder="CETAS, soltura, outro destino..."></textarea></td>
+              <td class="no-print" style="text-align:center;vertical-align:middle"><button type="button" class="btn-del" data-del-animal>Excluir</button></td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="amb-actions no-print">
+          <button type="button" id="addAnimal">+ Adicionar animal</button>
+        </div>
+      </div>
+
+    </div>
+
+    
+  </div>
+</section>
+
+<section class="card" id="complementares">
+  <div class="card-head">6 · QUADRO DE INFORMAÇÕES COMPLEMENTARES</div>
+  <div class="card-body">
+    <div class="table-wrap">
+      <table class="comp-table" id="tblComplementaresPreview">
+        <thead>
+          <tr>
+            <th class="categoria">Categoria</th>
+            <th class="descricao">Descrição</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="categoria">TAT</td>
+            <td class="descricao">
+              <textarea rows="2" name="tat" placeholder="Informe dados e observações referentes ao TAT."></textarea>
+            </td>
+          </tr>
+          <tr>
+            <td class="categoria">DESCOMPRESSÕES</td>
+            <td class="descricao">
+              <textarea rows="2" name="descompressoes" placeholder="Registre informações relacionadas às descompressões do serviço."></textarea>
+            </td>
+          </tr>
+          <tr>
+            <td class="categoria">OBSERVAÇÕES</td>
+            <td class="descricao">
+              <textarea rows="3" name="observacoes" placeholder="Insira outras informações relevantes do serviço."></textarea>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    
+  </div>
+</section>
+
+<section class="card" id="passagem">
+  <div class="card-head">7 · PASSAGEM DE SERVIÇO</div>
+  <div class="card-body">
+    <div class="pass-grid">
+
+      <div class="pass-field s3">
+        <label>Data</label>
+        <input type="date" name="passagemData">
+      </div>
+
+      <div class="pass-field s9">
+        <label>Observação</label>
+        <textarea rows="2" name="passagemObservacao" placeholder="Ex.: Todos os documentos gerados pelas guarnições encontram-se anexados a este relatório."></textarea>
+      </div>
+
+      <div class="pass-field">
+        <label>Passagem</label>
+        <textarea rows="4" name="passagemTexto" placeholder="Passo o serviço ao meu substituto legal..., sem alteração e com todas as diretrizes informadas."></textarea>
+      </div>
+
+      <div class="pass-field s6">
+        <label>Coordenador de Policiamento</label>
+        <input name="coordenadorAssinatura" placeholder="Posto/Grad. e nome">
+        <button type="button" id="cpuSignOpen" class="cpu-signature-main">✍ Assinar digitalmente</button>
+      </div>
+
+      <div class="pass-field s6 signature-box">
+        <div class="cpu-signature-preview"><img id="cpuCoordinatorSignature" alt="Assinatura do coordenador" hidden></div>
+        <div class="signature-line">Coordenador de Policiamento</div>
+        <div class="cpu-signature-actions no-print">
+          <button type="button" id="cpuSignRemove" class="secondary" hidden>Remover assinatura</button>
+        </div>
+      </div>
+
+    </div>
+
+    
+  </div>
+</section>
+
+<div class="report-final-actions no-print cpu-end-actions">
+  <button type="button" id="bpmaFinalize" class="finalize-action">📄 Finalizar e gerar PDF</button>
+</div>
+<div class="report-final-note">
+  Relatório de Serviço CPU completo. Os campos de texto expandem automaticamente e o layout foi ajustado para impressão A4 sem cortes.
+</div>
+
+
+
+
+
+
+
+
+</main>
+<div id="cpuSignatureModal" role="dialog" aria-modal="true" aria-labelledby="cpuSignatureTitle">
+  <div class="cpu-signature-dialog">
+    <div class="cpu-signature-head"><h2 id="cpuSignatureTitle">Assinatura do Coordenador</h2><button type="button" id="cpuSignatureClose">Fechar</button></div>
+    <div class="cpu-signature-canvas" id="cpuSignatureCanvasWrap"><canvas id="cpuSignatureCanvas" aria-label="Desenhe a assinatura do coordenador"></canvas></div>
+    <div class="cpu-signature-footer"><button type="button" id="cpuSignatureRedo">Refazer</button><button type="button" id="cpuSignatureConfirm">Confirmar assinatura</button></div>
+  </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+(function(){
+  const q=(s,r=document)=>r.querySelector(s);
+  const qa=(s,r=document)=>Array.from(r.querySelectorAll(s));
+
+  function autoGrow(el,min=44){
+    if(!el || el.tagName!=='TEXTAREA') return;
+    let localMin=min;
+    if(el.name==='passagemTexto') localMin=90;
+    if(el.closest('#complementares')) localMin=54;
+    el.style.overflow='hidden';
+    el.style.height='1px';
+    el.style.height=Math.max(localMin,el.scrollHeight+2)+'px';
+  }
+
+  function growAll(root=document){
+    qa('textarea',root).forEach(el=>autoGrow(el));
+  }
+
+  function sanitize2(el){
+    let v=String(el.value??'').replace(/\D/g,'').slice(0,2);
+    el.value=v===''?'':String(Math.min(99,Number(v)));
+  }
+
+  function sanitize3(el){
+    let v=String(el.value??'').replace(/\D/g,'').slice(0,3);
+    el.value=v===''?'':String(Math.min(999,Number(v)));
+  }
+
+  function sanitize5(el){
+    el.value=String(el.value??'').replace(/\D/g,'').slice(0,5);
+  }
+
+  growAll();
+
+  document.addEventListener('input',e=>{
+    if(e.target.matches('textarea')) autoGrow(e.target);
+
+    if(e.target.matches('#ambientais input[type="number"]')){
+      sanitize3(e.target);
+      return;
+    }
+    if(e.target.matches('input[type="number"]')){
+      sanitize2(e.target);
+    }
+    if(e.target.matches('input[inputmode="numeric"][maxlength="5"]')){
+      sanitize5(e.target);
+    }
+  });
+
+  // ===== Recursos operacionais =====
+  const recursosBody=q('#recursosBody');
+  const addEquipe=q('#addEquipe');
+
+  function recursoRow(){
+    return `<tr>
+      <td><input aria-label="VTR prefixo" type="text" maxlength="12" autocomplete="off" placeholder="AMB 01-9140"></td>
+      <td><textarea class="efetivo" rows="2" placeholder="Posto/Grad., matrícula e nome"></textarea></td>
+      <td><input type="number" min="0" max="99" value="0" inputmode="numeric"></td>
+      <td><input type="number" min="0" max="99" value="0" inputmode="numeric"></td>
+      <td><textarea class="efetivo" rows="2" placeholder="Posto/Grad., matrícula e nome"></textarea></td>
+      <td><input type="number" min="0" max="99" value="0" inputmode="numeric"></td>
+      <td><input type="number" min="0" max="99" value="0" inputmode="numeric"></td>
+      <td class="no-print"><button type="button" class="btn-mini btn-remove" data-remove-recurso>Excluir</button></td>
+    </tr>`;
+  }
+
+  function n(v){return Math.max(0,Number(v)||0)}
+  function updateTotals(){
+    if(!recursosBody) return;
+    let od=0,pd=0,on=0,pn=0;
+    [...recursosBody.rows].forEach(r=>{
+      const x=r.querySelectorAll('input[type="number"]');
+      od+=n(x[0]?.value); pd+=n(x[1]?.value);
+      on+=n(x[2]?.value); pn+=n(x[3]?.value);
+    });
+    const set=(id,val)=>{const el=q('#'+id);if(el)el.textContent=String(val).padStart(2,'0')};
+    set('totOrdDia',od);set('totPorDia',pd);set('totOrdNoite',on);set('totPorNoite',pn);
+  }
+
+  addEquipe?.addEventListener('click',()=>{
+    recursosBody.insertAdjacentHTML('beforeend',recursoRow());
+    growAll(recursosBody.rows[recursosBody.rows.length-1]);
+    updateTotals();
+  });
+
+  recursosBody?.addEventListener('click',e=>{
+    const b=e.target.closest('[data-remove-recurso],[data-remove]');
+    if(!b) return;
+    const tr=b.closest('tr');
+    if(recursosBody.rows.length===1){
+      qa('input,textarea',tr).forEach(el=>el.value=el.type==='number'?'0':'');
+      growAll(tr);
+    }else tr.remove();
+    updateTotals();
+  });
+
+  recursosBody?.addEventListener('input',updateTotals);
+  updateTotals();
+
+  // ===== Atividades desempenhadas =====
+  const ativBody=q('#ativBody');
+  const addAtividade=q('#addAtividade');
+
+  function atividadeRow(){
+    return `<tr>
+      <td><div class="combo-stack"><select class="atividade-tipo"><option value="">Selecione</option><option>Operação</option><option>Fiscalização</option><option>Patrulhamento</option><option>Apoio</option><option>Unidade de Conservação</option><option>Ação educativa</option><option>Outros</option></select><input class="atividade-outro" placeholder="Outra ação" hidden></div></td>
+      <td><textarea rows="2" placeholder="Local, bairro e município"></textarea></td>
+      <td><textarea rows="2" placeholder="Descreva a atividade desempenhada, resultado e informações relevantes."></textarea></td>
+      <td><input placeholder="Nº da ordem"></td>
+      <td class="no-print"><button type="button" class="remove-row" data-remove-atividade>Excluir</button></td>
+    </tr>`;
+  }
+
+  addAtividade?.addEventListener('click',()=>{
+    ativBody.insertAdjacentHTML('beforeend',atividadeRow());
+    growAll(ativBody.rows[ativBody.rows.length-1]);
+    syncAtividadeCombo(ativBody.rows[ativBody.rows.length-1]);
+  });
+
+  ativBody?.addEventListener('click',e=>{
+    const b=e.target.closest('[data-remove-atividade],[data-remove]');
+    if(!b) return;
+    const tr=b.closest('tr');
+    if(ativBody.rows.length===1){
+      qa('input,textarea',tr).forEach(el=>el.value='');
+      growAll(tr);
+    }else tr.remove();
+  });
+
+  const SUBNATUREZAS={
+    'Fauna':['Cativeiro','Maus-tratos','Caça','Transporte','Comércio','Outros'],
+    'Flora':['Desmatamento','Corte/Supressão','Produto florestal','Outros'],
+    'Poluição':['Sonora','Resíduos','Efluentes','Atmosférica','Outros'],
+    'Mineração':['Extração de areia','Extração mineral','Outros'],
+    'Pesca':['Pesca irregular','Petrechos','Período/local proibido','Outros'],
+    'Recursos Hídricos':['Intervenção em corpo hídrico','Degradação','Outros'],
+    'Unidade de Conservação':['Intervenção irregular','Uso irregular','Outros'],
+    'Queimada/Incêndio':['Queimada','Incêndio em vegetação','Outros'],
+    'Licenciamento Ambiental':['Sem licença','Licença irregular','Outros'],
+    'Outros':['Outros']
+  };
+  function syncAtividadeCombo(row){
+    const sel=row?.querySelector('.atividade-tipo'), other=row?.querySelector('.atividade-outro');
+    if(!sel||!other)return; other.hidden=sel.value!=='Outros'; if(other.hidden)other.value='';
+  }
+  function syncNaturezaCombo(row,preserve=true){
+    const cat=row?.querySelector('.natureza-cat'), sub=row?.querySelector('.natureza-sub'), other=row?.querySelector('.natureza-outro');
+    if(!cat||!sub||!other)return; const prev=preserve?sub.value:'';
+    const opts=SUBNATUREZAS[cat.value]||[]; sub.innerHTML='<option value="">Subnatureza</option>'+opts.map(v=>`<option>${v}</option>`).join('');
+    if(opts.includes(prev))sub.value=prev; other.hidden=cat.value!=='Outros'; if(other.hidden)other.value='';
+  }
+  function guessAtividade(text){
+    const v=String(text||'').toLowerCase();
+    if(v.includes('fiscaliza'))return 'Fiscalização'; if(v.includes('patrulh'))return 'Patrulhamento';
+    if(v.includes('apoio'))return 'Apoio'; if(v.includes('operaç')||v.includes('operac'))return 'Operação';
+    if(v.includes('unidade de conserva')||v.includes(' uc '))return 'Unidade de Conservação';
+    if(v.includes('educa')||v.includes('palestra')||v.includes('orienta'))return 'Ação educativa'; return 'Outros';
+  }
+  function guessNatureza(text){
+    const v=String(text||'').toLowerCase();
+    if(/fauna|animal|ave|pássaro|passaro/.test(v))return 'Fauna'; if(/flora|desmat|madeira|veget/.test(v))return 'Flora';
+    if(/polui|sonor|resíduo|residuo|efluente/.test(v))return 'Poluição'; if(/minera|extração de areia|extracao de areia/.test(v))return 'Mineração';
+    if(/pesca|pescado|petrecho/.test(v))return 'Pesca'; if(/hídr|hidr|rio|açude|acude|nascente/.test(v))return 'Recursos Hídricos';
+    if(/unidade de conserva|parque|reserva/.test(v))return 'Unidade de Conservação'; if(/queimada|incêndio|incendio|fogo/.test(v))return 'Queimada/Incêndio';
+    if(/licença|licenca|licenciamento/.test(v))return 'Licenciamento Ambiental'; return 'Outros';
+  }
+  function upgradeLegacyRows(){
+    $$('#ativBody tr').forEach(row=>{
+      if(row.querySelector('.atividade-tipo'))return;
+      const cell=row.cells?.[0], old=cell?.querySelector('textarea,input')?.value||''; if(!cell)return;
+      cell.innerHTML='<div class="combo-stack"><select class="atividade-tipo"><option value="">Selecione</option><option>Operação</option><option>Fiscalização</option><option>Patrulhamento</option><option>Apoio</option><option>Unidade de Conservação</option><option>Ação educativa</option><option>Outros</option></select><input class="atividade-outro" placeholder="Outra ação" hidden></div>';
+      const type=guessAtividade(old); cell.querySelector('.atividade-tipo').value=type; syncAtividadeCombo(row); if(type==='Outros')cell.querySelector('.atividade-outro').value=old;
+    });
+    $$('#procBody tr').forEach(row=>{
+      if(row.querySelector('.natureza-cat'))return;
+      const natCell=row.cells?.[1], concCell=row.cells?.[2]; if(!natCell||!concCell)return;
+      const oldNat=natCell.querySelector('textarea,input')?.value||'', oldConc=concCell.querySelector('textarea')?.value||'';
+      natCell.innerHTML='<div class="combo-stack"><select class="natureza-cat"><option value="">Natureza</option><option>Fauna</option><option>Flora</option><option>Poluição</option><option>Mineração</option><option>Pesca</option><option>Recursos Hídricos</option><option>Unidade de Conservação</option><option>Queimada/Incêndio</option><option>Licenciamento Ambiental</option><option>Outros</option></select><select class="natureza-sub"><option value="">Subnatureza</option></select><input class="natureza-outro" placeholder="Outra natureza" hidden></div>';
+      const cat=guessNatureza(oldNat); natCell.querySelector('.natureza-cat').value=cat; syncNaturezaCombo(row,false); if(cat==='Outros')natCell.querySelector('.natureza-outro').value=oldNat;
+      concCell.innerHTML='<div class="desfechos"><label><input type="checkbox" value="TCO"> TCO</label><label><input type="checkbox" value="APF"> APF</label><label><input type="checkbox" value="Procedimento administrativo" data-proc-adm> Proc. adm.</label><label><input type="checkbox" value="Apreensão"> Apreensão</label></div><div class="ufr-wrap" hidden><label>UFR-PB aplicadas</label><div class="ufr-field"><input class="ufr-pb" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="0"><span class="ufr-unit">UFR-PB</span></div><small>Informe a quantidade de UFR-PB aplicadas neste procedimento administrativo.</small></div><textarea rows="2" placeholder="Resultado, nº do termo/auto, providências adotadas..."></textarea>';
+      concCell.querySelector('textarea').value=oldConc; const lc=oldConc.toLowerCase();
+      if(/\btco\b/.test(lc))concCell.querySelector('input[value="TCO"]').checked=true; if(/\bapf\b|auto de prisão|auto de prisao|flagrante/.test(lc))concCell.querySelector('input[value="APF"]').checked=true;
+      if(/apreens/.test(lc))concCell.querySelector('input[value="Apreensão"]').checked=true;
+    });
+  }
+  function syncUfrField(row,clearWhenOff=true){
+    if(!row)return;
+    const cb=row.querySelector('input[data-proc-adm], .desfechos input[value="Procedimento administrativo"]');
+    const conclusion=cb?.closest('td');
+    let wrap=row.querySelector('.ufr-wrap');
+    if(!wrap && conclusion){
+      wrap=document.createElement('div');
+      wrap.className='ufr-wrap';
+      wrap.hidden=true;
+      wrap.innerHTML='<label>UFR-PB aplicadas</label><div class="ufr-field"><input class="ufr-pb" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="0" aria-label="Quantidade de UFR-PB aplicadas"><span class="ufr-unit">UFR-PB</span></div><small>Informe a quantidade de UFR-PB aplicadas neste procedimento administrativo.</small>';
+      conclusion.querySelector('.desfechos')?.insertAdjacentElement('afterend',wrap);
+    }
+    const input=row.querySelector('.ufr-pb');
+    if(!wrap)return;
+    const on=!!cb?.checked;
+    wrap.hidden=!on;
+    if(!on && clearWhenOff && input)input.value='';
+  }
+  document.addEventListener('change',e=>{
+    if(e.target.matches('.atividade-tipo'))syncAtividadeCombo(e.target.closest('tr'));
+    if(e.target.matches('.natureza-cat'))syncNaturezaCombo(e.target.closest('tr'),false);
+    if(e.target.matches('input[data-proc-adm], .desfechos input[value="Procedimento administrativo"]'))syncUfrField(e.target.closest('tr'),true);
+  });
+  // ===== Ações ambientais =====
+  const procBody=q('#procBody');
+  const animalBody=q('#animalBody');
+  const addProc=q('#addProc');
+  const addAnimal=q('#addAnimal');
+
+  function procRow(){
+    return `<tr>
+      <td><textarea rows="2" placeholder="VTR/GU e autuante"></textarea></td>
+      <td><div class="combo-stack"><select class="natureza-cat"><option value="">Natureza</option><option>Fauna</option><option>Flora</option><option>Poluição</option><option>Mineração</option><option>Pesca</option><option>Recursos Hídricos</option><option>Unidade de Conservação</option><option>Queimada/Incêndio</option><option>Licenciamento Ambiental</option><option>Outros</option></select><select class="natureza-sub"><option value="">Subnatureza</option></select><input class="natureza-outro" placeholder="Outra natureza" hidden></div></td>
+      <td><div class="desfechos"><label><input type="checkbox" value="TCO"> TCO</label><label><input type="checkbox" value="APF"> APF</label><label><input type="checkbox" value="Procedimento administrativo" data-proc-adm> Proc. adm.</label><label><input type="checkbox" value="Apreensão"> Apreensão</label></div><div class="ufr-wrap" hidden><label>UFR-PB aplicadas</label><div class="ufr-field"><input class="ufr-pb" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="0"><span class="ufr-unit">UFR-PB</span></div><small>Informe a quantidade de UFR-PB aplicadas neste procedimento administrativo.</small></div><textarea rows="2" placeholder="Resultado, nº do termo/auto, providências adotadas..."></textarea></td>
+      <td><textarea rows="2" placeholder="Animais, veículos ou materiais apreendidos"></textarea></td>
+      <td class="no-print" style="text-align:center;vertical-align:middle"><button type="button" class="btn-del" data-del-proc>Excluir</button></td>
+    </tr>`;
+  }
+
+  function animalRow(){
+    return `<tr>
+      <td><input inputmode="numeric" maxlength="5" placeholder="00000"></td>
+      <td><select><option value="">Selecione</option><option>Resgate</option><option>Entrega voluntária</option><option>Apreensão avulsa</option></select></td>
+      <td><textarea rows="2" placeholder="VTR / CMT"></textarea></td>
+      <td><textarea rows="2" placeholder="Local, bairro e município"></textarea></td>
+      <td><textarea rows="2" placeholder="Espécie / nome comum"></textarea></td>
+      <td><input type="number" min="0" max="999" value="0" inputmode="numeric"></td>
+      <td><textarea rows="2" placeholder="CETAS, soltura, outro destino..."></textarea></td>
+      <td class="no-print" style="text-align:center;vertical-align:middle"><button type="button" class="btn-del" data-del-animal>Excluir</button></td>
+    </tr>`;
+  }
+
+  addProc?.addEventListener('click',()=>{
+    procBody.insertAdjacentHTML('beforeend',procRow());
+    growAll(procBody.rows[procBody.rows.length-1]);
+    syncNaturezaCombo(procBody.rows[procBody.rows.length-1],false);
+    syncUfrField(procBody.rows[procBody.rows.length-1],false);
+  });
+
+  addAnimal?.addEventListener('click',()=>{
+    animalBody.insertAdjacentHTML('beforeend',animalRow());
+    growAll(animalBody.rows[animalBody.rows.length-1]);
+  });
+
+  function clearOrRemove(tbody,tr){
+    if(tbody.rows.length===1){
+      qa('input,textarea',tr).forEach(el=>el.value=el.type==='number'?'0':'');
+      qa('select',tr).forEach(el=>el.selectedIndex=0);
+      growAll(tr);
+    }else tr.remove();
+  }
+
+  procBody?.addEventListener('click',e=>{
+    const b=e.target.closest('[data-del-proc]');
+    if(b) clearOrRemove(procBody,b.closest('tr'));
+  });
+
+  animalBody?.addEventListener('click',e=>{
+    const b=e.target.closest('[data-del-animal]');
+    if(b) clearOrRemove(animalBody,b.closest('tr'));
+  });
+
+  // ===== Impressão =====
+  q('#printRelatorioCompleto')?.addEventListener('click',()=>window.BPMA_CPU_PRINT_NOW?.());
+
+  window.addEventListener('resize',()=>growAll());
+
+  window.addEventListener('beforeprint',()=>{
+    qa('textarea').forEach(el=>{
+      el.style.height='1px';
+      el.style.height=(el.scrollHeight+4)+'px';
+      el.style.overflow='visible';
+    });
+  });
+
+  window.addEventListener('afterprint',()=>growAll());
+})();
+</script>
+
+
+
+<script src="../supabase-config.js"></script>
+<script src="../supabase-auth.js"></script>
+<script src="../security.js"></script>
+<script src="../print-helper.js?v=4.0.11"></script>
+<script src="../supabase-cpu.js"></script>
+
+<script id="bpma-cpu-35-integration">
+(async function(){
+  const REPORT_TYPE="CPU";
+  const DYNAMIC_IDS=["recursosBody","ativBody","procBody","animalBody"];
+  const SESSION_KEY='bpma_local_session_v1';
+  function templateKey(userId,type){
+    return `bpma_report_template_v1_${userId}_${type}`;
+  }
+
+  const $=(s,r=document)=>r.querySelector(s);
+  const $$=(s,r=document)=>Array.from(r.querySelectorAll(s));
+  const params=new URLSearchParams(location.search);
+  const autoPrint=params.get('print')==='1';
+  const newMode=params.get('new')==='1';
+  let recordId=params.get('record')||'';
+  const session=JSON.parse(sessionStorage.getItem(SESSION_KEY)||'null');
+
+  let record=null;
+  let saving=false;
+  let pendingSave=false;
+  let saveTimer=null;
+  let userTouched=false;
+  let editingFinalized=false;
+  let revisionPromise=null;
+  let coordinatorSignature='';
+  let signatureContext=null;
+  let signatureDrawing=false;
+  let signatureHasInk=false;
+
+  function controls(){
+    return $$('input:not([type="file"]), select, textarea').filter(el=>!el.closest('.bpma-system-toolbar'));
+  }
+
+  function setCoordinatorSignature(src){
+    coordinatorSignature=typeof src==='string' && src.startsWith('data:image/') ? src : '';
+    const img=$('#cpuCoordinatorSignature');
+    if(img){
+      if(coordinatorSignature)img.src=coordinatorSignature;
+      else img.removeAttribute('src');
+      img.hidden=!coordinatorSignature;
+    }
+    const open=$('#cpuSignOpen');
+    if(open)open.textContent=coordinatorSignature?'✍ Alterar assinatura':'✍ Assinar digitalmente';
+    const remove=$('#cpuSignRemove');
+    if(remove)remove.hidden=!coordinatorSignature;
+  }
+
+  function resetSignatureCanvas(){
+    const canvas=$('#cpuSignatureCanvas');
+    if(!canvas || !signatureContext)return;
+    signatureContext.clearRect(0,0,canvas.width,canvas.height);
+    signatureContext.fillStyle='#fff';
+    signatureContext.fillRect(0,0,canvas.width,canvas.height);
+    signatureDrawing=false;
+    signatureHasInk=false;
+  }
+
+  function fitSignatureCanvas(){
+    const canvas=$('#cpuSignatureCanvas');
+    const rect=canvas?.getBoundingClientRect();
+    if(!rect?.width || !rect.height)return;
+    const scale=window.devicePixelRatio||1;
+    canvas.width=Math.max(1,Math.round(rect.width*scale));
+    canvas.height=Math.max(1,Math.round(rect.height*scale));
+    signatureContext=canvas.getContext('2d');
+    signatureContext.setTransform(scale,0,0,scale,0,0);
+    signatureContext.lineWidth=2.5;
+    signatureContext.lineCap='round';
+    signatureContext.lineJoin='round';
+    signatureContext.strokeStyle='#111';
+    resetSignatureCanvas();
+  }
+
+  function closeSignature(){
+    $('#cpuSignatureModal')?.classList.remove('open');
+    document.body.classList.remove('cpu-signing');
+    signatureDrawing=false;
+  }
+
+  function openSignature(){
+    if(!canEdit() && canRevise())enableFinalEdit();
+    if(!canEdit())return;
+    $('#cpuSignatureModal')?.classList.add('open');
+    document.body.classList.add('cpu-signing');
+    requestAnimationFrame(fitSignatureCanvas);
+  }
+
+  function signaturePoint(event){
+    const r=$('#cpuSignatureCanvas').getBoundingClientRect();
+    return {x:event.clientX-r.left,y:event.clientY-r.top};
+  }
+
+  function optimizedCoordinatorSignature(canvas){
+    const pixels=signatureContext.getImageData(0,0,canvas.width,canvas.height);
+    let minX=canvas.width,minY=canvas.height,maxX=0,maxY=0,found=false;
+    for(let y=0;y<canvas.height;y+=2){
+      for(let x=0;x<canvas.width;x+=2){
+        const i=(y*canvas.width+x)*4;
+        if(pixels.data[i]<238||pixels.data[i+1]<238||pixels.data[i+2]<238){
+          found=true;minX=Math.min(minX,x);minY=Math.min(minY,y);
+          maxX=Math.max(maxX,x);maxY=Math.max(maxY,y);
+        }
+      }
+    }
+    if(!found)return '';
+    const pad=Math.max(12,Math.round((window.devicePixelRatio||1)*8));
+    minX=Math.max(0,minX-pad);minY=Math.max(0,minY-pad);
+    maxX=Math.min(canvas.width,maxX+pad);maxY=Math.min(canvas.height,maxY+pad);
+    const w=Math.max(1,maxX-minX),h=Math.max(1,maxY-minY);
+    const scale=Math.min(1,900/w,260/h);
+    const out=document.createElement('canvas');
+    out.width=Math.max(1,Math.round(w*scale));out.height=Math.max(1,Math.round(h*scale));
+    const ctx=out.getContext('2d');
+    ctx.fillStyle='#fff';ctx.fillRect(0,0,out.width,out.height);
+    ctx.drawImage(canvas,minX,minY,w,h,0,0,out.width,out.height);
+    return out.toDataURL('image/jpeg',.82);
+  }
+
+  function confirmSignature(){
+    const canvas=$('#cpuSignatureCanvas');
+    if(!signatureHasInk || !canvas){closeSignature();return}
+    const src=optimizedCoordinatorSignature(canvas);
+    closeSignature();
+    if(!src)return;
+    setCoordinatorSignature(src);
+    queueSave();
+  }
+
+  $('#cpuSignOpen')?.addEventListener('click',openSignature);
+  $('#cpuSignRemove')?.addEventListener('click',()=>{if(!canEdit())return;setCoordinatorSignature('');queueSave()});
+  $('#cpuSignatureClose')?.addEventListener('click',closeSignature);
+  $('#cpuSignatureRedo')?.addEventListener('click',resetSignatureCanvas);
+  $('#cpuSignatureConfirm')?.addEventListener('click',confirmSignature);
+  $('#cpuSignatureCanvas')?.addEventListener('pointerdown',e=>{
+    if(!signatureContext)return;
+    e.preventDefault();signatureDrawing=true;
+    e.currentTarget.setPointerCapture?.(e.pointerId);
+    const p=signaturePoint(e);
+    signatureContext.beginPath();signatureContext.moveTo(p.x,p.y);
+    signatureContext.lineTo(p.x+.1,p.y+.1);signatureContext.stroke();
+    signatureHasInk=true;
+  });
+  $('#cpuSignatureCanvas')?.addEventListener('pointermove',e=>{
+    if(!signatureDrawing)return;
+    e.preventDefault();const p=signaturePoint(e);
+    signatureContext.lineTo(p.x,p.y);signatureContext.stroke();
+  });
+  ['pointerup','pointercancel','lostpointercapture'].forEach(type=>{
+    $('#cpuSignatureCanvas')?.addEventListener(type,()=>{signatureDrawing=false});
+  });
+
+  function captureState(){
+    const dynamic={};
+    DYNAMIC_IDS.forEach(id=>{
+      const el=document.getElementById(id);
+      if(el) dynamic[id]=el.innerHTML;
+    });
+    const values=controls().map(el=>({
+      tag:el.tagName,
+      type:el.type||'',
+      value:el.value,
+      checked:!!el.checked
+    }));
+    return {dynamic,values,coordinatorSignature};
+  }
+
+  function restoreState(state){
+    if(!state || typeof state!=='object') return true;
+    let compatible=true;
+    const warn=(step,err)=>{
+      compatible=false;
+      console.warn(`CPU: falha de compatibilidade ao restaurar ${step}:`,err);
+    };
+
+    try{
+      const dynamic=state.dynamic && typeof state.dynamic==='object' ? state.dynamic : {};
+      DYNAMIC_IDS.forEach(id=>{
+        const el=document.getElementById(id);
+        if(el && typeof dynamic[id]==='string') el.innerHTML=dynamic[id];
+      });
+    }catch(err){warn('linhas dinâmicas',err)}
+
+    try{
+      const list=controls();
+      const savedValues=Array.isArray(state.values) ? state.values : [];
+      savedValues.forEach((v,i)=>{
+        const el=list[i];
+        if(!el || !v || typeof v!=='object') return;
+        if(el.type==='checkbox' || el.type==='radio') el.checked=!!v.checked;
+        else el.value=v.value ?? '';
+      });
+    }catch(err){warn('campos salvos',err)}
+
+    try{upgradeLegacyRows()}catch(err){warn('estrutura antiga',err)}
+    try{setCoordinatorSignature(state.coordinatorSignature||'')}catch(err){warn('assinatura',err)}
+    try{$$('#ativBody tr').forEach(row=>{try{syncAtividadeCombo(row)}catch(err){warn('atividades',err)}})}catch(err){warn('atividades',err)}
+    try{$$('#procBody tr').forEach(row=>{try{syncNaturezaCombo(row,true);syncUfrField(row,false)}catch(err){warn('ações ambientais',err)}})}catch(err){warn('ações ambientais',err)}
+
+    try{$$('textarea').forEach(el=>el.dispatchEvent(new Event('input',{bubbles:true})))}catch(err){warn('campos de texto',err)}
+    try{$('#recursosBody input')?.dispatchEvent(new Event('input',{bubbles:true}))}catch(err){warn('recursos operacionais',err)}
+
+    // Fotos restauradas: exclusão por delegação.
+    try{
+      const photos=$('#photos');
+      if(photos && !photos.dataset.bpmaRestoreBound){
+        photos.dataset.bpmaRestoreBound='1';
+        photos.addEventListener('click',e=>{
+          const btn=e.target.closest('.photo button');
+          if(!btn) return;
+          btn.closest('.photo')?.remove();
+          $$('.photo',photos).forEach((card,i)=>{
+            const idx=card.querySelector('.photo-index');
+            if(idx) idx.textContent=`Foto ${String(i+1).padStart(2,'0')}`;
+          });
+        });
+      }
+    }catch(err){warn('fotos',err)}
+    return compatible;
+  }
+
+  function canEdit(){
+    if(!session || !record) return false;
+    if(session.role==='gestor') return false;
+    if(record.status==='Finalizado' && !editingFinalized) return false;
+    if(session.role==='admin' || session.role==='p3') return true;
+    const owner=String(record.authorId)===String(session.id);
+    if(!owner) return false;
+    return session.role==='cpu' || session.role==='operacional';
+  }
+
+  function canRevise(){
+    if(!session || record?.status!=='Finalizado' || session.role==='gestor')return false;
+    return session.role==='admin'||session.role==='p3'||String(record.authorId)===String(session.id);
+  }
+
+  function enableFinalEdit(){
+    if(!canRevise())return;
+    editingFinalized=true;
+    document.querySelector('.bpma-readonly-notice')?.remove();
+    $$('[data-bpma-readonly="1"]').forEach(el=>{el.disabled=false;el.readOnly=false;delete el.dataset.bpmaReadonly});
+    updateToolbar();
+  }
+
+  function setReadonly(){
+    if(canEdit()) return;
+    const notice=document.createElement('div');
+    notice.className='bpma-readonly-notice';
+    notice.textContent=record?.status==='Finalizado'
+      ? 'Relatório finalizado — aberto somente para visualização.'
+      : 'Seu perfil possui acesso somente para visualização deste relatório.';
+    document.body.prepend(notice);
+
+    controls().forEach(el=>{
+      if(!el.disabled)el.dataset.bpmaReadonly='1';
+      el.disabled=true;
+      el.readOnly=true;
+    });
+    $$('button').forEach(b=>{
+      if(!b.closest('.bpma-system-toolbar') && b.id!=='printRelatorioCompleto' && b.id!=='bpmaFinalize'){
+        if(b.id==='cpuSignOpen' && canRevise())return;
+        if(!b.disabled)b.dataset.bpmaReadonly='1';
+        b.disabled=true;
+      }
+    });
+  }
+
+  function deriveTitle(){
+    if(REPORT_TYPE==='RFA'){
+      const entered=$('[name="numeroRelatorio"]')?.value?.trim();
+      return entered || record?.numero || 'RFA';
+    }
+    if(REPORT_TYPE==='CPU'){
+      const id=$('[name="identificacaoServico"]')?.value?.trim();
+      return id || record?.numero || 'CPU';
+    }
+    return record?.numero || REPORT_TYPE;
+  }
+
+
+  function numValue(el){
+    if(!el) return 0;
+    const raw=String(el.value??'').replace(',','.');
+    const m=raw.match(/-?\d+(?:\.\d+)?/);
+    return m ? Math.max(0,Number(m[0])||0) : 0;
+  }
+
+  function countFilledLines(text){
+    const t=String(text||'').trim();
+    if(!t) return 0;
+    const lines=t.split(/\n+/).map(x=>x.trim()).filter(Boolean);
+    return Math.max(1,lines.length);
+  }
+
+  function rowHasContent(row){
+    return $$('input,textarea,select',row).some(el=>{
+      if(el.type==='checkbox' || el.type==='radio') return !!el.checked;
+      if(el.tagName==='SELECT') return !!String(el.value||'').trim();
+      if(el.type==='number') return numValue(el)>0;
+      return !!String(el.value||'').trim();
+    });
+  }
+
+  function parseDrug(text){
+    const s=String(text||'').toLowerCase().replace(',','.');
+    let units=0,grams=0;
+
+    const gm=s.match(/(\d+(?:\.\d+)?)\s*(?:g|grama|gramas)\b/);
+    if(gm) grams=Number(gm[1])||0;
+
+    const um=s.match(/(\d+(?:\.\d+)?)\s*(?:unid|unidade|unidades)\b/);
+    if(um) units=Number(um[1])||0;
+
+    if(!gm && !um){
+      const first=s.match(/\d+(?:\.\d+)?/);
+      if(first) units=Number(first[0])||0;
+    }
+    return {units,grams};
+  }
+
+  function extractCPUStats(){
+    const stats={
+      version:3,
+      dataServico:$('[name="inicioData"]')?.value || String(record?.updatedAt||'').slice(0,10),
+      recursos:{
+        vtrEquipes:0,efetivoDia:0,ordinarioDia:0,porDia:0,
+        efetivoNoite:0,ordinarioNoite:0,porNoite:0
+      },
+      alteracoes:{faltas:0,permutas:0,atestados:0,dispensas:0},
+      atividades:{total:0,operacoes:0,fiscalizacoes:0,patrulhamentos:0,apoios:0,uc:0,educativas:0,outros:0},
+      ordemPublica:{
+        adultoFlagrante:0,adultoMandado:0,menorFlagrante:0,menorApreensao:0,
+        tcoAdultoFlagrante:0,tcoAdultoMandado:0,tcoMenorFlagrante:0,tcoMenorApreensao:0,
+        armasFogo:0,municoes:0,armasBrancas:0,drogasUnidades:0,drogasGramas:0,
+        veiculosApreendidos:0,veiculosRecuperados:0,
+        objetosApreendidos:0,objetosRecuperados:0
+      },
+      ambientais:{
+        procedimentos:0,tco:0,apf:0,procAdm:0,ufrPb:0,semProcedimento:0,
+        natureza:{fauna:0,flora:0,poluicao:0,mineracao:0,pesca:0,recursosHidricos:0,uc:0,queimadaIncendio:0,licenciamento:0,outros:0},
+        animaisTotal:0,
+        resgateQtd:0,entregaQtd:0,apreensaoQtd:0,
+        resgateRegistros:0,entregaRegistros:0,apreensaoRegistros:0
+      },
+      complementares:{tat:0,descompressoes:0}
+    };
+
+    // 1. Recursos operacionais
+    $$('#recursosBody tr').forEach(row=>{
+      const fields=$$('input,textarea',row);
+      if(rowHasContent(row)) stats.recursos.vtrEquipes++;
+
+      stats.recursos.efetivoDia += countFilledLines(fields[1]?.value);
+      stats.recursos.ordinarioDia += numValue(fields[2]);
+      stats.recursos.porDia += numValue(fields[3]);
+      stats.recursos.efetivoNoite += countFilledLines(fields[4]?.value);
+      stats.recursos.ordinarioNoite += numValue(fields[5]);
+      stats.recursos.porNoite += numValue(fields[6]);
+    });
+
+    // 2. Alterações administrativas
+    const altRows=$$('#tblAlteracoes tbody tr');
+    stats.alteracoes.faltas=numValue(altRows[0]?.querySelector('input'));
+    stats.alteracoes.permutas=numValue(altRows[1]?.querySelector('input'));
+    stats.alteracoes.atestados=numValue(altRows[2]?.querySelector('input'));
+    stats.alteracoes.dispensas=numValue(altRows[3]?.querySelector('input'));
+
+    // 3. Atividades desempenhadas — classificação direta pelos filtros combinados.
+    $$('#ativBody tr').filter(rowHasContent).forEach(row=>{
+      stats.atividades.total++;
+      const tipo=row.querySelector('.atividade-tipo')?.value||'';
+      const map={'Operação':'operacoes','Fiscalização':'fiscalizacoes','Patrulhamento':'patrulhamentos','Apoio':'apoios','Unidade de Conservação':'uc','Ação educativa':'educativas'};
+      stats.atividades[map[tipo]||'outros']++;
+    });
+
+    // 4A. Prisões / apreensões e TCO
+    const prisaoRows=$$('#tblPrisoesPreview tbody tr');
+    const prisaoMetrics=prisaoRows.map(row=>$$('input[type="number"]',row).map(numValue));
+    stats.ordemPublica.adultoFlagrante=prisaoMetrics[0]?.[0]||0;
+    stats.ordemPublica.tcoAdultoFlagrante=prisaoMetrics[0]?.[1]||0;
+    stats.ordemPublica.adultoMandado=prisaoMetrics[1]?.[0]||0;
+    stats.ordemPublica.tcoAdultoMandado=prisaoMetrics[1]?.[1]||0;
+    stats.ordemPublica.menorFlagrante=prisaoMetrics[2]?.[0]||0;
+    stats.ordemPublica.tcoMenorFlagrante=prisaoMetrics[2]?.[1]||0;
+    stats.ordemPublica.menorApreensao=prisaoMetrics[3]?.[0]||0;
+    stats.ordemPublica.tcoMenorApreensao=prisaoMetrics[3]?.[1]||0;
+
+    // 4B. Armas, munições, arma branca e drogas
+    const objRows=$$('#tblObjetosPreview tbody tr');
+    stats.ordemPublica.armasFogo=numValue(objRows[0]?.querySelector('input'));
+    stats.ordemPublica.municoes=numValue(objRows[1]?.querySelector('input'));
+    stats.ordemPublica.armasBrancas=numValue(objRows[2]?.querySelector('input'));
+    const drug=parseDrug(objRows[3]?.querySelector('input')?.value);
+    stats.ordemPublica.drogasUnidades=drug.units;
+    stats.ordemPublica.drogasGramas=drug.grams;
+
+    // 4C. Veículos e objetos: o formulário é descritivo, então contamos registros preenchidos.
+    const voRows=$$('#tblVeiculosObjetosPreview tbody tr');
+    const veicText=$$('textarea',voRows[0]||document.createElement('tr'));
+    const objText=$$('textarea',voRows[1]||document.createElement('tr'));
+    stats.ordemPublica.veiculosApreendidos=veicText[0]?.value.trim()?1:0;
+    stats.ordemPublica.veiculosRecuperados=veicText[1]?.value.trim()?1:0;
+    stats.ordemPublica.objetosApreendidos=objText[0]?.value.trim()?1:0;
+    stats.ordemPublica.objetosRecuperados=objText[1]?.value.trim()?1:0;
+
+    // 5A. Procedimentos ambientais — natureza e desfechos estruturados.
+    $$('#procBody tr').filter(rowHasContent).forEach(row=>{
+      stats.ambientais.procedimentos++;
+      const cat=row.querySelector('.natureza-cat')?.value||'';
+      const map={'Fauna':'fauna','Flora':'flora','Poluição':'poluicao','Mineração':'mineracao','Pesca':'pesca','Recursos Hídricos':'recursosHidricos','Unidade de Conservação':'uc','Queimada/Incêndio':'queimadaIncendio','Licenciamento Ambiental':'licenciamento'};
+      stats.ambientais.natureza[map[cat]||'outros']++;
+      const outcomes=[...row.querySelectorAll('.desfechos input:checked')].map(x=>x.value);
+      if(outcomes.includes('TCO'))stats.ambientais.tco++;
+      if(outcomes.includes('APF'))stats.ambientais.apf++;
+      if(outcomes.includes('Procedimento administrativo')){
+        stats.ambientais.procAdm++;
+        stats.ambientais.ufrPb += numValue(row.querySelector('.ufr-pb'));
+      }
+      if(!outcomes.includes('TCO')&&!outcomes.includes('APF')&&!outcomes.includes('Procedimento administrativo'))stats.ambientais.semProcedimento++;
+    });
+
+    // 5B. Animais por origem e quantidade
+    $$('#animalBody tr').forEach(row=>{
+      const origem=row.querySelector('select')?.value||'';
+      const qtd=numValue(row.querySelector('input[type="number"]'));
+      if(!rowHasContent(row)) return;
+
+      stats.ambientais.animaisTotal+=qtd;
+
+      if(origem==='Resgate'){
+        stats.ambientais.resgateQtd+=qtd;
+        stats.ambientais.resgateRegistros++;
+      }else if(origem==='Entrega voluntária'){
+        stats.ambientais.entregaQtd+=qtd;
+        stats.ambientais.entregaRegistros++;
+      }else if(origem==='Apreensão avulsa'){
+        stats.ambientais.apreensaoQtd+=qtd;
+        stats.ambientais.apreensaoRegistros++;
+      }
+    });
+
+    // 6. Informações complementares
+    stats.complementares.tat=$('[name="tat"]')?.value.trim()?1:0;
+    stats.complementares.descompressoes=$('[name="descompressoes"]')?.value.trim()?1:0;
+
+    return stats;
+  }
+
+  function loadNewTemplate(){
+    try{
+      const template=JSON.parse(localStorage.getItem(templateKey(session.id,'CPU'))||'null');
+      if(template)delete template.coordinatorSignature;
+      return template;
+    }catch{return null}
+  }
+
+  function makeUnsavedRecord(){
+    const tpl=null; // Novo CPU sempre nasce limpo; reaproveitamento só por “Usar como modelo”.
+    return {
+      id:null,tipo:'CPU',numero:'Novo relatório',unidade:session?.unit||'',authorId:session?.id,
+      autor:session?.name||session?.user||'Usuário',status:'Rascunho',state:tpl,stats:null,dados:{state:tpl},
+      prefilledFromTemplate:!!tpl,unsavedNew:true
+    };
+  }
+
+  function setRecordUrl(){
+    if(!record?.id)return;
+    recordId=record.id;
+    const url=new URL(location.href);
+    url.searchParams.delete('new');
+    url.searchParams.delete('force');
+    url.searchParams.set('record',record.id);
+    history.replaceState(null,'',url.pathname+url.search+url.hash);
+  }
+
+  async function ensureRecord(initialState){
+    if(record?.id)return record;
+    record=await window.BPMA_CPU.create(session,initialState||captureState());
+    record.unsavedNew=false;
+    record.prefilledFromTemplate=false;
+    setRecordUrl();
+    updateToolbar();
+    return record;
+  }
+
+  async function persist(status,showMessage=true,force=false,stayOpen=false){
+    if(!record){
+      alert('Registro do sistema não encontrado.');
+      return false;
+    }
+    if(!canEdit()){
+      alert('Este relatório está somente para visualização.');
+      return false;
+    }
+    if(!record.id && !userTouched && !force && status!=='Finalizado'){
+      if(showMessage) alert('Nenhum campo foi preenchido. Nenhum rascunho foi criado.');
+      return true;
+    }
+    if(saving){
+      pendingSave=true;
+      return false;
+    }
+
+    saving=true;
+    try{
+      const state=captureState();
+      const stats=extractCPUStats();
+      if(record?.dados?.serviceIdentity?.dataServico && stats.dataServico!==record.dados.serviceIdentity.dataServico){
+        alert(`A data-base deste serviço é ${record.dados.serviceIdentity.dataServico}. Para outro dia, use “Usar como modelo” e crie um novo relatório.`);
+        const dataEl=$('[name="inicioData"]'); if(dataEl)dataEl.value=record.dados.serviceIdentity.dataServico;
+        return false;
+      }
+      if(!record.id) await ensureRecord(state);
+      const numero=deriveTitle();
+
+      record = status==='Finalizado'
+        ? await window.BPMA_CPU.finalize(record,state,stats,numero)
+        : await window.BPMA_CPU.saveState(record,state,stats,numero);
+
+      if(status==='Finalizado'){
+        editingFinalized=false;
+        userTouched=false;
+        const template=JSON.parse(JSON.stringify(state||{}));
+        delete template.coordinatorSignature;
+        localStorage.setItem(templateKey(record.authorId,'CPU'),JSON.stringify(template));
+
+        let pdfArchived=false;
+        let pdfArchiveError=null;
+        try{
+          const safeNumero=String(record?.numero||'CPU').replace(/[^a-zA-Z0-9_-]+/g,'_');
+          const filename=`CPU_${safeNumero}_v${record?.dados?.version?.number||1}.pdf`;
+          const blob=await window.BPMA_PRINT?.generateMobilePdf?.({
+            selector:'main.wrap',
+            filename,
+            silent:true,
+            returnBlob:true,
+            prepare:()=>{
+              window.BPMA_CPU_SYNC_PRINT_VALUES?.();
+              window.BPMA_CPU_buildPrintMirrors?.();
+            }
+          });
+          if(blob instanceof Blob){
+            record=await window.BPMA_CPU.archivePdf(record,blob,filename);
+            pdfArchived=true;
+          }
+        }catch(err){
+          pdfArchiveError=err;
+          console.warn('CPU finalizado, mas o PDF temporário não pôde ser arquivado:',err);
+        }
+
+        if(stayOpen){
+          updateToolbar();
+          setReadonly();
+          return true;
+        }
+        if(showMessage){
+          if(pdfArchived){
+            alert('Relatório CPU finalizado. Dados e estatísticas salvos no Supabase e PDF arquivado por 365 dias.');
+          }else{
+            alert('Relatório CPU finalizado e dados salvos no Supabase. O PDF temporário não pôde ser arquivado agora; use 📄 Gerar PDF para guardar uma cópia.'+(pdfArchiveError?'':' '));
+          }
+        }
+        location.replace('../index.html#cpu');
+        return true;
+      }
+
+      updateToolbar();
+      if(showMessage) alert('Rascunho salvo no Supabase.');
+      return true;
+    }catch(err){
+      if(showMessage) alert(window.BPMA_CPU.friendlyError(err));
+      else console.warn('Falha no autosave do CPU:',err);
+      return false;
+    }finally{
+      saving=false;
+      if(pendingSave && status!=='Finalizado'){
+        pendingSave=false;
+        setTimeout(()=>persist(record?.status==='Reaberto'?'Reaberto':'Rascunho',false),80);
+      }else pendingSave=false;
+    }
+  }
+  function queueSave(){
+    if(!canEdit())return;
+    userTouched=true;
+    if(record?.status==='Finalizado'){
+      void beginRevision().then(ok=>{if(ok)queueSave()});
+      return;
+    }
+    clearTimeout(saveTimer);
+    saveTimer=setTimeout(()=>persist(record?.status==='Reaberto'?'Reaberto':'Rascunho',false),1200);
+  }
+
+  async function beginRevision(){
+    if(record?.status!=='Finalizado')return true;
+    if(!editingFinalized)return false;
+    if(!revisionPromise){
+      revisionPromise=window.BPMA_CPU.startRevision(record.id)
+        .then(updated=>{record=updated;updateToolbar();return true})
+        .catch(err=>{alert(window.BPMA_CPU.friendlyError(err));return false})
+        .finally(()=>{revisionPromise=null});
+    }
+    return revisionPromise;
+  }
+
+  async function clearCurrentReport(){
+    if(!canEdit()){
+      alert('Este relatório está somente para visualização.');
+      return;
+    }
+    if(!confirm('Limpar todos os campos deste relatório atual?')) return;
+
+    clearTimeout(saveTimer);
+    if(record?.status==='Finalizado' && !(await beginRevision()))return;
+
+    controls().forEach(el=>{
+      if(el.type==='checkbox'||el.type==='radio') el.checked=false;
+      else if(el.tagName==='SELECT') el.selectedIndex=0;
+      else el.value='';
+      if(el.tagName==='TEXTAREA') el.dispatchEvent(new Event('input',{bubbles:true}));
+    });
+    setCoordinatorSignature('');
+
+    try{
+      if(!record.id){
+        userTouched=false;
+        updateToolbar();
+        alert('Campos limpos. Nenhum rascunho foi criado.');
+        return;
+      }
+      const state=captureState();
+      const stats=extractCPUStats();
+      record=await window.BPMA_CPU.clear(record.id,state,stats);
+      updateToolbar();
+      alert('Campos limpos. O modelo pessoal salvo não foi apagado.');
+    }catch(err){
+      alert(window.BPMA_CPU.friendlyError(err));
+    }
+  }
+
+  function updateToolbar(){
+    const title=$('#bpmaRecordTitle');
+    const sub=$('#bpmaRecordSub');
+    if(title){
+      const isTest=!!record?.dados?.meta?.testMode;
+      const prefix=isTest?'CPU TESTE':'CPU';
+      title.textContent=record?.id ? `${prefix} · ${record?.numero||'CPU'}` : `${prefix} · Novo relatório`;
+    }
+    if(sub) sub.textContent=record?.id
+      ? `${record?.status||'Rascunho'}${record?.dados?.version?.number?` · v${record.dados.version.number}`:''} · ${record?.unidade||''} · ${record?.autor||''}`
+      : `Não salvo · o rascunho será criado após o primeiro preenchimento · ${record?.unidade||''}`;
+    const fin=$('#bpmaFinalize');
+    const clear=$('#bpmaClear');
+    if(fin){ fin.disabled=!(canEdit() || record?.status==='Finalizado'); fin.textContent=record?.status==='Finalizado'?'📄 Gerar PDF novamente':'📄 Finalizar e gerar PDF'; }
+    if(clear) clear.disabled=!canEdit();
+    const edit=$('#bpmaEdit');
+    if(edit) edit.hidden=!canRevise() || editingFinalized;
+  }
+
+
+  async function leaveReport(target){
+    if(leaveReport.busy)return;
+    leaveReport.busy=true;
+    clearTimeout(saveTimer);
+    if(revisionPromise && !(await revisionPromise)){leaveReport.busy=false;return}
+    if(record?.status==='Finalizado' && editingFinalized && userTouched && !(await beginRevision())){
+      leaveReport.busy=false;return;
+    }
+    const back=$('#bpmaBack');
+    if(back){back.disabled=true;back.textContent='Salvando...'}
+    let result=true;
+    try{
+      if(record?.status!=='Finalizado' && canEdit() && (record?.id || userTouched)){
+        result=await Promise.race([
+          persist(record?.status==='Reaberto'?'Reaberto':'Rascunho',false),
+          new Promise(resolve=>setTimeout(()=>resolve(null),4000))
+        ]);
+      }
+    }catch(err){console.warn('Saída do CPU:',err);result=false}
+    if(result===false || result===null){
+      const sair=confirm('Não foi possível confirmar o salvamento agora. Deseja sair mesmo assim?');
+      if(!sair){
+        leaveReport.busy=false;
+        if(back){back.disabled=false;back.textContent='← Voltar'}
+        return;
+      }
+    }
+    window.BPMA_SECURITY?.stop?.();
+    location.replace(target);
+  }
+
+  window.BPMA_CPU_PRINT_NOW=async()=>{
+    const btn=$('#bpmaFinalize');
+    if(btn)btn.disabled=true;
+    try{
+      if(revisionPromise && !(await revisionPromise))return;
+      if(record?.status==='Finalizado' && editingFinalized && userTouched && !(await beginRevision()))return;
+      if(record?.status!=='Finalizado'){
+        alert('Relatório ainda não finalizado. Para gerar o PDF oficial, finalize o Relatório de Serviço CPU primeiro.');
+        return;
+      }
+      window.BPMA_CPU_SYNC_PRINT_VALUES?.();
+      const filename=`CPU_${String(record?.numero||'BPMA').replace(/[^a-zA-Z0-9_-]+/g,'_')}_v${record?.dados?.version?.number||1}.pdf`;
+      if(window.BPMA_PRINT?.generateMobilePdf){
+        const generated=await window.BPMA_PRINT.generateMobilePdf({
+          selector:'main.wrap',filename,
+          prepare:()=>{
+            window.BPMA_CPU_SYNC_PRINT_VALUES?.();
+            window.BPMA_CPU_buildPrintMirrors?.();
+          }
+        });
+        if(generated===false) throw new Error('Não foi possível gerar o PDF A4.');
+      }else if(window.BPMA_PRINT?.printCurrent){
+        window.BPMA_PRINT.printCurrent({
+          selector:'main.wrap',filename,
+          prepare:()=>{
+            window.BPMA_CPU_SYNC_PRINT_VALUES?.();
+            window.BPMA_CPU_buildPrintMirrors?.();
+          }
+        });
+      }else window.print();
+    }catch(err){
+      console.error('Impressão CPU:',err);
+      alert(window.BPMA_CPU?.friendlyError?.(err)||'Não foi possível preparar o PDF A4.');
+    }finally{if(btn)btn.disabled=false}
+  };
+
+  function buildToolbar(){
+    // A barra já existe no HTML para não desaparecer caso o carregamento do CPU demore.
+    // Mantemos criação dinâmica apenas como fallback para versões antigas/cache do PWA.
+    let bar=document.getElementById('bpmaSystemToolbar') || document.querySelector('.bpma-system-toolbar');
+    if(!bar){
+      bar=document.createElement('div');
+      bar.id='bpmaSystemToolbar';
+      bar.className='bpma-system-toolbar no-print';
+      bar.innerHTML=`
+        <div class="bpma-meta"><b id="bpmaRecordTitle">CPU · Relatório</b><small id="bpmaRecordSub"></small></div>
+        <div class="bpma-actions">
+          <button type="button" id="bpmaBack">← Voltar</button>
+          <button type="button" id="bpmaEdit" hidden>✏️ Corrigir relatório</button>
+          <button type="button" id="bpmaClear">Limpar</button>
+
+        </div>`;
+      document.body.appendChild(bar);
+    }
+
+    const back=$('#bpmaBack');
+    if(back){back.dataset.bound='1';back.onclick=()=>leaveReport('../index.html#cpu')}
+    $('#bpmaEdit').onclick=enableFinalEdit;
+    $('#bpmaClear').onclick=clearCurrentReport;
+    $('#bpmaFinalize').onclick=async()=>{
+      const fin=$('#bpmaFinalize');
+      if(!fin || fin.dataset.busy==='1')return;
+      if(record?.status==='Finalizado'){
+        await window.BPMA_CPU_PRINT_NOW?.();
+        return;
+      }
+      if(!canEdit()){
+        alert('Este relatório não está disponível para edição com este usuário.');
+        return;
+      }
+      if(!confirm('Finalizar este Relatório CPU e gerar o PDF?')) return;
+      fin.dataset.busy='1';
+      fin.disabled=true;
+      const originalText=fin.textContent;
+      fin.textContent='Finalizando…';
+      try{
+        clearTimeout(saveTimer);
+        if(revisionPromise && !(await revisionPromise)) throw new Error('Não foi possível preparar o relatório para finalização.');
+        for(let i=0;saving && i<160;i++) await new Promise(resolve=>setTimeout(resolve,50));
+        if(saving) throw new Error('O salvamento automático ainda está em andamento. Aguarde alguns segundos e tente novamente.');
+        pendingSave=false;
+        const ok=await persist('Finalizado',true,true,true);
+        if(!ok) throw new Error('A finalização não foi confirmada. Revise os dados e tente novamente.');
+
+        // Confirma no Supabase antes de abrir o PDF. Isso corrige rascunhos reabertos por “Continuar”.
+        const confirmed=record?.id ? await window.BPMA_CPU.get(record.id) : null;
+        if(!confirmed || confirmed.status!=='Finalizado'){
+          throw new Error('O Supabase não confirmou a finalização deste relatório. O PDF não foi gerado.');
+        }
+        record=confirmed;
+        editingFinalized=false;
+        updateToolbar();
+        setReadonly();
+        await window.BPMA_CPU_PRINT_NOW?.();
+      }catch(err){
+        console.error('Finalização CPU:',err);
+        alert(window.BPMA_CPU?.friendlyError?.(err)||err.message||'Não foi possível finalizar e gerar o PDF.');
+      }finally{
+        fin.dataset.busy='0';
+        fin.textContent=originalText;
+        updateToolbar();
+      }
+    };
+  }
+
+  function updateTestDocumentMark(){
+    const isTest=!!record?.dados?.meta?.testMode;
+    let mark=document.getElementById('bpmaTestDocumentMark');
+    if(isTest && !mark){
+      mark=document.createElement('div');
+      mark.id='bpmaTestDocumentMark';
+      mark.textContent='DOCUMENTO DE TESTE';
+      mark.style.cssText='text-align:center;font-weight:900;border:1.5px solid #111;padding:5px;margin:0 0 8px;font-size:10pt;letter-spacing:.4px';
+      const main=document.querySelector('main.wrap')||document.querySelector('main')||document.body;
+      main.insertBefore(mark,main.firstChild);
+    }else if(!isTest && mark){ mark.remove(); }
+  }
+
+  if(!session || session.auth!=='supabase'){
+    alert('Faça login no BPMA Digital antes de abrir o Relatório CPU.');
+    location.replace('../index.html');
+    return;
+  }
+
+  try{
+    const auth=await window.BPMA_AUTH.restore();
+    if(!auth) throw new Error('Sessão expirada.');
+    window.BPMA_SECURITY?.start?.({minutes:30,redirect:'../index.html?reason=inactivity'});
+    record=newMode ? makeUnsavedRecord() : await window.BPMA_CPU.get(recordId);
+    updateTestDocumentMark();
+  }catch(err){
+    alert(window.BPMA_CPU?.friendlyError?.(err)||err.message||'Não foi possível abrir o Relatório CPU.');
+    location.replace('../index.html#cpu');
+    return;
+  }
+
+  if(!record || record.tipo!=='CPU'){
+    alert('Relatório CPU não encontrado ou sem permissão de acesso.');
+    location.replace('../index.html#cpu');
+    return;
+  }
+
+  // Vincula as ações antes de restaurar o rascunho. Assim um dado antigo/incompatível
+  // nunca deixa o botão “Finalizar e gerar PDF” sem função.
+  buildToolbar();
+  updateToolbar();
+  let restoreCompatible=true;
+  try{
+    restoreCompatible=restoreState(record.state);
+  }catch(err){
+    restoreCompatible=false;
+    console.error('CPU: falha inesperada ao restaurar o rascunho:',err);
+  }
+  if(!restoreCompatible){
+    console.warn('CPU: rascunho antigo carregado com ajustes de compatibilidade. Revise os campos antes de finalizar.');
+  }
+
+  // “Usar como modelo” cria um NOVO relatório, nunca altera a identidade do serviço anterior.
+  const modelId=params.get('model');
+  if(newMode && modelId){
+    try{
+      const source=await window.BPMA_CPU.get(modelId);
+      if(source?.state){
+        restoreState(JSON.parse(JSON.stringify(source.state)));
+        const ini=$('[name="inicioData"]'), fim=$('[name="terminoData"]');
+        if(ini)ini.value=''; if(fim)fim.value='';
+        setCoordinatorSignature('');
+        record.state=captureState(); record.dados.state=record.state; record.prefilledFromTemplate=true;
+      }
+    }catch(err){console.warn('Modelo CPU não carregado:',err)}
+  }
+
+  if(record.id && record.prefilledFromTemplate){
+    record.prefilledFromTemplate=false;
+    try{
+      record=await window.BPMA_CPU.saveState(
+        record,
+        captureState(),
+        extractCPUStats(),
+        deriveTitle()
+      );
+    }catch(err){
+      console.warn('Não foi possível confirmar o modelo inicial:',err);
+    }
+  }
+
+  if(record.id && (!record.stats || !record.stats.version)){
+    try{
+      record=await window.BPMA_CPU.saveState(
+        record,
+        captureState(),
+        extractCPUStats(),
+        deriveTitle()
+      );
+    }catch(err){
+      console.warn('Não foi possível gerar resumo estatístico inicial:',err);
+    }
+  }
+
+  buildToolbar();
+  updateToolbar();
+  setReadonly();
+
+  document.addEventListener('input',e=>{
+    if(e.target.matches('input,textarea,select')) queueSave();
+  },true);
+  document.addEventListener('change',e=>{
+    if(e.target.matches('input,textarea,select')) queueSave();
+  },true);
+  document.addEventListener('click',e=>{
+    if(e.target.closest('#addEquipe,#addProc,#addAnimal,#addAtividade,[data-del-proc],[data-del-animal]'))queueSave();
+  });
+
+  if(autoPrint && record.status==='Finalizado'){
+    if(window.BPMA_CPU_SYNC_PRINT_VALUES) window.BPMA_CPU_SYNC_PRINT_VALUES();
+    window.BPMA_PRINT?.installManualPrintBar?.();
+  }
+})();
+</script>
+
+
+<script id="bpma-cpu-print-mirror-2113">
+(function(){
+  function removePrintMirrors(){
+    document.querySelectorAll('.bpma-print-value').forEach(el=>el.remove());
+    document.querySelectorAll('.bpma-print-source').forEach(el=>el.classList.remove('bpma-print-source'));
+  }
+
+  function controlText(el){
+    if(el.tagName==='SELECT'){
+      const opt=el.options?.[el.selectedIndex];
+      return opt ? (opt.textContent||'').trim() : '';
+    }
+    if(el.type==='checkbox' || el.type==='radio'){
+      return el.checked ? '✓' : '';
+    }
+    return String(el.value??'');
+  }
+
+  function buildPrintMirrors(){
+    removePrintMirrors();
+
+    const controls=[...document.querySelectorAll(
+      '.wrap input:not([type="file"]):not([type="hidden"]), .wrap select, .wrap textarea'
+    )].filter(el=>!el.closest('.no-print') && !el.closest('.bpma-system-toolbar'));
+
+    controls.forEach(el=>{
+      const mirror=document.createElement('div');
+      mirror.className='bpma-print-value';
+
+      const txt=controlText(el);
+      if(!txt.trim()) mirror.classList.add('is-empty');
+      mirror.textContent=txt || '\u00A0';
+
+      el.classList.add('bpma-print-source');
+      el.insertAdjacentElement('afterend',mirror);
+    });
+  }
+
+  window.BPMA_CPU_buildPrintMirrors=buildPrintMirrors;
+
+  window.addEventListener('beforeprint',buildPrintMirrors);
+
+  window.addEventListener('afterprint',()=>{
+    removePrintMirrors();
+  });
+})();
+</script>
+
+
+<script id="bpma-cpu-mobile-cards-js-v4012">
+(function(){
+  function enhanceMobileTables(){
+    document.querySelectorAll('.table-wrap table, .amb-box table').forEach(function(table){
+      table.classList.add('mobile-card-table');
+      var headers=Array.from(table.querySelectorAll('thead th')).map(function(th){return (th.textContent||'').trim();});
+      table.querySelectorAll('tbody tr').forEach(function(row){
+        Array.from(row.children).forEach(function(cell,i){
+          if(cell.tagName==='TD' && !cell.hasAttribute('data-label')) cell.setAttribute('data-label',headers[i]||'');
+        });
+      });
+    });
+  }
+  function sanitizeUfr(target){
+    if(!target || !target.classList || !target.classList.contains('ufr-pb')) return;
+    target.value=String(target.value||'').replace(/\D/g,'').slice(0,6);
+  }
+  document.addEventListener('input',function(e){sanitizeUfr(e.target)});
+  document.addEventListener('DOMContentLoaded',enhanceMobileTables);
+  new MutationObserver(enhanceMobileTables).observe(document.documentElement,{childList:true,subtree:true});
+})();
+</script>
+
+<script id="bpma-cpu-mobile-js-v4014">
+(function(){
+  function setup(){
+    var t=document.getElementById('tblPrisoesPreview');
+    if(t){
+      var labels=['Categoria','Tipo de prisão','Qtd. prisões / apreensões','Qtd. TCO digital lavrado','Conclusão'];
+      var category='';
+      t.querySelectorAll('tbody tr').forEach(function(row){
+        var cells=Array.from(row.children).filter(function(n){return n.tagName==='TD';});
+        if(cells[0] && cells[0].classList.contains('cat')) category=(cells[0].textContent||'').trim();
+        cells.forEach(function(cell){
+          var idx=Array.from(row.children).indexOf(cell);
+          cell.setAttribute('data-label', labels[Math.min(idx,4)]||'');
+          if(category) cell.setAttribute('data-category',category);
+        });
+      });
+    }
+  }
+  function capTwoDigits(el){
+    if(!el || !el.matches || !el.matches('#tblPrisoesPreview input[type="number"]')) return;
+    var n=String(el.value||'').replace(/\D/g,'').slice(0,2);
+    el.value=n===''?'':String(Math.min(99,Number(n)));
+  }
+  document.addEventListener('input',function(e){capTwoDigits(e.target)});
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',setup,{once:true}); else setup();
+})();
+</script>
+
+</body>
+</html>

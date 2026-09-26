@@ -1,0 +1,35 @@
+@media screen and (max-width:900px){
+ #view-bo .main{padding:0 12px calc(94px + env(safe-area-inset-bottom))!important}
+ #view-bo .sheet{min-width:0;padding:0!important;border:0!important;overflow:visible!important}
+ #view-bo .print-area{min-width:0!important;width:100%!important}
+ #view-bo input:not([type=checkbox]):not([type=radio]),#view-bo select,#view-bo textarea{font-size:16px!important;min-width:0;max-width:100%;min-height:46px;padding:10px!important;line-height:1.45!important}
+ #view-bo .lbl{font-size:12px!important;line-height:1.4!important}
+ #view-bo .form td,#view-bo .form th{min-width:0;overflow-wrap:anywhere}
+ #view-bo .checks label{white-space:normal}
+ #view-bo .bo-mobile-tools{position:relative;top:auto;margin:0 0 12px;padding:10px 0;box-shadow:none}
+ #view-bo .bo-mobile-status{align-items:flex-start}
+ #view-bo .bo-step-nav button{min-height:44px}
+ #view-bo .toolbar{display:grid!important;grid-template-columns:1fr 1fr!important;gap:10px;padding:10px 12px calc(10px + env(safe-area-inset-bottom))!important}
+ #view-bo .toolbar .tbtn{min-height:46px!important;font-size:14px!important}
+ #view-bo textarea{height:auto;min-height:130px;resize:vertical;overflow:auto}
+ #view-bo .textarea-big{min-height:240px}
+ #view-bo .sig-preview{touch-action:manipulation}
+}
+@media screen and (min-width:821px) and (max-width:900px){
+ #view-bo table.form:not(.header-table),#view-bo table.form:not(.header-table)>tbody,#view-bo table.form:not(.header-table)>tbody>tr{display:block;width:100%}
+ #view-bo table.form:not(.header-table) colgroup{display:none}
+ #view-bo table.form:not(.header-table) td{display:block;width:100%!important;background:white;padding:10px!important;border:1px solid #d8e5df}
+}
+@media print{
+ @page{size:A4;margin:7mm}
+ html,body{margin:0!important;padding:0!important;min-height:0!important;height:auto!important;background:white!important}
+ body>.view:not(#view-bo){display:none!important}
+ #view-bo{display:block!important}
+ #view-bo .app,#view-bo .main,#view-bo .page,#view-bo .sheet{display:block!important;min-height:0!important;height:auto!important;margin:0!important;padding:0!important;width:100%!important;overflow:visible!important}
+ #view-bo .print-area{min-width:0!important;height:auto!important;border:0!important;padding:0!important}
+ #view-bo .print-render{display:block!important;white-space:pre-wrap!important;overflow-wrap:anywhere!important;color:black!important;max-height:none!important;height:auto!important}
+ #view-bo .bo-mobile-tools,#view-bo .bo-mobile-status,#view-bo .toolbar,#view-bo .bo-print-bottom,#bpmaPrintModal{display:none!important}
+ #view-bo .subcard{break-inside:auto!important}
+ #view-bo table.form{break-inside:auto!important}
+ #view-bo .sig-card{break-inside:avoid}
+}

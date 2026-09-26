@@ -1,0 +1,37 @@
+/* Escopo visual exclusivo do painel inicial. */
+body.home-screen{background:#f3f5f4}
+.home-screen #appScreen>.main{padding:0 32px 24px}
+.home-screen .main>.topbar{display:none}
+.home-app{max-width:1080px;margin:auto;color:#183d32;font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+.home-app *{box-sizing:border-box}
+.home-app button{font:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.home-app button:focus-visible{outline:3px solid #b88b30;outline-offset:4px}
+.home-app svg{width:24px;height:24px;flex-shrink:0}
+.home-header{display:flex;align-items:center;justify-content:space-between;padding:22px 0;border-bottom:1px solid #dce5df;gap:15px}
+.home-brand{display:flex;align-items:center;gap:12px}
+.home-brand img{width:44px;height:50px;object-fit:contain;mix-blend-mode:multiply}
+.home-brand b{display:block;font-size:18px;letter-spacing:-.5px}
+.home-brand span{display:block;font-size:11px;color:#64776d;margin-top:3px}
+.home-account{display:grid;place-items:center;width:44px;height:44px;border:1px solid #d5e0d9;border-radius:50%;background:white;color:#285640}
+.home-welcome{position:relative;padding:34px 0 28px}
+.home-eyebrow{font-size:10px;font-weight:750;letter-spacing:1.7px;color:#6d8074}
+.home-welcome h1{font-size:32px;line-height:1.2;letter-spacing:-1.2px;margin:10px 0;font-weight:700;overflow-wrap:anywhere}
+.home-dot{color:#b99847}.home-welcome p{margin:0;font-size:13px;color:#61756a}.home-welcome p span{padding:0 5px}
+.home-welcome-line{height:3px;width:30px;background:#b99847;margin-top:20px;border-radius:3px}
+.home-section-title{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:14px}
+.home-section-title h2{margin:0;font-size:17px;letter-spacing:-.4px}.home-section-title>span{font-size:11px;color:#718078}
+.home-modules{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.home-module{position:relative;display:flex;flex-direction:column;align-items:flex-start;text-align:left;min-height:205px;padding:20px 18px 38px;border:1px solid #dce5df;border-radius:20px;background:#fff;color:#244a3b;box-shadow:0 4px 12px #14362504;transition:transform .15s,box-shadow .15s}
+.home-module:hover{transform:translateY(-2px);box-shadow:0 8px 20px #1436250b}.home-module:active{transform:scale(.98)}
+.home-icon{display:grid;place-items:center;width:46px;height:46px;border-radius:14px;background:#edf4ee;color:#306446;margin-bottom:17px}
+.home-module strong{font-size:15px;line-height:1.3;letter-spacing:-.2px;margin-bottom:7px}.home-module>span:not(.home-icon):not(.home-card-arrow){font-size:12px;line-height:1.45;color:#667c70}
+.home-module.home-bo{background:#174f3b;border-color:#174f3b;color:white}.home-bo .home-icon{background:#ffffff17;color:#dcece1}.home-module.home-bo>span:not(.home-icon):not(.home-card-arrow){color:#c1d6c8}
+.home-cpu .home-icon{color:#466281;background:#edf1f6}.home-term .home-icon{color:#947236;background:#f5f0e4}
+.home-card-arrow{position:absolute;right:17px;bottom:14px;opacity:.7}.home-card-arrow svg{width:18px;height:18px}
+.home-activity{margin-top:28px}.home-app .panel{background:white;border:1px solid #dce5df;border-radius:18px;padding:20px;box-shadow:none;margin-bottom:16px;overflow:hidden}.home-app .panel h3{font-size:16px;margin:0 0 15px;color:#214c3a}.home-app .empty{padding:18px;text-align:center;color:#748278;font-size:13px}.home-app .note{font-size:12px;color:#68786e}.home-app .btn{min-height:42px;border-radius:10px}
+.home-tools{margin-top:26px}.home-tools-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.home-tools-grid button{display:flex;align-items:center;gap:12px;padding:16px;background:#fff;border:1px solid #dce5df;border-radius:14px;color:#395b4a;text-align:left;min-height:56px;font-size:13px}.home-tools-grid button span{flex:1}.home-tools-grid button svg:last-child{width:16px;height:16px;opacity:.5}
+.home-footer{text-align:center;font-size:11px;letter-spacing:.3px;color:#7d8b82;padding:28px 0 10px}.home-footer span{color:#b99847;margin:0 8px}
+@media(max-width:1100px){.home-modules{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:900px){.home-screen #appScreen>.main{padding:0 18px 20px}.home-screen .main>.mobile-head{margin:0 -18px;padding:8px 18px;background:#f3f5f4;color:#355745;border-bottom:1px solid #e5ebe7;position:relative}.home-screen .mobile-head>b{font-size:11px;font-weight:500}.home-screen .mobile-head button{background:white;color:#355745;border:1px solid #dce5df;border-radius:9px;min-height:40px;padding:8px 12px}.home-header{padding:16px 0}.home-welcome{padding:27px 0 24px}.home-welcome h1{font-size:29px}.home-modules{gap:12px}.home-module{min-height:190px;padding:17px 15px 35px;border-radius:18px}.home-module strong{font-size:14px}.home-module>span:not(.home-icon):not(.home-card-arrow){font-size:11px}.home-icon{width:42px;height:42px;margin-bottom:14px}.home-section-title h2{font-size:16px}.home-tools-grid{grid-template-columns:1fr}.home-app .panel{padding:16px}.home-app .draft-dashboard-item{flex-wrap:wrap;gap:12px}.home-app .table-wrap{overflow:auto}}
+@media(max-width:600px){.home-app .table-wrap table{width:100%;min-width:0}.home-app .table-wrap thead{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}.home-app .table-wrap tbody,.home-app .table-wrap tr{display:block}.home-app .table-wrap tr{padding:12px 0;border-top:1px solid #e5ece6}.home-app .table-wrap td{display:block;padding:4px 0;border:0;overflow-wrap:anywhere;font-size:12px}.home-app .table-wrap td:first-child{font-weight:700;font-size:14px}.home-app .table-wrap td:nth-child(2)::before{content:'Tipo: ';color:#718078}.home-app .table-wrap td:nth-child(3)::before{content:'Unidade: ';color:#718078}.home-app .table-wrap td:nth-child(4)::before{content:'Autor: ';color:#718078}.home-app .table-wrap td:nth-child(6)::before{content:'Atualizado: ';color:#718078}.home-app .table-wrap .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}}
+@media(prefers-reduced-motion:reduce){.home-module{transition:none}}
