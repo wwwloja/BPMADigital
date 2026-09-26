@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>BPMA Digital — CPU · 4.0.11</title>
+<title>BPMA Digital — CPU · 4.0.18</title>
 <meta name="theme-color" content="#064e3b">
 <link rel="manifest" href="../manifest.webmanifest">
 <link rel="icon" type="image/png" href="https://png.pngtree.com/png-vector/20240531/ourlarge/pngtree-crested-caracara-bird-png-image_12588698.png">
@@ -610,11 +610,11 @@ button{border:0;border-radius:9px;padding:10px 14px;font-weight:700;cursor:point
   field-sizing:content;
 }
 .ordem-table textarea::-webkit-scrollbar{display:none}
-.w-cat{width:14%}
-.w-tipo{width:19%}
-.w-num{width:10%}
-.w-num2{width:12%}
-.w-conclusao{width:45%}
+.w-cat{width:13%}
+.w-tipo{width:18%}
+.w-num{width:8%}
+.w-num2{width:9%}
+.w-conclusao{width:52%}
 .w-descobj{width:67%}
 .w-qtdobj{width:19%}
 .w-catobj{width:14%}
@@ -675,11 +675,11 @@ button{border:0;border-radius:9px;padding:10px 14px;font-weight:700;cursor:point
     resize:none!important;
     line-height:1.15!important;
   }
-  .w-cat{width:13%!important}
-  .w-tipo{width:19%!important}
-  .w-num{width:9%!important}
-  .w-num2{width:10%!important}
-  .w-conclusao{width:49%!important}
+  .w-cat{width:12%!important}
+  .w-tipo{width:17%!important}
+  .w-num{width:7%!important}
+  .w-num2{width:8%!important}
+  .w-conclusao{width:56%!important}
   .w-catobj{width:13%!important}
   .w-descobj{width:72%!important}
   .w-qtdobj{width:15%!important}
@@ -688,6 +688,19 @@ button{border:0;border-radius:9px;padding:10px 14px;font-weight:700;cursor:point
   .w-rec{width:42%!important}
 }
 
+
+
+/* 4.0.18 · ajuste seguro do quadro de ordem pública */
+#tblPrisoesPreview input[type="number"]{max-width:72px;margin:0 auto;display:block}
+#tblPrisoesPreview textarea{min-height:56px}
+@media(max-width:720px){
+  #tblPrisoesPreview{min-width:720px}
+  #tblPrisoesPreview input[type="number"]{max-width:64px}
+}
+@media print{
+  #tblPrisoesPreview input[type="number"]{max-width:44px!important;margin:0 auto!important}
+  #tblPrisoesPreview textarea{min-height:38px!important}
+}
 
 /* ===== BLOCO 6 · AÇÕES AMBIENTAIS ===== */
 .amb-stack{display:grid;gap:16px}
@@ -784,10 +797,10 @@ button{border:0;border-radius:9px;padding:10px 14px;font-weight:700;cursor:point
   padding:9px 12px;
   cursor:pointer;
 }
-.proc-vtr{width:13%}
-.proc-nat{width:25%}
-.proc-conc{width:31%}
-.proc-apr{width:24%}
+.proc-vtr{width:14%}
+.proc-nat{width:23%}
+.proc-conc{width:34%}
+.proc-apr{width:22%}
 .proc-del{width:7%}
 
 .an-termo{width:10%}
@@ -852,10 +865,10 @@ button{border:0;border-radius:9px;padding:10px 14px;font-weight:700;cursor:point
     -webkit-appearance:none;margin:0;
   }
   .amb-actions,.no-print{display:none!important}
-  .proc-vtr{width:12%!important}
-  .proc-nat{width:25%!important}
-  .proc-conc{width:36%!important}
-  .proc-apr{width:27%!important}
+  .proc-vtr{width:13%!important}
+  .proc-nat{width:22%!important}
+  .proc-conc{width:40%!important}
+  .proc-apr{width:25%!important}
 
   .an-termo{width:10%!important}
   .an-origem{width:11%!important}
@@ -1871,70 +1884,11 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
 
 
 <style id="bpma-4011-cpu-actions">
-/* 4.0.11 · botão final do CPU no mesmo padrão visual */
+/* 4.0.18 · botão final do CPU no mesmo padrão visual */
 .report-final-actions{display:flex!important;justify-content:flex-end!important;width:100%!important}
 .report-final-actions .finalize-action{width:min(100%,520px)!important;max-width:none!important;min-height:56px!important;padding:13px 20px!important;border-radius:12px!important;font-size:15px!important;background:linear-gradient(180deg,#0b6b4f,#075d49)!important;box-shadow:0 5px 14px rgba(7,93,73,.18)!important}
 @media(max-width:720px){.report-final-actions{display:block!important}.report-final-actions .finalize-action{width:100%!important;min-height:56px!important}}
 </style>
-
-<style id="bpma-cpu-mobile-cards-v4012">
-@media screen and (max-width:720px){
-  html,body{max-width:100%;overflow-x:hidden}
-  .wrap{width:100%!important;max-width:100%!important;box-sizing:border-box}
-  .table-wrap,.amb-box{overflow:visible!important;border:0!important;background:transparent!important}
-  .edit-table,.alter-table,.ativ-table,.ordem-table,.amb-table,.comp-table{min-width:0!important;width:100%!important;table-layout:auto!important}
-  .mobile-card-table thead{display:none!important}
-  .mobile-card-table,.mobile-card-table tbody{display:block!important;width:100%!important}
-  .mobile-card-table tr{display:block!important;width:100%!important;margin:0 0 12px!important;padding:8px!important;border:1px solid #d7e2dd!important;border-radius:12px!important;background:#fff!important;box-sizing:border-box!important}
-  .mobile-card-table td{display:grid!important;grid-template-columns:minmax(92px,36%) minmax(0,1fr)!important;gap:8px!important;align-items:center!important;width:100%!important;box-sizing:border-box!important;border:0!important;border-bottom:1px solid #edf1ef!important;padding:8px 4px!important;text-align:left!important;white-space:normal!important}
-  .mobile-card-table td:last-child{border-bottom:0!important}
-  .mobile-card-table td::before{content:attr(data-label);font-size:10px;font-weight:900;color:#31584c;text-transform:uppercase;line-height:1.15}
-  .mobile-card-table td[data-label=""]::before{display:none}
-  .mobile-card-table input,.mobile-card-table select,.mobile-card-table textarea{width:100%!important;max-width:100%!important;min-width:0!important;font-size:16px!important;box-sizing:border-box!important}
-  .mobile-card-table textarea{min-height:70px!important}
-  .mobile-card-table .no-print button,.mobile-card-table button{width:100%;min-height:42px}
-  .mobile-card-table .total-row{background:#f3f8f5!important}
-  .ufr-wrap .ufr-field input{width:100%!important;max-width:160px!important}
-}
-</style>
-
-<style id="bpma-cpu-mobile-v4013">
-/* 4.0.13 — formulário mobile; não altera o layout de impressão A4 */
-@media screen and (max-width:720px){
-  /* Bloco 1: linha de equipe como cartão e totais legíveis */
-  #tblRecursos tfoot{display:block!important;width:100%!important;margin-top:10px!important}
-  #tblRecursos tfoot tr{display:grid!important;grid-template-columns:1fr 1fr!important;gap:8px!important;width:100%!important;padding:10px!important;border:1px solid #d7e2dd!important;border-radius:12px!important;background:#f3f8f5!important;box-sizing:border-box!important}
-  #tblRecursos tfoot td{display:flex!important;align-items:center!important;justify-content:space-between!important;min-height:42px!important;padding:8px 10px!important;border:1px solid #e2ebe7!important;border-radius:9px!important;background:#fff!important;font-weight:800!important;box-sizing:border-box!important}
-  #tblRecursos tfoot td:first-child,#tblRecursos tfoot td.no-print{display:none!important}
-  #tblRecursos tfoot td:nth-child(2)::before{content:"Dia";font-size:11px;color:#527064}
-  #tblRecursos tfoot td:nth-child(3)::before{content:"Ordinário";font-size:11px;color:#527064}
-  #tblRecursos tfoot td:nth-child(4)::before{content:"P.O.R.";font-size:11px;color:#527064}
-  #tblRecursos tfoot td:nth-child(5)::before{content:"Noite";font-size:11px;color:#527064}
-  #tblRecursos tfoot td:nth-child(6)::before{content:"Ordinário";font-size:11px;color:#527064}
-  #tblRecursos tfoot td:nth-child(7)::before{content:"P.O.R.";font-size:11px;color:#527064}
-
-  /* Bloco 4: prisões/apreensões em cartões, sem rolagem horizontal */
-  #tblPrisoesPreview{min-width:0!important;width:100%!important;table-layout:auto!important;display:block!important}
-  #tblPrisoesPreview thead{display:none!important}
-  #tblPrisoesPreview tbody{display:block!important;width:100%!important}
-  #tblPrisoesPreview tr{display:block!important;width:100%!important;margin:0 0 12px!important;padding:10px!important;border:1px solid #d7e2dd!important;border-radius:12px!important;background:#fff!important;box-sizing:border-box!important}
-  #tblPrisoesPreview td{display:grid!important;grid-template-columns:112px minmax(0,1fr)!important;gap:9px!important;align-items:center!important;width:100%!important;padding:8px 4px!important;border:0!important;border-bottom:1px solid #edf1ef!important;box-sizing:border-box!important;text-align:left!important}
-  #tblPrisoesPreview td:last-child{border-bottom:0!important}
-  #tblPrisoesPreview td::before{content:attr(data-label);font-size:10px;font-weight:900;color:#31584c;text-transform:uppercase;line-height:1.15}
-  #tblPrisoesPreview td.cat{display:none!important}
-  #tblPrisoesPreview input[type="number"]{width:86px!important;max-width:86px!important;min-height:44px!important;justify-self:start!important;font-size:16px!important}
-  #tblPrisoesPreview textarea{width:100%!important;min-height:96px!important;font-size:16px!important;line-height:1.3!important;box-sizing:border-box!important}
-  #tblPrisoesPreview td:last-child{grid-template-columns:112px minmax(0,1fr)!important}
-  #tblPrisoesPreview td:last-child textarea{min-height:110px!important}
-  #tblPrisoesPreview .mobile-category{display:block!important;margin:-2px 0 7px!important;padding:5px 8px!important;border-radius:7px!important;background:#eef6f2!important;color:#174f3e!important;font-size:11px!important;font-weight:900!important;text-transform:uppercase!important}
-
-  /* Procedimentos administrativos: conclusão ganha mais espaço */
-  #procBody .desfechos{display:flex!important;flex-wrap:wrap!important;gap:8px 12px!important}
-  #procBody .desfechos label{white-space:nowrap!important}
-  #procBody textarea[aria-label="Conclusão do procedimento"]{min-height:110px!important}
-}
-</style>
-
 </head>
 <body>
 <!-- Barra de ações CPU: markup estático para permanecer visível no desktop mesmo antes da inicialização dos dados. -->
@@ -2249,7 +2203,7 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
             <tr>
               <td><textarea rows="2" aria-label="VTR ou guarnição autuante" placeholder="VTR/GU e autuante"></textarea></td>
               <td><div class="combo-stack"><select class="natureza-cat" aria-label="Categoria ambiental"><option value="">Natureza</option><option>Fauna</option><option>Flora</option><option>Poluição</option><option>Mineração</option><option>Pesca</option><option>Recursos Hídricos</option><option>Unidade de Conservação</option><option>Queimada/Incêndio</option><option>Licenciamento Ambiental</option><option>Outros</option></select><select class="natureza-sub" aria-label="Subnatureza"><option value="">Subnatureza</option></select><input class="natureza-outro" placeholder="Outra natureza" hidden></div></td>
-              <td><div class="desfechos" aria-label="Desfechos"><label><input type="checkbox" value="TCO"> TCO</label><label><input type="checkbox" value="APF"> APF</label><label><input type="checkbox" value="Procedimento administrativo" data-proc-adm> Proc. adm.</label><label><input type="checkbox" value="Apreensão"> Apreensão</label></div><div class="ufr-wrap" hidden><label>UFR-PB aplicadas</label><div class="ufr-field"><input class="ufr-pb" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="0" aria-label="Quantidade de UFR-PB aplicadas"><span class="ufr-unit">UFR-PB</span></div><small>Informe a quantidade de UFR-PB aplicadas neste procedimento administrativo.</small></div><textarea rows="2" aria-label="Conclusão do procedimento" placeholder="Resultado, nº do termo/auto, providências adotadas..."></textarea></td>
+              <td><div class="desfechos" aria-label="Desfechos"><label><input type="checkbox" value="TCO"> TCO</label><label><input type="checkbox" value="APF"> APF</label><label><input type="checkbox" value="Procedimento administrativo" data-proc-adm> Proc. adm.</label><label><input type="checkbox" value="Apreensão"> Apreensão</label></div><div class="ufr-wrap" hidden><label>UFR-PB aplicadas</label><div class="ufr-field"><input class="ufr-pb" type="text" inputmode="numeric" maxlength="6" pattern="[0-9]{0,6}" placeholder="0" aria-label="Quantidade de UFR-PB aplicadas"><span class="ufr-unit">UFR-PB</span></div><small>Informe a quantidade de UFR-PB aplicadas neste procedimento administrativo.</small></div><textarea rows="2" aria-label="Conclusão do procedimento" placeholder="Resultado, nº do termo/auto, providências adotadas..."></textarea></td>
               <td><textarea rows="2" aria-label="Itens apreendidos" placeholder="Animais, veículos ou materiais apreendidos"></textarea></td>
               <td class="no-print" style="text-align:center;vertical-align:middle"><button type="button" class="btn-del" data-del-proc>Excluir</button></td>
             </tr>
@@ -2461,6 +2415,10 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
     el.value=String(el.value??'').replace(/\D/g,'').slice(0,5);
   }
 
+  function sanitize6(el){
+    el.value=String(el.value??'').replace(/\D/g,'').slice(0,6);
+  }
+
   growAll();
 
   document.addEventListener('input',e=>{
@@ -2475,6 +2433,9 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
     }
     if(e.target.matches('input[inputmode="numeric"][maxlength="5"]')){
       sanitize5(e.target);
+    }
+    if(e.target.matches('.ufr-pb')){
+      sanitize6(e.target);
     }
   });
 
@@ -2608,7 +2569,7 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
       const oldNat=natCell.querySelector('textarea,input')?.value||'', oldConc=concCell.querySelector('textarea')?.value||'';
       natCell.innerHTML='<div class="combo-stack"><select class="natureza-cat"><option value="">Natureza</option><option>Fauna</option><option>Flora</option><option>Poluição</option><option>Mineração</option><option>Pesca</option><option>Recursos Hídricos</option><option>Unidade de Conservação</option><option>Queimada/Incêndio</option><option>Licenciamento Ambiental</option><option>Outros</option></select><select class="natureza-sub"><option value="">Subnatureza</option></select><input class="natureza-outro" placeholder="Outra natureza" hidden></div>';
       const cat=guessNatureza(oldNat); natCell.querySelector('.natureza-cat').value=cat; syncNaturezaCombo(row,false); if(cat==='Outros')natCell.querySelector('.natureza-outro').value=oldNat;
-      concCell.innerHTML='<div class="desfechos"><label><input type="checkbox" value="TCO"> TCO</label><label><input type="checkbox" value="APF"> APF</label><label><input type="checkbox" value="Procedimento administrativo" data-proc-adm> Proc. adm.</label><label><input type="checkbox" value="Apreensão"> Apreensão</label></div><div class="ufr-wrap" hidden><label>UFR-PB aplicadas</label><div class="ufr-field"><input class="ufr-pb" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="0"><span class="ufr-unit">UFR-PB</span></div><small>Informe a quantidade de UFR-PB aplicadas neste procedimento administrativo.</small></div><textarea rows="2" placeholder="Resultado, nº do termo/auto, providências adotadas..."></textarea>';
+      concCell.innerHTML='<div class="desfechos"><label><input type="checkbox" value="TCO"> TCO</label><label><input type="checkbox" value="APF"> APF</label><label><input type="checkbox" value="Procedimento administrativo" data-proc-adm> Proc. adm.</label><label><input type="checkbox" value="Apreensão"> Apreensão</label></div><div class="ufr-wrap" hidden><label>UFR-PB aplicadas</label><div class="ufr-field"><input class="ufr-pb" type="text" inputmode="numeric" maxlength="6" pattern="[0-9]{0,6}" placeholder="0"><span class="ufr-unit">UFR-PB</span></div><small>Informe a quantidade de UFR-PB aplicadas neste procedimento administrativo.</small></div><textarea rows="2" placeholder="Resultado, nº do termo/auto, providências adotadas..."></textarea>';
       concCell.querySelector('textarea').value=oldConc; const lc=oldConc.toLowerCase();
       if(/\btco\b/.test(lc))concCell.querySelector('input[value="TCO"]').checked=true; if(/\bapf\b|auto de prisão|auto de prisao|flagrante/.test(lc))concCell.querySelector('input[value="APF"]').checked=true;
       if(/apreens/.test(lc))concCell.querySelector('input[value="Apreensão"]').checked=true;
@@ -2623,7 +2584,7 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
       wrap=document.createElement('div');
       wrap.className='ufr-wrap';
       wrap.hidden=true;
-      wrap.innerHTML='<label>UFR-PB aplicadas</label><div class="ufr-field"><input class="ufr-pb" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="0" aria-label="Quantidade de UFR-PB aplicadas"><span class="ufr-unit">UFR-PB</span></div><small>Informe a quantidade de UFR-PB aplicadas neste procedimento administrativo.</small>';
+      wrap.innerHTML='<label>UFR-PB aplicadas</label><div class="ufr-field"><input class="ufr-pb" type="text" inputmode="numeric" maxlength="6" pattern="[0-9]{0,6}" placeholder="0" aria-label="Quantidade de UFR-PB aplicadas"><span class="ufr-unit">UFR-PB</span></div><small>Informe a quantidade de UFR-PB aplicadas neste procedimento administrativo.</small>';
       conclusion.querySelector('.desfechos')?.insertAdjacentElement('afterend',wrap);
     }
     const input=row.querySelector('.ufr-pb');
@@ -2647,7 +2608,7 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
     return `<tr>
       <td><textarea rows="2" placeholder="VTR/GU e autuante"></textarea></td>
       <td><div class="combo-stack"><select class="natureza-cat"><option value="">Natureza</option><option>Fauna</option><option>Flora</option><option>Poluição</option><option>Mineração</option><option>Pesca</option><option>Recursos Hídricos</option><option>Unidade de Conservação</option><option>Queimada/Incêndio</option><option>Licenciamento Ambiental</option><option>Outros</option></select><select class="natureza-sub"><option value="">Subnatureza</option></select><input class="natureza-outro" placeholder="Outra natureza" hidden></div></td>
-      <td><div class="desfechos"><label><input type="checkbox" value="TCO"> TCO</label><label><input type="checkbox" value="APF"> APF</label><label><input type="checkbox" value="Procedimento administrativo" data-proc-adm> Proc. adm.</label><label><input type="checkbox" value="Apreensão"> Apreensão</label></div><div class="ufr-wrap" hidden><label>UFR-PB aplicadas</label><div class="ufr-field"><input class="ufr-pb" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="0"><span class="ufr-unit">UFR-PB</span></div><small>Informe a quantidade de UFR-PB aplicadas neste procedimento administrativo.</small></div><textarea rows="2" placeholder="Resultado, nº do termo/auto, providências adotadas..."></textarea></td>
+      <td><div class="desfechos"><label><input type="checkbox" value="TCO"> TCO</label><label><input type="checkbox" value="APF"> APF</label><label><input type="checkbox" value="Procedimento administrativo" data-proc-adm> Proc. adm.</label><label><input type="checkbox" value="Apreensão"> Apreensão</label></div><div class="ufr-wrap" hidden><label>UFR-PB aplicadas</label><div class="ufr-field"><input class="ufr-pb" type="text" inputmode="numeric" maxlength="6" pattern="[0-9]{0,6}" placeholder="0"><span class="ufr-unit">UFR-PB</span></div><small>Informe a quantidade de UFR-PB aplicadas neste procedimento administrativo.</small></div><textarea rows="2" placeholder="Resultado, nº do termo/auto, providências adotadas..."></textarea></td>
       <td><textarea rows="2" placeholder="Animais, veículos ou materiais apreendidos"></textarea></td>
       <td class="no-print" style="text-align:center;vertical-align:middle"><button type="button" class="btn-del" data-del-proc>Excluir</button></td>
     </tr>`;
@@ -2718,7 +2679,7 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
 <script src="../supabase-config.js"></script>
 <script src="../supabase-auth.js"></script>
 <script src="../security.js"></script>
-<script src="../print-helper.js?v=4.0.11"></script>
+<script src="../print-helper.js?v=4.0.18"></script>
 <script src="../supabase-cpu.js"></script>
 
 <script id="bpma-cpu-35-integration">
@@ -3676,59 +3637,6 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
   window.addEventListener('afterprint',()=>{
     removePrintMirrors();
   });
-})();
-</script>
-
-
-<script id="bpma-cpu-mobile-cards-js-v4012">
-(function(){
-  function enhanceMobileTables(){
-    document.querySelectorAll('.table-wrap table, .amb-box table').forEach(function(table){
-      table.classList.add('mobile-card-table');
-      var headers=Array.from(table.querySelectorAll('thead th')).map(function(th){return (th.textContent||'').trim();});
-      table.querySelectorAll('tbody tr').forEach(function(row){
-        Array.from(row.children).forEach(function(cell,i){
-          if(cell.tagName==='TD' && !cell.hasAttribute('data-label')) cell.setAttribute('data-label',headers[i]||'');
-        });
-      });
-    });
-  }
-  function sanitizeUfr(target){
-    if(!target || !target.classList || !target.classList.contains('ufr-pb')) return;
-    target.value=String(target.value||'').replace(/\D/g,'').slice(0,6);
-  }
-  document.addEventListener('input',function(e){sanitizeUfr(e.target)});
-  document.addEventListener('DOMContentLoaded',enhanceMobileTables);
-  new MutationObserver(enhanceMobileTables).observe(document.documentElement,{childList:true,subtree:true});
-})();
-</script>
-
-<script id="bpma-cpu-mobile-js-v4013">
-(function(){
-  function labelPrisoes(){
-    var t=document.getElementById('tblPrisoesPreview'); if(!t)return;
-    var labels=['Categoria','Tipo de prisão','Qtd. prisões / apreensões','Qtd. TCO digital lavrado','Conclusão'];
-    var category='';
-    t.querySelectorAll('tbody tr').forEach(function(row){
-      var cells=Array.from(row.children), offset=0;
-      if(cells[0] && cells[0].classList.contains('cat')){category=(cells[0].textContent||'').trim();offset=1;}
-      var old=row.querySelector('.mobile-category'); if(old)old.remove();
-      var badge=document.createElement('div'); badge.className='mobile-category'; badge.textContent=category; row.insertBefore(badge,row.firstChild);
-      cells.forEach(function(cell,i){
-        if(cell.tagName!=='TD')return;
-        var idx=cell.classList.contains('cat')?0:(i-offset+1);
-        cell.setAttribute('data-label',labels[idx]||'');
-      });
-    });
-  }
-  function capTwoDigits(el){
-    if(!el || !el.matches || !el.matches('#tblPrisoesPreview input[type="number"]'))return;
-    var n=String(el.value||'').replace(/\D/g,'').slice(0,2);
-    if(n!=='' && Number(n)>99)n='99'; el.value=n;
-  }
-  document.addEventListener('input',function(e){capTwoDigits(e.target)});
-  document.addEventListener('DOMContentLoaded',labelPrisoes);
-  new MutationObserver(labelPrisoes).observe(document.documentElement,{childList:true,subtree:true});
 })();
 </script>
 
