@@ -659,7 +659,7 @@
     clone.querySelector('#annexManager')?.remove();
     clone.querySelector('#finalAnnexPrintPages')?.remove();
     clone.querySelector('#finalAnnexManager')?.remove();
-    clone.querySelectorAll('.no-print,.print-actions,script').forEach(el=>el.remove());
+    clone.querySelectorAll('.no-print,.print-actions,#printRelatorioCompleto,button,[role="button"],script').forEach(el=>el.remove());
 
     // Textareas em canvas/Safari podem mostrar apenas a parte visível.
     // Convertemos o conteúdo para um bloco de texto antes da rasterização.
@@ -688,6 +688,7 @@
     wrap.className='page';
     wrap.style.cssText=`width:${CONTENT_W_MM}mm!important;max-width:${CONTENT_W_MM}mm!important;min-width:${CONTENT_W_MM}mm!important;margin:0!important;padding:0!important;background:#fff!important;box-sizing:border-box!important;`;
     const node=element.cloneNode(true);
+    node.querySelectorAll?.('.no-print,.print-actions,#printRelatorioCompleto,button,[role="button"]').forEach(el=>el.remove());
     if(annex){
       node.style.setProperty('display','flex','important');
       node.style.setProperty('width','100%','important');
@@ -877,40 +878,247 @@
   }
 
 
+  function cpuPdfNormalizeText(value){
+    return String(value??'')
+      .replace(/\u00a0/g,' ')
+      .replace(/[ \t]+\n/g,'\n')
+      .replace(/\n[ \t]+/g,'\n')
+      .replace(/[ \t]{2,}/g,' ')
+      .replace(/\n{3,}/g,'\n\n')
+      .trim();
+  }
+
+  function cpuPdfFormatDate(value){
+    const v=cpuPdfNormalizeText(value);
+    const m=v.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    return m?`${m[3]}/${m[2]}/${m[1]}`:v;
+  }
+
+  function cpuPdfControlText(el){
+    if(!el)return '';
+    const tag=String(el.tagName||'').toUpperCase();
+    if(tag==='SELECT')return cpuPdfNormalizeText(el.options?.[el.selectedIndex]?.textContent||'');
+    if(tag==='TEXTAREA')return cpuPdfNormalizeText(el.value||el.textContent||'');
+    if(tag==='INPUT'){
+      const type=String(el.type||'text').toLowerCase();
+      if(type==='checkbox'||type==='radio')return el.checked?'✓':'';
+      if(type==='date')return cpuPdfFormatDate(el.value);
+      return cpuPdfNormalizeText(el.value);
+    }
+    return cpuPdfNormalizeText(el.textContent||'');
+  }
+
+  function cpuPdfCellText(cell){
+    if(!cell)return '';
+    const clone=cell.cloneNode(true);
+    clone.querySelectorAll('.no-print,button,[role="button"]').forEach(el=>el.remove());
+    const originals=Array.from(cell.querySelectorAll('input,select,textarea'));
+    const copies=Array.from(clone.querySelectorAll('input,select,textarea'));
+    copies.forEach((el,idx)=>{
+      const span=clone.ownerDocument.createElement('span');
+      const original=originals[idx]||el;
+      let value=cpuPdfControlText(original);
+      // O texto do label já permanece no clone; para checkbox basta o marcador.
+      if(String(original.type||'').toLowerCase()==='checkbox'||String(original.type||'').toLowerCase()==='radio') value=original.checked?'✓':'';
+      span.textContent=value;
+      el.replaceWith(span);
+    });
+    return cpuPdfNormalizeText(clone.textContent||'');
+  }
+
+  function cpuPdfTableRows(table){
+    const visibleCell=c=>!c.classList?.contains('no-print') && !c.matches?.('[hidden]');
+    const rows=[];
+    const spanLeft=[];
+    const sections=[...table.querySelectorAll('tbody tr'),...table.querySelectorAll('tfoot tr')];
+    for(const tr of sections){
+      const out=[];
+      let col=0;
+      const cells=Array.from(tr.children).filter(c=>/^(TD|TH)$/i.test(c.tagName)&&visibleCell(c));
+      for(const cell of cells){
+        while(spanLeft[col]>0){out[col]='';spanLeft[col]--;col++}
+        const colspan=Math.max(1,Number(cell.getAttribute('colspan')||1));
+        const rowspan=Math.max(1,Number(cell.getAttribute('rowspan')||1));
+        out[col]=cpuPdfCellText(cell);
+        if(rowspan>1){for(let j=0;j<colspan;j++)spanLeft[col+j]=rowspan-1}
+        for(let j=1;j<colspan;j++)out[col+j]='';
+        col+=colspan;
+      }
+      while(spanLeft[col]>0){out[col]='';spanLeft[col]--;col++}
+      rows.push(out);
+    }
+    return rows;
+  }
+
+  function cpuPdfHeaders(table){
+    const tr=table.querySelector('thead tr');
+    if(!tr)return [];
+    return Array.from(tr.children)
+      .filter(c=>/^(TH|TD)$/i.test(c.tagName)&&!c.classList.contains('no-print'))
+      .flatMap(cell=>{
+        const n=Math.max(1,Number(cell.getAttribute('colspan')||1));
+        return [cpuPdfCellText(cell),...Array(n-1).fill('')];
+      });
+  }
+
+  const CPU_VECTOR_WIDTHS={
+    tblRecursos:[.11,.30,.07,.07,.30,.075,.075],
+    tblAlteracoes:[.16,.08,.76],
+    tblAtividadesPreview:[.19,.20,.43,.18],
+    tblPrisoesPreview:[.12,.20,.10,.11,.47],
+    tblObjetosPreview:[.20,.60,.20],
+    tblVeiculosObjetosPreview:[.18,.41,.41],
+    tblProcedimentosPreview:[.15,.22,.40,.23],
+    tblAnimaisPreview:[.10,.13,.14,.18,.15,.07,.23],
+    tblComplementaresPreview:[.20,.80]
+  };
+
+  async function cpuPdfImageData(img){
+    if(!img)return '';
+    const src=img.currentSrc||img.src||img.getAttribute('src')||'';
+    if(!src)return '';
+    if(/^data:image\//i.test(src))return src;
+    try{
+      const absolute=new URL(src,location.href).href;
+      const res=await fetch(absolute,{cache:'force-cache'});
+      if(!res.ok)return '';
+      return await toDataUrl(await res.blob());
+    }catch{return ''}
+  }
+
+  function cpuPdfImageFormat(data){
+    if(/^data:image\/png/i.test(data))return 'PNG';
+    if(/^data:image\/(webp)/i.test(data))return 'WEBP';
+    return 'JPEG';
+  }
+
   async function generateCpuDynamicPdf(opts={}){
     if(!opts.silent)showBusy();
     try{
       prepareSafe(opts.prepare);
       autoPrepare();
-      try{window.dispatchEvent(new Event('beforeprint'))}catch{}
       await ensurePdfLib();
       const pdf=await newEmptyPdf();
-      const state={pageOpen:false,y:MARGIN_MM};
-      const children=cpuMainChildren();
-      for(const child of children){
-        if(!child || child.matches?.('.no-print,.report-final-actions,.report-final-note'))continue;
-        await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
-        const canvas=await canvasForCpuFragment(child);
-        if(!canvas || canvas.width<2 || canvas.height<2)continue;
-        const hMm=(canvas.height/canvas.width)*CONTENT_W_MM;
-        // Blocos que cabem na folha não são reduzidos: apenas muda de página quando necessário.
-        if(hMm <= (A4_H_MM-(MARGIN_MM*2))){
-          if(!state.pageOpen || state.y+hMm > A4_H_MM-MARGIN_MM){pdf.addPage('a4','portrait');state.pageOpen=true;state.y=MARGIN_MM;}
-          pdf.addImage(canvas.toDataURL('image/jpeg',0.94),'JPEG',MARGIN_MM,state.y,CONTENT_W_MM,hMm,undefined,'FAST');
-          state.y+=hMm+1.8;
-        }else{
-          // Se a seção crescer, ela continua em quantas páginas A4 forem necessárias.
-          if(state.pageOpen && state.y>MARGIN_MM+0.1){state.pageOpen=false;state.y=MARGIN_MM;}
-          addCanvasSlices(pdf,canvas,state);
+      const PAGE_W=210,PAGE_H=297,M=7,W=PAGE_W-M*2;
+      const GREEN=[7,93,73],DARK_GREEN=[8,118,94],PALE=[237,244,241],GOLD=[210,191,69],BORDER=[205,216,212],TEXT=[24,35,31];
+      let y=M;
+      let pageNo=0;
+      const pageBottom=PAGE_H-M;
+      const bodyFont=9.2;
+
+      const setText=(size=bodyFont,style='normal',color=TEXT)=>{pdf.setFont('times',style);pdf.setFontSize(size);pdf.setTextColor(...color)};
+      const addPage=()=>{pdf.addPage('a4','portrait');pageNo++;y=M;setText()};
+      const ensure=(h=8)=>{if(pageNo===0)addPage();if(y+h>pageBottom)addPage()};
+      const line=(yy,color=BORDER,w=.2)=>{pdf.setDrawColor(...color);pdf.setLineWidth(w);pdf.line(M,yy,M+W,yy)};
+      const wrap=(txt,max)=>pdf.splitTextToSize(cpuPdfNormalizeText(txt)||' ',Math.max(3,max));
+
+      const drawHeader=async()=>{
+        ensure(31);
+        const imgs=Array.from(document.querySelectorAll('.topbar img'));
+        const [left,right]=await Promise.all([cpuPdfImageData(imgs[0]),cpuPdfImageData(imgs[1])]);
+        pdf.setDrawColor(...BORDER);pdf.setLineWidth(.25);pdf.roundedRect(M,y,W,25,3,3,'S');
+        if(left){try{pdf.addImage(left,cpuPdfImageFormat(left),M+4,y+3,17,17,undefined,'FAST')}catch{}}
+        if(right){try{pdf.addImage(right,cpuPdfImageFormat(right),M+W-21,y+3,17,17,undefined,'FAST')}catch{}}
+        setText(13,'bold',[0,0,0]);pdf.text('POLÍCIA MILITAR DA PARAÍBA',PAGE_W/2,y+9,{align:'center'});
+        setText(10.2,'bold',[0,0,0]);pdf.text('BATALHÃO ESPECIALIZADO EM POLICIAMENTO DO MEIO AMBIENTE',PAGE_W/2,y+15,{align:'center'});
+        y+=29;
+        setText(13,'bold',GREEN);pdf.text('Relatório de Serviço CPU',M,y);y+=5;
+      };
+
+      const drawSectionTitle=(title)=>{
+        ensure(9);
+        setText(10.5,'bold',GREEN);
+        pdf.text(cpuPdfNormalizeText(title),M+2,y+4.2);
+        pdf.setDrawColor(...GOLD);pdf.setLineWidth(.45);pdf.line(M,y+6.4,M+W,y+6.4);
+        y+=9;
+      };
+
+      const drawSubTitle=(title)=>{
+        ensure(8);
+        pdf.setFillColor(...DARK_GREEN);pdf.rect(M,y,W,7,'F');
+        setText(9.3,'bold',[255,255,255]);pdf.text(cpuPdfNormalizeText(title).toUpperCase(),PAGE_W/2,y+4.7,{align:'center'});
+        y+=7;
+      };
+
+      const fieldValue=name=>cpuPdfControlText(document.querySelector(`[name="${name}"]`));
+      const drawIdentification=()=>{
+        drawSectionTitle('IDENTIFICAÇÃO DO SERVIÇO');
+        const fields=[
+          ['Identificação do serviço',fieldValue('identificacaoServico')],['OPM responsável',fieldValue('opmResponsavel')],['Coordenador de policiamento',fieldValue('coordenador')],
+          ['Início - Data',fieldValue('inicioData')],['Início - Hora',fieldValue('inicioHora')],['Término - Data',fieldValue('fimData')],['Término - Hora',fieldValue('fimHora')],
+          ['Área de policiamento',fieldValue('areaPoliciamento')]
+        ];
+        const row=(items,widths)=>{
+          let maxH=14;const prepared=items.map((it,i)=>{const ww=W*widths[i];const lines=wrap(it[1]||'',ww-4);maxH=Math.max(maxH,8+lines.length*3.5);return {it,ww,lines}});
+          ensure(maxH);let x=M;
+          for(const p of prepared){pdf.setDrawColor(...BORDER);pdf.rect(x,y,p.ww,maxH,'S');setText(7.3,'bold',[62,77,72]);pdf.text(p.it[0].toUpperCase(),x+2,y+4);setText(9,'normal',[0,0,0]);pdf.text(p.lines,x+2,y+8.2);x+=p.ww}y+=maxH;
+        };
+        row(fields.slice(0,3),[.32,.32,.36]);
+        row(fields.slice(3,7),[.25,.25,.25,.25]);
+        row([fields[7]],[1]);y+=3;
+      };
+
+      const drawTable=(tableId,opts2={})=>{
+        const table=document.getElementById(tableId);if(!table)return;
+        const headers=cpuPdfHeaders(table);const rows=cpuPdfTableRows(table);
+        const n=Math.max(headers.length,...rows.map(r=>r.length),1);
+        let fr=CPU_VECTOR_WIDTHS[tableId]||Array(n).fill(1/n);
+        if(fr.length<n)fr=[...fr,...Array(n-fr.length).fill(.08)];
+        const total=fr.slice(0,n).reduce((a,b)=>a+b,0)||1;fr=fr.slice(0,n).map(v=>v/total);
+        const widths=fr.map(v=>W*v);
+        const drawHeaderRow=()=>{
+          const h=Math.max(7,...headers.map((t,i)=>wrap(t,widths[i]-3).length*3.1+3));ensure(h);let x=M;for(let i=0;i<n;i++){pdf.setFillColor(...PALE);pdf.setDrawColor(...BORDER);pdf.rect(x,y,widths[i],h,'FD');setText(6.9,'bold',[38,68,58]);const lines=wrap(headers[i]||'',widths[i]-3);pdf.text(lines,x+widths[i]/2,y+3.1,{align:'center'});x+=widths[i]}y+=h;
+        };
+        if(headers.length)drawHeaderRow();
+        for(const row of rows){
+          const cells=Array.from({length:n},(_,i)=>row[i]||'');
+          const lineSets=cells.map((t,i)=>wrap(t,widths[i]-3));
+          let h=Math.max(6,...lineSets.map(ls=>Math.max(1,ls.length)*3.25+2.5));
+          if(y+h>pageBottom){addPage();if(opts2.repeatTitle){drawSubTitle(opts2.repeatTitle)}if(headers.length)drawHeaderRow()}
+          let x=M;
+          for(let i=0;i<n;i++){
+            pdf.setDrawColor(...BORDER);pdf.setFillColor(255,255,255);pdf.rect(x,y,widths[i],h,'S');
+            setText(7.7,'normal',[17,17,17]);pdf.text(lineSets[i],x+1.5,y+3.3,{baseline:'top'});x+=widths[i];
+          }
+          y+=h;
         }
+        y+=3;
+      };
+
+      const drawPassage=()=>{
+        drawSectionTitle('7 · PASSAGEM DE SERVIÇO');
+        const date=fieldValue('passagemData');const obs=fieldValue('passagemObservacao');const pass=fieldValue('passagemTexto');
+        const coord=fieldValue('coordenador');
+        const content=[['Data',date],['Observação',obs],['Passagem',pass]];
+        for(const [lab,val] of content){const lines=wrap(val,W-6);const h=Math.max(lab==='Passagem'?18:11,6+lines.length*3.7);ensure(h);setText(7.4,'bold',[62,77,72]);pdf.text(lab.toUpperCase(),M+2,y+3.5);setText(9,'normal',[0,0,0]);pdf.text(lines,M+2,y+7.4);y+=h}
+        ensure(24);y+=9;pdf.setDrawColor(100,100,100);pdf.line(PAGE_W/2-35,y,PAGE_W/2+35,y);setText(8.5,'bold',[0,0,0]);pdf.text(coord||'Coordenador de Policiamento',PAGE_W/2,y+4,{align:'center'});y+=8;
+      };
+
+      await drawHeader();
+      drawIdentification();
+      drawSectionTitle('1 · QUADRO DE RECURSOS OPERACIONAIS');drawTable('tblRecursos');
+      drawSectionTitle('2 · QUADRO DE ALTERAÇÕES ADMINISTRATIVAS');drawTable('tblAlteracoes');
+      drawSectionTitle('3 · QUADRO DE ATIVIDADES DESEMPENHADAS');drawTable('tblAtividadesPreview');
+      drawSectionTitle('4 · QUADRO DE AÇÕES DE PRESERVAÇÃO DA ORDEM PÚBLICA');
+      drawSubTitle('Prisões / Apreensões de Pessoas');drawTable('tblPrisoesPreview',{repeatTitle:'Prisões / Apreensões de Pessoas'});
+      drawSubTitle('Armas, Munições e Drogas Apreendidas');drawTable('tblObjetosPreview',{repeatTitle:'Armas, Munições e Drogas Apreendidas'});
+      drawSubTitle('Veículos e Objetos Apreendidos e Recuperados');drawTable('tblVeiculosObjetosPreview',{repeatTitle:'Veículos e Objetos Apreendidos e Recuperados'});
+      drawSectionTitle('5 · QUADRO DE AÇÕES AMBIENTAIS');
+      drawSubTitle('Procedimentos Administrativos');drawTable('tblProcedimentosPreview',{repeatTitle:'Procedimentos Administrativos'});
+      drawSubTitle('Animais Resgatados, Entregues Voluntariamente ou Apreendidos de Forma Avulsa');drawTable('tblAnimaisPreview',{repeatTitle:'Animais Resgatados / Entregues / Apreendidos'});
+      drawSectionTitle('6 · QUADRO DE INFORMAÇÕES COMPLEMENTARES');drawTable('tblComplementaresPreview');
+      drawPassage();
+
+      const pages=pdf.getNumberOfPages?.()||pageNo;
+      for(let p=1;p<=pages;p++){
+        pdf.setPage(p);setText(7.2,'normal',[100,100,100]);pdf.text(`BPMA Digital · CPU · Página ${p} de ${pages}`,PAGE_W-M,PAGE_H-3.5,{align:'right'});
       }
-      if((pdf.getNumberOfPages?.()||0)===0)throw new Error('O CPU não possui conteúdo para gerar o PDF.');
       const blob=pdf.output('blob');
       if(!(blob instanceof Blob)||blob.size<1000)throw new Error('PDF CPU vazio ou inválido.');
       if(!opts.silent)showReady(blob,opts.filename||'CPU_BPMA.pdf');
       return opts.returnBlob?blob:true;
     }catch(err){
-      console.error('PDF CPU dinâmico:',err);
+      console.error('PDF CPU vetorial:',err);
       if(opts.returnBlob)throw err;
       if(!opts.silent)showError(err);
       return false;

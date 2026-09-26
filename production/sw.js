@@ -1,4 +1,4 @@
-const CACHE='bpma-digital-4.0.25-cpu-pdf-width-ios';
+const CACHE='bpma-digital-4.0.26-pdf-vetorial-rfa-sem-botao';
 const SHELL=[
   '/',
   '/index.html',
