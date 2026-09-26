@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>BPMA Digital — CPU · 4.0.23</title>
+<title>BPMA Digital — CPU · 4.0.24</title>
 <meta name="theme-color" content="#064e3b">
 <link rel="manifest" href="../manifest.webmanifest">
 <link rel="icon" type="image/png" href="https://png.pngtree.com/png-vector/20240531/ourlarge/pngtree-crested-caracara-bird-png-image_12588698.png">
@@ -2734,7 +2734,7 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
 <script src="../supabase-config.js"></script>
 <script src="../supabase-auth.js"></script>
 <script src="../security.js"></script>
-<script src="../print-helper.js?v=4.0.23"></script>
+<script src="../print-helper.js?v=4.0.24"></script>
 <script src="../supabase-cpu.js"></script>
 
 <script id="bpma-cpu-35-integration">
@@ -3267,16 +3267,12 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
         record=await window.BPMA_CPU.finalize(record,state,stats,numero);
         editingFinalized=false; userTouched=false;
         setAutosaveState('Finalizado');
-
-        let pdfArchived=false,pdfArchiveError=null;
-        try{
-          const safeNumero=String(record?.numero||'CPU').replace(/[^a-zA-Z0-9_-]+/g,'_');
-          const filename=`CPU_${safeNumero}_v${record?.dados?.version?.number||1}.pdf`;
-          const blob=await window.BPMA_PRINT?.generateMobilePdf?.({selector:'main.wrap',filename,silent:true,returnBlob:true,prepare:()=>{window.BPMA_CPU_SYNC_PRINT_VALUES?.();window.BPMA_CPU_buildPrintMirrors?.();}});
-          if(blob instanceof Blob){record=await window.BPMA_CPU.archivePdf(record,blob,filename);pdfArchived=true;}
-        }catch(err){pdfArchiveError=err;console.warn('CPU finalizado, mas o PDF não pôde ser arquivado:',err)}
+        // A finalização grava somente a versão oficial e as estatísticas.
+        // O PDF é gerado UMA ÚNICA VEZ depois da confirmação do Supabase.
+        // Isto evita duas renderizações concorrentes (uma silenciosa + outra visível),
+        // que causavam travamentos e PDFs inconsistentes em celular e computador.
         if(stayOpen){updateToolbar();setReadonly();return true;}
-        if(showMessage) alert(pdfArchived?'Relatório CPU finalizado. A versão oficial e as estatísticas foram atualizadas.':'Relatório CPU finalizado e estatísticas atualizadas. Gere o PDF novamente para guardar uma cópia.');
+        if(showMessage) alert('Relatório CPU finalizado. A versão oficial e as estatísticas foram atualizadas.');
         location.replace('../index.html#cpu');
         return true;
       }
@@ -3404,34 +3400,48 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
     location.replace(target);
   }
 
-  window.BPMA_CPU_PRINT_NOW=async()=>{
+  window.BPMA_CPU_PRINT_NOW=async(options={})=>{
     const btn=$('#bpmaFinalize');
     if(btn)btn.disabled=true;
     try{
-      if(revisionPromise && !(await revisionPromise))return;
-      if(record?.status==='Finalizado' && editingFinalized && userTouched && !(await beginRevision()))return;
-      if(record?.status!=='Finalizado'){alert('Relatório ainda não finalizado. Finalize o CPU para gerar o PDF oficial.');return;}
-      if(correctionActive()){alert('Este CPU está em correção. Finalize a correção para gerar a nova versão oficial.');return;}
+      if(revisionPromise && !(await revisionPromise))return false;
+      if(record?.status==='Finalizado' && editingFinalized && userTouched && !(await beginRevision()))return false;
+      if(record?.status!=='Finalizado'){
+        alert('Relatório ainda não finalizado. Finalize o CPU para gerar o PDF oficial.');
+        return false;
+      }
+      if(correctionActive()){
+        alert('Este CPU está em correção. Finalize a correção para gerar a nova versão oficial.');
+        return false;
+      }
       window.BPMA_CPU_SYNC_PRINT_VALUES?.();
+      window.BPMA_CPU_buildPrintMirrors?.();
       const filename=`CPU_${String(record?.numero||'BPMA').replace(/[^a-zA-Z0-9_-]+/g,'_')}_v${record?.dados?.version?.number||1}.pdf`;
-      const printOpts={
-        selector:'main.wrap',filename,
+      if(!window.BPMA_PRINT?.generateCpuDynamicPdf) throw new Error('Gerador de PDF CPU indisponível. Atualize a página e tente novamente.');
+      const blob=await window.BPMA_PRINT.generateCpuDynamicPdf({
+        selector:'main.wrap',filename,returnBlob:true,silent:false,
         prepare:()=>{
           window.BPMA_CPU_SYNC_PRINT_VALUES?.();
           window.BPMA_CPU_buildPrintMirrors?.();
         }
-      };
-      if(window.BPMA_PRINT?.printCurrent){
-        const generated=await window.BPMA_PRINT.printCurrent(printOpts);
-        if(generated===false) throw new Error('Não foi possível preparar a impressão/PDF A4.');
-      }else if(window.BPMA_PRINT?.generateMobilePdf){
-        const generated=await window.BPMA_PRINT.generateMobilePdf(printOpts);
-        if(generated===false) throw new Error('Não foi possível gerar o PDF A4.');
-      }else window.print();
+      });
+      if(!(blob instanceof Blob) || blob.size<1000) throw new Error('O PDF gerado está vazio ou inválido.');
+
+      // Se a chamada veio da finalização, arquiva exatamente o MESMO PDF exibido ao usuário.
+      // Nenhuma segunda renderização é iniciada.
+      if(options.archive===true && record?.id){
+        try{record=await window.BPMA_CPU.archivePdf(record,blob,filename);updateToolbar();}
+        catch(err){console.warn('PDF oficial gerado, mas não arquivado no Storage:',err);}
+      }
+      return true;
     }catch(err){
-      console.error('Impressão CPU:',err);
-      alert(window.BPMA_CPU?.friendlyError?.(err)||'Não foi possível preparar o PDF A4.');
-    }finally{if(btn)btn.disabled=false}
+      console.error('PDF CPU:',err);
+      alert(window.BPMA_CPU?.friendlyError?.(err)||err.message||'Não foi possível gerar o PDF A4.');
+      return false;
+    }finally{
+      window.BPMA_CPU_removePrintMirrors?.();
+      if(btn)btn.disabled=false;
+    }
   };
 
   function buildToolbar(){
@@ -3462,7 +3472,7 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
         clearTimeout(saveTimer);for(let i=0;saving&&i<160;i++)await new Promise(r=>setTimeout(r,50));if(saving)throw new Error('O salvamento automático ainda está em andamento. Aguarde alguns segundos.');
         pendingSave=false;const ok=await persist('Finalizado',true,true,true);if(!ok)throw new Error('A finalização não foi confirmada.');
         const confirmed=record?.id?await window.BPMA_CPU.get(record.id):null;if(!confirmed||confirmed.status!=='Finalizado'||confirmed.dados?.correction?.active)throw new Error('O Supabase não confirmou a nova versão oficial.');
-        record=confirmed;editingFinalized=false;updateToolbar();setReadonly();await window.BPMA_CPU_PRINT_NOW?.();
+        record=confirmed;editingFinalized=false;updateToolbar();setReadonly();await window.BPMA_CPU_PRINT_NOW?.({archive:true});
       }catch(err){console.error('Finalização CPU:',err);alert(window.BPMA_CPU?.friendlyError?.(err)||err.message||'Não foi possível finalizar e gerar o PDF.');}
       finally{fin.dataset.busy='0';fin.textContent=originalText;updateToolbar();}
     };
@@ -3622,6 +3632,7 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
   }
 
   window.BPMA_CPU_buildPrintMirrors=buildPrintMirrors;
+  window.BPMA_CPU_removePrintMirrors=removePrintMirrors;
 
   window.addEventListener('beforeprint',buildPrintMirrors);
 
