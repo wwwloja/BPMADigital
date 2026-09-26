@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>BPMA Digital — CPU · 4.0.18</title>
+<title>BPMA Digital — CPU · 4.0.19</title>
 <meta name="theme-color" content="#064e3b">
 <link rel="manifest" href="../manifest.webmanifest">
 <link rel="icon" type="image/png" href="https://png.pngtree.com/png-vector/20240531/ourlarge/pngtree-crested-caracara-bird-png-image_12588698.png">
@@ -690,7 +690,7 @@ button{border:0;border-radius:9px;padding:10px 14px;font-weight:700;cursor:point
 
 
 
-/* 4.0.18 · ajuste seguro do quadro de ordem pública */
+/* 4.0.19 · ajuste seguro do quadro de ordem pública */
 #tblPrisoesPreview input[type="number"]{max-width:72px;margin:0 auto;display:block}
 #tblPrisoesPreview textarea{min-height:56px}
 @media(max-width:720px){
@@ -1615,9 +1615,9 @@ body{padding-bottom:74px}
 
 
 .combo-stack{display:grid;gap:4px}.combo-stack select,.combo-stack input{width:100%;min-width:0}.desfechos{display:flex;flex-wrap:wrap;gap:3px 7px;margin:0 0 4px;font-size:10px}.desfechos label{display:inline-flex;align-items:center;gap:3px;white-space:nowrap}.desfechos input[type="checkbox"]{width:auto!important;min-width:0!important;margin:0}.stats-tag{font-size:9px;color:#31584c}
-.ufr-wrap{display:grid;grid-template-columns:minmax(120px,170px) 1fr;gap:8px;align-items:center;margin:7px 0 4px;padding:8px;border:1px solid #b9ddd0;border-radius:9px;background:#edf8f3}.ufr-wrap[hidden]{display:none!important}.ufr-wrap label{font-size:10px;font-weight:800;color:#145b46}.ufr-wrap input{min-height:34px!important;background:#fff!important}.ufr-wrap small{font-size:9px;line-height:1.3;color:#4d6b60}.ufr-wrap .ufr-field{display:flex;align-items:center;gap:6px}.ufr-wrap .ufr-field input{width:92px!important;min-width:92px!important;text-align:center;font-weight:800}.ufr-wrap .ufr-unit{font-size:10px;font-weight:800;color:#145b46}
-@media(max-width:620px){.ufr-wrap{grid-template-columns:1fr}.ufr-wrap .ufr-field input{width:120px!important}}
-@media print{.combo-stack{gap:2px}.desfechos{font-size:8pt;gap:2px 5px}.ufr-wrap{padding:4px 6px;margin:4px 0 2px;grid-template-columns:115px 1fr;background:#fff!important}.ufr-wrap label,.ufr-wrap small,.ufr-wrap .ufr-unit{font-size:7.5pt}.ufr-wrap .ufr-field input{min-height:24px!important;width:74px!important;min-width:74px!important;font-size:8pt!important}}
+.ufr-wrap{display:flex;align-items:center;gap:8px;margin:5px 0 3px;padding:5px 7px;border:1px solid #b9ddd0;border-radius:8px;background:#edf8f3}.ufr-wrap[hidden]{display:none!important}.ufr-wrap label{font-size:10px;font-weight:900;color:#145b46;white-space:nowrap}.ufr-wrap input{min-height:30px!important;background:#fff!important}.ufr-wrap .ufr-field{display:flex;align-items:center;gap:5px}.ufr-wrap .ufr-field input{width:72px!important;min-width:72px!important;text-align:center;font-weight:900}.ufr-wrap .ufr-unit{font-size:9px;font-weight:900;color:#145b46;white-space:nowrap}
+@media(max-width:620px){.ufr-wrap{flex-wrap:wrap}.ufr-wrap .ufr-field input{width:82px!important;min-width:82px!important}}
+@media print{.combo-stack{gap:2px}.desfechos{font-size:8pt;gap:2px 5px}.ufr-wrap{display:inline-flex!important;width:auto!important;max-width:100%!important;padding:2px 4px!important;margin:2px 0!important;gap:4px!important;border-radius:4px!important;background:#fff!important;vertical-align:middle}.ufr-wrap label{font-size:7pt!important}.ufr-wrap .ufr-unit{font-size:6.8pt!important}.ufr-wrap .ufr-field{gap:3px!important}.ufr-wrap .ufr-field input{min-height:18px!important;height:18px!important;width:48px!important;min-width:48px!important;padding:1px 2px!important;font-size:7.5pt!important}}
 </style>
 
 <style id="bpma-cpu-2113-legibilidade">
@@ -1884,10 +1884,11 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
 
 
 <style id="bpma-4011-cpu-actions">
-/* 4.0.18 · botão final do CPU no mesmo padrão visual */
-.report-final-actions{display:flex!important;justify-content:flex-end!important;width:100%!important}
-.report-final-actions .finalize-action{width:min(100%,520px)!important;max-width:none!important;min-height:56px!important;padding:13px 20px!important;border-radius:12px!important;font-size:15px!important;background:linear-gradient(180deg,#0b6b4f,#075d49)!important;box-shadow:0 5px 14px rgba(7,93,73,.18)!important}
-@media(max-width:720px){.report-final-actions{display:block!important}.report-final-actions .finalize-action{width:100%!important;min-height:56px!important}}
+/* 4.0.19 · ações finais e edição do CPU no mesmo padrão visual */
+.report-final-actions{display:flex!important;justify-content:flex-end!important;gap:10px!important;width:100%!important}
+.report-final-actions .finalize-action{width:min(100%,360px)!important;max-width:none!important;min-height:56px!important;padding:13px 20px!important;border-radius:12px!important;font-size:15px!important;background:linear-gradient(180deg,#0b6b4f,#075d49)!important;box-shadow:0 5px 14px rgba(7,93,73,.18)!important}
+@media(max-width:720px){.report-final-actions{display:grid!important;grid-template-columns:1fr!important}.report-final-actions .finalize-action{width:100%!important;min-height:56px!important}}
+.report-final-actions .secondary-action{background:#fff!important;color:#075d49!important;border:2px solid #0b6b4f!important;box-shadow:none!important}
 </style>
 </head>
 <body>
@@ -1900,6 +1901,7 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
   <div class="bpma-actions">
     <button type="button" id="bpmaBack" onclick="if(!this.dataset.bound){location.href='../index.html#cpu'}">← Voltar</button>
     <button type="button" id="bpmaEdit" hidden>✏️ Corrigir relatório</button>
+    <button type="button" id="bpmaSave" class="primary">Salvar rascunho</button>
     <button type="button" id="bpmaClear">Limpar</button>
 
   </div>
@@ -2203,7 +2205,7 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
             <tr>
               <td><textarea rows="2" aria-label="VTR ou guarnição autuante" placeholder="VTR/GU e autuante"></textarea></td>
               <td><div class="combo-stack"><select class="natureza-cat" aria-label="Categoria ambiental"><option value="">Natureza</option><option>Fauna</option><option>Flora</option><option>Poluição</option><option>Mineração</option><option>Pesca</option><option>Recursos Hídricos</option><option>Unidade de Conservação</option><option>Queimada/Incêndio</option><option>Licenciamento Ambiental</option><option>Outros</option></select><select class="natureza-sub" aria-label="Subnatureza"><option value="">Subnatureza</option></select><input class="natureza-outro" placeholder="Outra natureza" hidden></div></td>
-              <td><div class="desfechos" aria-label="Desfechos"><label><input type="checkbox" value="TCO"> TCO</label><label><input type="checkbox" value="APF"> APF</label><label><input type="checkbox" value="Procedimento administrativo" data-proc-adm> Proc. adm.</label><label><input type="checkbox" value="Apreensão"> Apreensão</label></div><div class="ufr-wrap" hidden><label>UFR-PB aplicadas</label><div class="ufr-field"><input class="ufr-pb" type="text" inputmode="numeric" maxlength="6" pattern="[0-9]{0,6}" placeholder="0" aria-label="Quantidade de UFR-PB aplicadas"><span class="ufr-unit">UFR-PB</span></div><small>Informe a quantidade de UFR-PB aplicadas neste procedimento administrativo.</small></div><textarea rows="2" aria-label="Conclusão do procedimento" placeholder="Resultado, nº do termo/auto, providências adotadas..."></textarea></td>
+              <td><div class="desfechos" aria-label="Desfechos"><label><input type="checkbox" value="TCO"> TCO</label><label><input type="checkbox" value="APF"> APF</label><label><input type="checkbox" value="Procedimento administrativo" data-proc-adm> Proc. adm.</label><label><input type="checkbox" value="Apreensão"> Apreensão</label></div><div class="ufr-wrap" hidden><label>UFR-PB aplicadas</label><div class="ufr-field"><input class="ufr-pb" type="text" inputmode="numeric" maxlength="6" pattern="[0-9]{0,6}" placeholder="0" aria-label="Quantidade de UFR-PB aplicadas"><span class="ufr-unit">UFR-PB</span></div></div><textarea rows="2" aria-label="Conclusão do procedimento" placeholder="Resultado, nº do termo/auto, providências adotadas..."></textarea></td>
               <td><textarea rows="2" aria-label="Itens apreendidos" placeholder="Animais, veículos ou materiais apreendidos"></textarea></td>
               <td class="no-print" style="text-align:center;vertical-align:middle"><button type="button" class="btn-del" data-del-proc>Excluir</button></td>
             </tr>
@@ -2339,6 +2341,7 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
 </section>
 
 <div class="report-final-actions no-print cpu-end-actions">
+  <button type="button" id="bpmaSaveBottom" class="finalize-action secondary-action">💾 Salvar alterações</button>
   <button type="button" id="bpmaFinalize" class="finalize-action">📄 Finalizar e gerar PDF</button>
 </div>
 <div class="report-final-note">
@@ -2569,7 +2572,7 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
       const oldNat=natCell.querySelector('textarea,input')?.value||'', oldConc=concCell.querySelector('textarea')?.value||'';
       natCell.innerHTML='<div class="combo-stack"><select class="natureza-cat"><option value="">Natureza</option><option>Fauna</option><option>Flora</option><option>Poluição</option><option>Mineração</option><option>Pesca</option><option>Recursos Hídricos</option><option>Unidade de Conservação</option><option>Queimada/Incêndio</option><option>Licenciamento Ambiental</option><option>Outros</option></select><select class="natureza-sub"><option value="">Subnatureza</option></select><input class="natureza-outro" placeholder="Outra natureza" hidden></div>';
       const cat=guessNatureza(oldNat); natCell.querySelector('.natureza-cat').value=cat; syncNaturezaCombo(row,false); if(cat==='Outros')natCell.querySelector('.natureza-outro').value=oldNat;
-      concCell.innerHTML='<div class="desfechos"><label><input type="checkbox" value="TCO"> TCO</label><label><input type="checkbox" value="APF"> APF</label><label><input type="checkbox" value="Procedimento administrativo" data-proc-adm> Proc. adm.</label><label><input type="checkbox" value="Apreensão"> Apreensão</label></div><div class="ufr-wrap" hidden><label>UFR-PB aplicadas</label><div class="ufr-field"><input class="ufr-pb" type="text" inputmode="numeric" maxlength="6" pattern="[0-9]{0,6}" placeholder="0"><span class="ufr-unit">UFR-PB</span></div><small>Informe a quantidade de UFR-PB aplicadas neste procedimento administrativo.</small></div><textarea rows="2" placeholder="Resultado, nº do termo/auto, providências adotadas..."></textarea>';
+      concCell.innerHTML='<div class="desfechos"><label><input type="checkbox" value="TCO"> TCO</label><label><input type="checkbox" value="APF"> APF</label><label><input type="checkbox" value="Procedimento administrativo" data-proc-adm> Proc. adm.</label><label><input type="checkbox" value="Apreensão"> Apreensão</label></div><div class="ufr-wrap" hidden><label>UFR-PB aplicadas</label><div class="ufr-field"><input class="ufr-pb" type="text" inputmode="numeric" maxlength="6" pattern="[0-9]{0,6}" placeholder="0"><span class="ufr-unit">UFR-PB</span></div></div><textarea rows="2" placeholder="Resultado, nº do termo/auto, providências adotadas..."></textarea>';
       concCell.querySelector('textarea').value=oldConc; const lc=oldConc.toLowerCase();
       if(/\btco\b/.test(lc))concCell.querySelector('input[value="TCO"]').checked=true; if(/\bapf\b|auto de prisão|auto de prisao|flagrante/.test(lc))concCell.querySelector('input[value="APF"]').checked=true;
       if(/apreens/.test(lc))concCell.querySelector('input[value="Apreensão"]').checked=true;
@@ -2584,7 +2587,7 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
       wrap=document.createElement('div');
       wrap.className='ufr-wrap';
       wrap.hidden=true;
-      wrap.innerHTML='<label>UFR-PB aplicadas</label><div class="ufr-field"><input class="ufr-pb" type="text" inputmode="numeric" maxlength="6" pattern="[0-9]{0,6}" placeholder="0" aria-label="Quantidade de UFR-PB aplicadas"><span class="ufr-unit">UFR-PB</span></div><small>Informe a quantidade de UFR-PB aplicadas neste procedimento administrativo.</small>';
+      wrap.innerHTML='<label>UFR-PB aplicadas</label><div class="ufr-field"><input class="ufr-pb" type="text" inputmode="numeric" maxlength="6" pattern="[0-9]{0,6}" placeholder="0" aria-label="Quantidade de UFR-PB aplicadas"><span class="ufr-unit">UFR-PB</span></div>';
       conclusion.querySelector('.desfechos')?.insertAdjacentElement('afterend',wrap);
     }
     const input=row.querySelector('.ufr-pb');
@@ -2608,7 +2611,7 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
     return `<tr>
       <td><textarea rows="2" placeholder="VTR/GU e autuante"></textarea></td>
       <td><div class="combo-stack"><select class="natureza-cat"><option value="">Natureza</option><option>Fauna</option><option>Flora</option><option>Poluição</option><option>Mineração</option><option>Pesca</option><option>Recursos Hídricos</option><option>Unidade de Conservação</option><option>Queimada/Incêndio</option><option>Licenciamento Ambiental</option><option>Outros</option></select><select class="natureza-sub"><option value="">Subnatureza</option></select><input class="natureza-outro" placeholder="Outra natureza" hidden></div></td>
-      <td><div class="desfechos"><label><input type="checkbox" value="TCO"> TCO</label><label><input type="checkbox" value="APF"> APF</label><label><input type="checkbox" value="Procedimento administrativo" data-proc-adm> Proc. adm.</label><label><input type="checkbox" value="Apreensão"> Apreensão</label></div><div class="ufr-wrap" hidden><label>UFR-PB aplicadas</label><div class="ufr-field"><input class="ufr-pb" type="text" inputmode="numeric" maxlength="6" pattern="[0-9]{0,6}" placeholder="0"><span class="ufr-unit">UFR-PB</span></div><small>Informe a quantidade de UFR-PB aplicadas neste procedimento administrativo.</small></div><textarea rows="2" placeholder="Resultado, nº do termo/auto, providências adotadas..."></textarea></td>
+      <td><div class="desfechos"><label><input type="checkbox" value="TCO"> TCO</label><label><input type="checkbox" value="APF"> APF</label><label><input type="checkbox" value="Procedimento administrativo" data-proc-adm> Proc. adm.</label><label><input type="checkbox" value="Apreensão"> Apreensão</label></div><div class="ufr-wrap" hidden><label>UFR-PB aplicadas</label><div class="ufr-field"><input class="ufr-pb" type="text" inputmode="numeric" maxlength="6" pattern="[0-9]{0,6}" placeholder="0"><span class="ufr-unit">UFR-PB</span></div></div><textarea rows="2" placeholder="Resultado, nº do termo/auto, providências adotadas..."></textarea></td>
       <td><textarea rows="2" placeholder="Animais, veículos ou materiais apreendidos"></textarea></td>
       <td class="no-print" style="text-align:center;vertical-align:middle"><button type="button" class="btn-del" data-del-proc>Excluir</button></td>
     </tr>`;
@@ -2679,7 +2682,7 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
 <script src="../supabase-config.js"></script>
 <script src="../supabase-auth.js"></script>
 <script src="../security.js"></script>
-<script src="../print-helper.js?v=4.0.18"></script>
+<script src="../print-helper.js?v=4.0.19"></script>
 <script src="../supabase-cpu.js"></script>
 
 <script id="bpma-cpu-35-integration">
@@ -2917,12 +2920,21 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
     return session.role==='admin'||session.role==='p3'||String(record.authorId)===String(session.id);
   }
 
-  function enableFinalEdit(){
+  async function enableFinalEdit(){
     if(!canRevise())return;
-    editingFinalized=true;
-    document.querySelector('.bpma-readonly-notice')?.remove();
-    $$('[data-bpma-readonly="1"]').forEach(el=>{el.disabled=false;el.readOnly=false;delete el.dataset.bpmaReadonly});
-    updateToolbar();
+    const btn=$('#bpmaEdit');
+    if(btn){btn.disabled=true;btn.textContent='Preparando correção…'}
+    try{
+      record=await window.BPMA_CPU.startRevision(record.id);
+      editingFinalized=true;
+      document.querySelector('.bpma-readonly-notice')?.remove();
+      $$('[data-bpma-readonly="1"]').forEach(el=>{el.disabled=false;el.readOnly=false;delete el.dataset.bpmaReadonly});
+      updateToolbar();
+      setReadonly();
+    }catch(err){
+      alert(window.BPMA_CPU?.friendlyError?.(err)||err.message||'Não foi possível abrir o relatório para correção.');
+      updateToolbar();
+    }
   }
 
   function setReadonly(){
@@ -3333,10 +3345,22 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
       : `Não salvo · o rascunho será criado após o primeiro preenchimento · ${record?.unidade||''}`;
     const fin=$('#bpmaFinalize');
     const clear=$('#bpmaClear');
+    const save=$('#bpmaSave');
+    const saveBottom=$('#bpmaSaveBottom');
     if(fin){ fin.disabled=!(canEdit() || record?.status==='Finalizado'); fin.textContent=record?.status==='Finalizado'?'📄 Gerar PDF novamente':'📄 Finalizar e gerar PDF'; }
     if(clear) clear.disabled=!canEdit();
+    if(save){
+      save.disabled=!canEdit() || record?.status==='Finalizado';
+      save.hidden=record?.status==='Finalizado';
+      save.textContent=record?.status==='Em revisão'?'Salvar alterações':'Salvar rascunho';
+    }
+    if(saveBottom){
+      saveBottom.disabled=!canEdit() || record?.status==='Finalizado';
+      saveBottom.hidden=record?.status==='Finalizado';
+      saveBottom.textContent=record?.status==='Em revisão'?'💾 Salvar alterações':'💾 Salvar rascunho';
+    }
     const edit=$('#bpmaEdit');
-    if(edit) edit.hidden=!canRevise() || editingFinalized;
+    if(edit){edit.hidden=!canRevise();edit.disabled=false;edit.textContent='✏️ Corrigir relatório';}
   }
 
 
@@ -3420,6 +3444,7 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
         <div class="bpma-actions">
           <button type="button" id="bpmaBack">← Voltar</button>
           <button type="button" id="bpmaEdit" hidden>✏️ Corrigir relatório</button>
+          <button type="button" id="bpmaSave" class="primary">Salvar rascunho</button>
           <button type="button" id="bpmaClear">Limpar</button>
 
         </div>`;
@@ -3429,6 +3454,25 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
     const back=$('#bpmaBack');
     if(back){back.dataset.bound='1';back.onclick=()=>leaveReport('../index.html#cpu')}
     $('#bpmaEdit').onclick=enableFinalEdit;
+    const saveBtn=$('#bpmaSave');
+    if(saveBtn) saveBtn.onclick=async()=>{
+      if(saveBtn.dataset.busy==='1')return;
+      if(!canEdit()){alert('Este relatório está somente para visualização.');return;}
+      saveBtn.dataset.busy='1';
+      const oldText=saveBtn.textContent;
+      saveBtn.disabled=true;saveBtn.textContent='Salvando…';
+      try{
+        clearTimeout(saveTimer);
+        const ok=await persist(record?.status==='Em revisão'?'Em revisão':'Rascunho',true,true,true);
+        if(ok){userTouched=false;updateToolbar();}
+      }finally{
+        saveBtn.dataset.busy='0';
+        saveBtn.textContent=oldText;
+        updateToolbar();
+      }
+    };
+    const saveBottom=$('#bpmaSaveBottom');
+    if(saveBottom) saveBottom.onclick=()=>saveBtn?.click();
     $('#bpmaClear').onclick=clearCurrentReport;
     $('#bpmaFinalize').onclick=async()=>{
       const fin=$('#bpmaFinalize');
