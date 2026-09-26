@@ -1276,7 +1276,7 @@ function reportTable(rows,compact){
     ${rows.map(r=>`<tr><td>${esc(r.numero)}</td><td>${r.tipo}</td><td>${esc(r.unidade)}</td><td>${esc(r.autor)}</td><td><span class="status ${r.status==='Em revisão'?'em-revisao':r.status.toLowerCase()}">${esc(r.status)}${r.status==='Finalizado'&&r.dados?.version?.number?` · v${Number(r.dados.version.number)}`:''}</span></td><td>${formatDateTime(r.updatedAt||r.createdAt)}</td>
       <td><div class="actions">
         <button class="btn ${canEditRecord(r)?'primary':''}" data-open-report="${r.id}">${canEditRecord(r)?'Abrir/Editar':canReviseRecord(r)?'Visualizar / Editar':'Visualizar'}</button>
-        ${canPrintRecent(r)?`<button class="btn primary" data-print-report="${r.id}">Imprimir / Salvar PDF A4</button>`:''}
+        ${canPrintRecent(r)?`<button class="btn primary" data-print-report="${r.id}">📄 Gerar PDF</button>`:''}
         ${cpuPdfAvailable(r)?`<button class="btn" data-cpu-pdf="${r.id}" title="PDF temporário arquivado por 365 dias">PDF arquivado</button>`:''}
         ${canUseAsModel(r)?`<button class="btn" data-model-cpu="${r.id}">Usar como modelo</button>`:''}
         ${canDeleteRecord(r)?`<button class="btn danger" data-delete="${r.id}">Excluir</button>`:''}

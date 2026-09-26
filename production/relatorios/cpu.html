@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>BPMA Digital — CPU · 3.9.17.2</title>
+<title>BPMA Digital — CPU · 3.9.19</title>
 <meta name="theme-color" content="#064e3b">
 <link rel="manifest" href="../manifest.webmanifest">
 <link rel="icon" type="image/png" href="https://png.pngtree.com/png-vector/20240531/ourlarge/pngtree-crested-caracara-bird-png-image_12588698.png">
@@ -1833,6 +1833,21 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
 }
 #bpmaPdfStaging .cpu-signature-main{display:none!important}
 </style>
+
+<style id="bpma-cpu-3-9-19-print-fix">
+@media print{
+  .comp-table .categoria{
+    width:18%!important;
+    font-size:9pt!important;
+    white-space:nowrap!important;
+    overflow-wrap:normal!important;
+    word-break:keep-all!important;
+    hyphens:none!important;
+  }
+  .comp-table .descricao{width:82%!important}
+  .comp-table th,.comp-table td{hyphens:none!important}
+}
+</style>
 </head>
 <body>
 <!-- Barra de ações CPU: markup estático para permanecer visível no desktop mesmo antes da inicialização dos dados. -->
@@ -2283,9 +2298,8 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
 </section>
 
 <div class="report-final-actions no-print cpu-end-actions">
-  <button type="button" id="bpmaSaveDraft" class="save-action">Salvar rascunho</button>
   <button type="button" id="bpmaFinalize" class="finalize-action">Finalizar</button>
-  <button type="button" class="primary" id="printRelatorioCompleto">Imprimir / Salvar PDF A4</button>
+  <button type="button" class="primary" id="printRelatorioCompleto">📄 Gerar PDF</button>
 </div>
 <div class="report-final-note">
   Relatório de Serviço CPU completo. Os campos de texto expandem automaticamente e o layout foi ajustado para impressão A4 sem cortes.
@@ -3140,7 +3154,7 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
           if(pdfArchived){
             alert('Relatório CPU finalizado. Dados e estatísticas salvos no Supabase e PDF arquivado por 365 dias.');
           }else{
-            alert('Relatório CPU finalizado e dados salvos no Supabase. O PDF temporário não pôde ser arquivado agora; use Imprimir / Salvar PDF A4 para guardar uma cópia.'+(pdfArchiveError?'':' '));
+            alert('Relatório CPU finalizado e dados salvos no Supabase. O PDF temporário não pôde ser arquivado agora; use 📄 Gerar PDF para guardar uma cópia.'+(pdfArchiveError?'':' '));
           }
         }
         location.replace('../index.html#cpu');
@@ -3227,10 +3241,8 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
     if(sub) sub.textContent=record?.id
       ? `${record?.status||'Rascunho'}${record?.dados?.version?.number?` · v${record.dados.version.number}`:''} · ${record?.unidade||''} · ${record?.autor||''}`
       : `Não salvo · o rascunho será criado após o primeiro preenchimento · ${record?.unidade||''}`;
-    const save=$('#bpmaSaveDraft');
     const fin=$('#bpmaFinalize');
     const clear=$('#bpmaClear');
-    if(save) save.disabled=!canEdit();
     if(fin) fin.disabled=!canEdit();
     if(clear) clear.disabled=!canEdit();
     const edit=$('#bpmaEdit');
@@ -3277,13 +3289,8 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
       if(revisionPromise && !(await revisionPromise))return;
       if(record?.status==='Finalizado' && editingFinalized && userTouched && !(await beginRevision()))return;
       if(record?.status!=='Finalizado'){
-        if(!canEdit())return;
-        clearTimeout(saveTimer);
-        for(let i=0;saving && i<100;i++)await new Promise(resolve=>setTimeout(resolve,50));
-        if(saving){alert('Aguarde o salvamento do CPU e tente imprimir novamente.');return}
-        clearTimeout(saveTimer);
-        pendingSave=false;
-        if(!(await persist('Finalizado',true,true,true)))return;
+        alert('Relatório ainda não finalizado. Para gerar o PDF oficial, finalize o Relatório de Serviço CPU primeiro.');
+        return;
       }
       window.BPMA_CPU_SYNC_PRINT_VALUES?.();
       const filename=`CPU_${String(record?.numero||'BPMA').replace(/[^a-zA-Z0-9_-]+/g,'_')}_v${record?.dados?.version?.number||1}.pdf`;
@@ -3325,7 +3332,6 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
     if(back){back.dataset.bound='1';back.onclick=()=>leaveReport('../index.html#cpu')}
     $('#bpmaEdit').onclick=enableFinalEdit;
     $('#bpmaClear').onclick=clearCurrentReport;
-    $('#bpmaSaveDraft').onclick=()=>persist(record?.status==='Reaberto'?'Reaberto':'Rascunho',true);
     $('#bpmaFinalize').onclick=async()=>{
       if(!confirm('Finalizar este Relatório CPU? Os dados passarão a compor as estatísticas.')) return;
       await persist('Finalizado',true);
