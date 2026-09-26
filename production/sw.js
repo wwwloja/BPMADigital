@@ -1,4 +1,4 @@
-const CACHE='bpma-digital-4.0.27-pdf-cpu-organizado';
+const CACHE='bpma-digital-4.0.28-pdf-formatacao-modelo';
 const SHELL=[
   '/',
   '/index.html',

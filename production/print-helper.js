@@ -1060,63 +1060,97 @@
       autoPrepare();
       await ensurePdfLib();
       const pdf=await newEmptyPdf();
-      const PAGE_W=210,PAGE_H=297,M=7,W=PAGE_W-M*2;
-      const GREEN=[7,93,73],DARK_GREEN=[8,118,94],PALE=[237,244,241],GOLD=[210,191,69],BORDER=[205,216,212],TEXT=[24,35,31];
+      const PAGE_W=210,PAGE_H=297,M=8,W=PAGE_W-M*2;
+      // Mantém o estilo visual já aprovado do BPMA Digital. Nesta versão,
+      // apenas a FORMATAÇÃO foi reorganizada tomando o modelo institucional
+      // como referência: blocos mais compactos, alinhamento, proporções e quebras.
+      const GREEN=[7,93,73],DARK_GREEN=[8,118,94],PALE=[237,244,241],GOLD=[210,191,69],BORDER=[205,216,212],TEXT=[24,35,31],TOTAL_FILL=[226,232,229];
       let y=M;
       let pageNo=0;
-      const pageBottom=PAGE_H-M;
-      const bodyFont=9.6;
+      const FOOTER_H=8;
+      const pageBottom=PAGE_H-M-FOOTER_H;
+      const bodyFont=8.4;
 
       const setText=(size=bodyFont,style='normal',color=TEXT)=>{pdf.setFont('times',style);pdf.setFontSize(size);pdf.setTextColor(...color)};
       const addPage=()=>{pdf.addPage('a4','portrait');pageNo++;y=M;setText()};
       const ensure=(h=8)=>{if(pageNo===0)addPage();if(y+h>pageBottom)addPage()};
-      const line=(yy,color=BORDER,w=.2)=>{pdf.setDrawColor(...color);pdf.setLineWidth(w);pdf.line(M,yy,M+W,yy)};
-      const wrap=(txt,max)=>pdf.splitTextToSize(cpuPdfNormalizeText(txt)||' ',Math.max(3,max));
+      const wrap=(txt,max)=>{const value=cpuPdfNormalizeText(txt);const width=Math.max(3,max);if(!value)return [' '];return value.split(/\n/).flatMap(part=>{const lines=pdf.splitTextToSize(part||' ',width);return lines&&lines.length?lines:[' ']})};
+      const textHeight=(lines,lh=3.1)=>Math.max(1,lines.length)*lh;
 
       const drawHeader=async()=>{
-        ensure(31);
+        ensure(28);
         const imgs=Array.from(document.querySelectorAll('.topbar img'));
         const [left,right]=await Promise.all([cpuPdfImageData(imgs[0]),cpuPdfImageData(imgs[1])]);
-        pdf.setDrawColor(...BORDER);pdf.setLineWidth(.25);pdf.roundedRect(M,y,W,25,3,3,'S');
-        if(left){try{pdf.addImage(left,cpuPdfImageFormat(left),M+4,y+3,17,17,undefined,'FAST')}catch{}}
-        if(right){try{pdf.addImage(right,cpuPdfImageFormat(right),M+W-21,y+3,17,17,undefined,'FAST')}catch{}}
-        setText(13,'bold',[0,0,0]);pdf.text('POLÍCIA MILITAR DA PARAÍBA',PAGE_W/2,y+9,{align:'center'});
-        setText(10.2,'bold',[0,0,0]);pdf.text('BATALHÃO ESPECIALIZADO EM POLICIAMENTO DO MEIO AMBIENTE',PAGE_W/2,y+15,{align:'center'});
-        y+=29;
-        setText(13,'bold',GREEN);pdf.text('Relatório de Serviço CPU',M,y);y+=5;
+        pdf.setDrawColor(...BORDER);pdf.setLineWidth(.25);pdf.roundedRect(M,y,W,21,2.5,2.5,'S');
+        if(left){try{pdf.addImage(left,cpuPdfImageFormat(left),M+4,y+2.4,15.5,15.5,undefined,'FAST')}catch{}}
+        if(right){try{pdf.addImage(right,cpuPdfImageFormat(right),M+W-19.5,y+2.4,15.5,15.5,undefined,'FAST')}catch{}}
+        setText(12.2,'bold',[0,0,0]);pdf.text('POLÍCIA MILITAR DA PARAÍBA',PAGE_W/2,y+7.7,{align:'center'});
+        setText(9.5,'bold',[0,0,0]);pdf.text('BATALHÃO ESPECIALIZADO EM POLICIAMENTO DO MEIO AMBIENTE',PAGE_W/2,y+13.4,{align:'center'});
+        y+=24.5;
+        setText(12.2,'bold',GREEN);pdf.text('Relatório de Serviço CPU',M,y);
+        pdf.setDrawColor(...GOLD);pdf.setLineWidth(.4);pdf.line(M,y+2,M+W,y+2);
+        y+=5.5;
       };
 
-      const drawSectionTitle=(title)=>{
-        ensure(9);
-        setText(11,'bold',GREEN);
-        pdf.text(cpuPdfNormalizeText(title),M+2,y+4.2);
-        pdf.setDrawColor(...GOLD);pdf.setLineWidth(.45);pdf.line(M,y+6.4,M+W,y+6.4);
-        y+=9;
+      const drawSectionTitle=(title,minAfter=9)=>{
+        ensure(7.2+minAfter);
+        setText(10.2,'bold',GREEN);
+        pdf.text(cpuPdfNormalizeText(title),M+1.5,y+3.6);
+        pdf.setDrawColor(...GOLD);pdf.setLineWidth(.4);pdf.line(M,y+5.3,M+W,y+5.3);
+        y+=7.2;
       };
 
       const drawSubTitle=(title)=>{
-        ensure(16);
-        pdf.setFillColor(...DARK_GREEN);pdf.rect(M,y,W,7,'F');
-        setText(9.8,'bold',[255,255,255]);pdf.text(cpuPdfNormalizeText(title).toUpperCase(),PAGE_W/2,y+4.7,{align:'center'});
-        y+=7;
+        ensure(6.5+7);
+        pdf.setFillColor(...DARK_GREEN);pdf.rect(M,y,W,6.3,'F');
+        setText(8.6,'bold',[255,255,255]);pdf.text(cpuPdfNormalizeText(title).toUpperCase(),PAGE_W/2,y+4.25,{align:'center'});
+        y+=6.3;
       };
 
       const fieldValue=name=>cpuPdfControlText(document.querySelector(`[name="${name}"]`));
+
+      const drawLabeledCell=(x,yy,w,h,label,value,optsCell={})=>{
+        pdf.setDrawColor(...BORDER);pdf.setLineWidth(.18);pdf.rect(x,yy,w,h,'S');
+        setText(optsCell.labelSize||6.8,'bold',[62,77,72]);
+        pdf.text(String(label||'').toUpperCase(),x+1.7,yy+3.1);
+        setText(optsCell.valueSize||8.2,'normal',[0,0,0]);
+        const lines=wrap(value||'',w-3.4);
+        pdf.text(lines,x+1.7,yy+6.5,{baseline:'top'});
+      };
+
       const drawIdentification=()=>{
-        drawSectionTitle('IDENTIFICAÇÃO DO SERVIÇO');
-        const fields=[
-          ['Identificação do serviço',fieldValue('identificacaoServico')],['OPM responsável',fieldValue('opmResponsavel')],['Coordenador de policiamento',fieldValue('coordenador')],
-          ['Início - Data',fieldValue('inicioData')],['Início - Hora',fieldValue('inicioHora')],['Término - Data',fieldValue('fimData')],['Término - Hora',fieldValue('fimHora')],
-          ['Área de policiamento',fieldValue('areaPoliciamento')]
-        ];
-        const row=(items,widths)=>{
-          let maxH=14;const prepared=items.map((it,i)=>{const ww=W*widths[i];const lines=wrap(it[1]||'',ww-4);maxH=Math.max(maxH,8+lines.length*3.5);return {it,ww,lines}});
-          ensure(maxH);let x=M;
-          for(const p of prepared){pdf.setDrawColor(...BORDER);pdf.rect(x,y,p.ww,maxH,'S');setText(7.3,'bold',[62,77,72]);pdf.text(p.it[0].toUpperCase(),x+2,y+4);setText(9,'normal',[0,0,0]);pdf.text(p.lines,x+2,y+8.2);x+=p.ww}y+=maxH;
-        };
-        row(fields.slice(0,3),[.32,.32,.36]);
-        row(fields.slice(3,7),[.25,.25,.25,.25]);
-        row([fields[7]],[1]);y+=3;
+        drawSectionTitle('IDENTIFICAÇÃO DO SERVIÇO',10);
+        const id=fieldValue('identificacaoServico'),opm=fieldValue('opmResponsavel'),coord=fieldValue('coordenador');
+        const iData=fieldValue('inicioData'),iHora=fieldValue('inicioHora'),fData=fieldValue('fimData'),fHora=fieldValue('fimHora'),area=fieldValue('areaPoliciamento');
+
+        // Linha principal: mesma identidade visual; proporções inspiradas no modelo institucional.
+        ensure(11);let x=M;
+        const widths=[.28,.30,.42].map(v=>W*v);
+        [['Identificação do serviço',id],['OPM responsável',opm],['Coordenador de policiamento',coord]].forEach((it,i)=>{drawLabeledCell(x,y,widths[i],11,it[0],it[1]);x+=widths[i]});
+        y+=11;
+
+        // Início e término agrupados em dois blocos, sem alterar as cores do PDF.
+        ensure(14);
+        const half=W/2;
+        pdf.setFillColor(...PALE);pdf.setDrawColor(...BORDER);
+        pdf.rect(M,y,half,4.5,'FD');pdf.rect(M+half,y,half,4.5,'FD');
+        setText(7,'bold',GREEN);pdf.text('INÍCIO DO SERVIÇO',M+half/2,y+3.1,{align:'center'});pdf.text('TÉRMINO DO SERVIÇO',M+half+half/2,y+3.1,{align:'center'});
+        y+=4.5;
+        const q=half/2;
+        drawLabeledCell(M,y,q,9,'Data',iData,{labelSize:6.4,valueSize:8});
+        drawLabeledCell(M+q,y,q,9,'Hora',iHora,{labelSize:6.4,valueSize:8});
+        drawLabeledCell(M+half,y,q,9,'Data',fData,{labelSize:6.4,valueSize:8});
+        drawLabeledCell(M+half+q,y,q,9,'Hora',fHora,{labelSize:6.4,valueSize:8});
+        y+=9;
+        drawLabeledCell(M,y,W,9,'Área de policiamento',area,{labelSize:6.5,valueSize:8.1});
+        y+=11;
+      };
+
+      const numericCols={
+        tblRecursos:new Set([2,3,5,6]),tblAlteracoes:new Set([1]),tblPrisoesPreview:new Set([2,3]),tblObjetosPreview:new Set([2]),tblAnimaisPreview:new Set([5])
+      };
+      const centerCols={
+        tblRecursos:new Set([0,2,3,5,6]),tblAlteracoes:new Set([0,1]),tblAtividadesPreview:new Set([0,1,3]),tblPrisoesPreview:new Set([0,1,2,3]),tblObjetosPreview:new Set([0,2]),tblVeiculosObjetosPreview:new Set([0]),tblProcedimentosPreview:new Set([0]),tblAnimaisPreview:new Set([0,1,2,4,5]),tblComplementaresPreview:new Set([0])
       };
 
       const drawTable=(tableId,opts2={})=>{
@@ -1127,52 +1161,90 @@
         if(fr.length<n)fr=[...fr,...Array(n-fr.length).fill(.08)];
         const total=fr.slice(0,n).reduce((a,b)=>a+b,0)||1;fr=fr.slice(0,n).map(v=>v/total);
         const widths=fr.map(v=>W*v);
+
         const drawHeaderRow=()=>{
-          const h=Math.max(7.5,...headers.map((t,i)=>wrap(t,widths[i]-3).length*3.2+3.2));ensure(h);let x=M;for(let i=0;i<n;i++){pdf.setFillColor(...PALE);pdf.setDrawColor(...BORDER);pdf.rect(x,y,widths[i],h,'FD');setText(7.4,'bold',[38,68,58]);const lines=wrap(headers[i]||'',widths[i]-3);pdf.text(lines,x+widths[i]/2,y+3.1,{align:'center'});x+=widths[i]}y+=h;
+          const headerLines=Array.from({length:n},(_,i)=>wrap(headers[i]||'',widths[i]-2.8));
+          const h=Math.max(6.4,...headerLines.map(ls=>textHeight(ls,2.75)+2.6));
+          ensure(h+5);let x=M;
+          for(let i=0;i<n;i++){
+            pdf.setFillColor(...PALE);pdf.setDrawColor(...BORDER);pdf.setLineWidth(.18);pdf.rect(x,y,widths[i],h,'FD');
+            setText(6.7,'bold',[38,68,58]);
+            const ls=headerLines[i];const ty=y+(h-textHeight(ls,2.75))/2+2.3;
+            pdf.text(ls,x+widths[i]/2,ty,{align:'center',baseline:'top'});x+=widths[i];
+          }
+          y+=h;
         };
+
         if(headers.length)drawHeaderRow();
         for(const row of rows){
           const cells=Array.from({length:n},(_,i)=>row[i]||'');
           const lineSets=cells.map((t,i)=>wrap(t,widths[i]-3));
-          let h=Math.max(6.5,...lineSets.map(ls=>Math.max(1,ls.length)*3.55+2.8));
-          if(y+h>pageBottom){addPage();if(opts2.repeatTitle){drawSubTitle(opts2.repeatTitle)}if(headers.length)drawHeaderRow()}
+          const isTotal=cells.some(t=>/^TOTAL\b/i.test(cpuPdfNormalizeText(t)));
+          const h=Math.max(5.8,...lineSets.map(ls=>textHeight(ls,2.9)+2.5));
+          if(y+h>pageBottom){addPage();if(opts2.repeatTitle)drawSubTitle(opts2.repeatTitle);if(headers.length)drawHeaderRow()}
           let x=M;
           for(let i=0;i<n;i++){
-            pdf.setDrawColor(...BORDER);pdf.setFillColor(255,255,255);pdf.rect(x,y,widths[i],h,'S');
-            setText(8.3,'normal',[17,17,17]);pdf.text(lineSets[i],x+1.5,y+3.5,{baseline:'top'});x+=widths[i];
+            pdf.setDrawColor(...BORDER);pdf.setLineWidth(.18);
+            if(isTotal){pdf.setFillColor(...TOTAL_FILL);pdf.rect(x,y,widths[i],h,'FD')}else{pdf.setFillColor(255,255,255);pdf.rect(x,y,widths[i],h,'S')}
+            const isNum=numericCols[tableId]?.has(i);const isCenter=centerCols[tableId]?.has(i)||isNum;
+            setText(isTotal?7.7:7.5,isTotal?'bold':'normal',[17,17,17]);
+            const ls=lineSets[i];const ty=y+(h-textHeight(ls,2.9))/2+2.2;
+            pdf.text(ls,isCenter?x+widths[i]/2:x+1.5,ty,{align:isCenter?'center':'left',baseline:'top'});
+            x+=widths[i];
           }
           y+=h;
         }
-        y+=3;
+        y+=2.3;
       };
 
       const drawPassage=()=>{
-        drawSectionTitle('7 · PASSAGEM DE SERVIÇO');
-        const date=fieldValue('passagemData');const obs=fieldValue('passagemObservacao');const pass=fieldValue('passagemTexto');
-        const coord=fieldValue('coordenador');
-        const content=[['Data',date],['Observação',obs],['Passagem',pass]];
-        for(const [lab,val] of content){const lines=wrap(val,W-6);const h=Math.max(lab==='Passagem'?14:9,5.5+lines.length*3.5);ensure(h);setText(7.4,'bold',[62,77,72]);pdf.text(lab.toUpperCase(),M+2,y+3.5);setText(9,'normal',[0,0,0]);pdf.text(lines,M+2,y+7.4);y+=h}
-        ensure(19);y+=6;pdf.setDrawColor(100,100,100);pdf.line(PAGE_W/2-35,y,PAGE_W/2+35,y);setText(8.5,'bold',[0,0,0]);pdf.text(coord||'Coordenador de Policiamento',PAGE_W/2,y+4,{align:'center'});y+=6;
+        drawSectionTitle('7 · PASSAGEM DE SERVIÇO',18);
+        const date=fieldValue('passagemData');const obs=fieldValue('passagemObservacao');const pass=fieldValue('passagemTexto');const coord=fieldValue('coordenador');
+        const widths=[W*.18,W*.38,W*.44];
+        const headers=['DATA','OBSERVAÇÃO','PASSAGEM'];
+        const vals=[date,obs,pass];
+        const lines=vals.map((v,i)=>wrap(v||'',widths[i]-3));
+        const bodyH=Math.max(20,...lines.map(ls=>textHeight(ls,3.05)+5.5));
+        ensure(6.5+bodyH);
+        let x=M;
+        for(let i=0;i<3;i++){pdf.setFillColor(...PALE);pdf.setDrawColor(...BORDER);pdf.rect(x,y,widths[i],6.2,'FD');setText(6.8,'bold',[38,68,58]);pdf.text(headers[i],x+widths[i]/2,y+4.05,{align:'center'});x+=widths[i]}
+        y+=6.2;x=M;
+        for(let i=0;i<3;i++){
+          pdf.setDrawColor(...BORDER);pdf.rect(x,y,widths[i],bodyH,'S');setText(7.8,'normal',[0,0,0]);
+          if(i===0){pdf.text(lines[i],x+widths[i]/2,y+5,{align:'center',baseline:'top'})}
+          else{pdf.text(lines[i],x+1.5,y+4,{baseline:'top'})}
+          x+=widths[i];
+        }
+        // Assinatura integrada à célula PASSAGEM, como organização do modelo de referência.
+        const sigX=M+widths[0]+widths[1],sigW=widths[2];
+        const sigY=y+bodyH-7;
+        pdf.setDrawColor(100,100,100);pdf.line(sigX+6,sigY,sigX+sigW-6,sigY);
+        setText(7.2,'bold',[0,0,0]);pdf.text(coord||'Coordenador de Policiamento',sigX+sigW/2,sigY+3.6,{align:'center'});
+        y+=bodyH+2.5;
       };
 
       await drawHeader();
       drawIdentification();
-      drawSectionTitle('1 · QUADRO DE RECURSOS OPERACIONAIS');drawTable('tblRecursos');
-      drawSectionTitle('2 · QUADRO DE ALTERAÇÕES ADMINISTRATIVAS');drawTable('tblAlteracoes');
-      drawSectionTitle('3 · QUADRO DE ATIVIDADES DESEMPENHADAS');drawTable('tblAtividadesPreview');
-      drawSectionTitle('4 · QUADRO DE AÇÕES DE PRESERVAÇÃO DA ORDEM PÚBLICA');
+      drawSectionTitle('1 · QUADRO DE RECURSOS OPERACIONAIS',12);drawTable('tblRecursos');
+      drawSectionTitle('2 · QUADRO DE ALTERAÇÕES ADMINISTRATIVAS',12);drawTable('tblAlteracoes');
+      drawSectionTitle('3 · QUADRO DE ATIVIDADES DESEMPENHADAS',12);drawTable('tblAtividadesPreview');
+      drawSectionTitle('4 · QUADRO DE AÇÕES DE PRESERVAÇÃO DA ORDEM PÚBLICA',18);
       drawSubTitle('Prisões / Apreensões de Pessoas');drawTable('tblPrisoesPreview',{repeatTitle:'Prisões / Apreensões de Pessoas'});
       drawSubTitle('Armas, Munições e Drogas Apreendidas');drawTable('tblObjetosPreview',{repeatTitle:'Armas, Munições e Drogas Apreendidas'});
       drawSubTitle('Veículos e Objetos Apreendidos e Recuperados');drawTable('tblVeiculosObjetosPreview',{repeatTitle:'Veículos e Objetos Apreendidos e Recuperados'});
-      drawSectionTitle('5 · QUADRO DE AÇÕES AMBIENTAIS');
+      drawSectionTitle('5 · QUADRO DE AÇÕES AMBIENTAIS',18);
       drawSubTitle('Procedimentos Administrativos');drawTable('tblProcedimentosPreview',{repeatTitle:'Procedimentos Administrativos'});
       drawSubTitle('Animais Resgatados, Entregues Voluntariamente ou Apreendidos de Forma Avulsa');drawTable('tblAnimaisPreview',{repeatTitle:'Animais Resgatados / Entregues / Apreendidos'});
-      drawSectionTitle('6 · QUADRO DE INFORMAÇÕES COMPLEMENTARES');drawTable('tblComplementaresPreview');
+      drawSectionTitle('6 · QUADRO DE INFORMAÇÕES COMPLEMENTARES',12);drawTable('tblComplementaresPreview');
       drawPassage();
 
       const pages=pdf.getNumberOfPages?.()||pageNo;
       for(let p=1;p<=pages;p++){
-        pdf.setPage(p);setText(7.2,'normal',[100,100,100]);pdf.text(`BPMA Digital · CPU · Página ${p} de ${pages}`,PAGE_W-M,PAGE_H-3.5,{align:'right'});
+        pdf.setPage(p);
+        pdf.setDrawColor(...BORDER);pdf.setLineWidth(.18);pdf.line(M,PAGE_H-7,M+W,PAGE_H-7);
+        setText(6.6,'normal',[90,90,90]);
+        pdf.text('BPMA Digital · Relatório de Serviço CPU',M,PAGE_H-3.8);
+        pdf.text(`Página ${p} de ${pages}`,PAGE_W-M,PAGE_H-3.8,{align:'right'});
       }
       const blob=pdf.output('blob');
       if(!(blob instanceof Blob)||blob.size<1000)throw new Error('PDF CPU vazio ou inválido.');
