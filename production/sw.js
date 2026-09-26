@@ -1,4 +1,4 @@
-const CACHE='bpma-digital-4.0.28-pdf-formatacao-modelo';
+const CACHE='bpma-digital-4.0.29-pdf-formatacao-modelo';
 const SHELL=[
   '/',
   '/index.html',

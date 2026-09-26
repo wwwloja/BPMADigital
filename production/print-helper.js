@@ -1164,23 +1164,74 @@
 
         const drawHeaderRow=()=>{
           const headerLines=Array.from({length:n},(_,i)=>wrap(headers[i]||'',widths[i]-2.8));
-          const h=Math.max(6.4,...headerLines.map(ls=>textHeight(ls,2.75)+2.6));
+          const h=Math.max(8.2,...headerLines.map(ls=>textHeight(ls,2.9)+5.0));
           ensure(h+5);let x=M;
           for(let i=0;i<n;i++){
             pdf.setFillColor(...PALE);pdf.setDrawColor(...BORDER);pdf.setLineWidth(.18);pdf.rect(x,y,widths[i],h,'FD');
             setText(6.7,'bold',[38,68,58]);
-            const ls=headerLines[i];const ty=y+(h-textHeight(ls,2.75))/2+2.3;
+            const ls=headerLines[i];const ty=y+(h-textHeight(ls,2.9))/2+0.8;
             pdf.text(ls,x+widths[i]/2,ty,{align:'center',baseline:'top'});x+=widths[i];
           }
           y+=h;
         };
+
+        // Quadro 4: Categoria possui apenas dois grupos reais.
+        // ADULTO abrange Flagrante Delito + Mandado de Prisão;
+        // MENOR abrange Flagrante de Ato Infracional + Apreensão.
+        // A célula de categoria é mesclada verticalmente para não criar linhas em branco.
+        if(tableId==='tblPrisoesPreview' && rows.length>=4){
+          if(headers.length)drawHeaderRow();
+          const groups=[
+            {label:'ADULTO',items:rows.slice(0,2)},
+            {label:'MENOR',items:rows.slice(2,4)}
+          ];
+          for(const group of groups){
+            const rowData=group.items.map((row,ri)=>{
+              const cells=Array.from({length:n},(_,i)=>row[i]||'');
+              cells[0]=ri===0?group.label:'';
+              const lineSets=cells.map((t,i)=>wrap(t,widths[i]-3.4));
+              const h=Math.max(8.2,...lineSets.slice(1).map(ls=>textHeight(ls,3.0)+5.0));
+              return {cells,lineSets,h};
+            });
+            const groupH=rowData.reduce((a,r)=>a+r.h,0);
+            if(y+groupH>pageBottom){
+              addPage();
+              if(opts2.repeatTitle)drawSubTitle(opts2.repeatTitle);
+              if(headers.length)drawHeaderRow();
+            }
+            const groupY=y;
+            // Categoria mesclada verticalmente.
+            pdf.setDrawColor(...BORDER);pdf.setLineWidth(.18);pdf.setFillColor(255,255,255);
+            pdf.rect(M,groupY,widths[0],groupH,'S');
+            setText(7.8,'normal',[17,17,17]);
+            pdf.text(group.label,M+widths[0]/2,groupY+groupH/2+1.1,{align:'center',baseline:'middle'});
+            let yy=groupY;
+            for(const rd of rowData){
+              let x=M+widths[0];
+              for(let i=1;i<n;i++){
+                pdf.setDrawColor(...BORDER);pdf.setLineWidth(.18);pdf.setFillColor(255,255,255);pdf.rect(x,yy,widths[i],rd.h,'S');
+                const isNum=numericCols[tableId]?.has(i);
+                const isCenter=centerCols[tableId]?.has(i)||isNum;
+                setText(7.6,'normal',[17,17,17]);
+                const ls=rd.lineSets[i];
+                const ty=yy+(rd.h-textHeight(ls,3.0))/2+0.9;
+                pdf.text(ls,isCenter?x+widths[i]/2:x+1.7,ty,{align:isCenter?'center':'left',baseline:'top'});
+                x+=widths[i];
+              }
+              yy+=rd.h;
+            }
+            y+=groupH;
+          }
+          y+=2.3;
+          return;
+        }
 
         if(headers.length)drawHeaderRow();
         for(const row of rows){
           const cells=Array.from({length:n},(_,i)=>row[i]||'');
           const lineSets=cells.map((t,i)=>wrap(t,widths[i]-3));
           const isTotal=cells.some(t=>/^TOTAL\b/i.test(cpuPdfNormalizeText(t)));
-          const h=Math.max(5.8,...lineSets.map(ls=>textHeight(ls,2.9)+2.5));
+          const h=Math.max(7.4,...lineSets.map(ls=>textHeight(ls,3.0)+4.8));
           if(y+h>pageBottom){addPage();if(opts2.repeatTitle)drawSubTitle(opts2.repeatTitle);if(headers.length)drawHeaderRow()}
           let x=M;
           for(let i=0;i<n;i++){
@@ -1188,7 +1239,7 @@
             if(isTotal){pdf.setFillColor(...TOTAL_FILL);pdf.rect(x,y,widths[i],h,'FD')}else{pdf.setFillColor(255,255,255);pdf.rect(x,y,widths[i],h,'S')}
             const isNum=numericCols[tableId]?.has(i);const isCenter=centerCols[tableId]?.has(i)||isNum;
             setText(isTotal?7.7:7.5,isTotal?'bold':'normal',[17,17,17]);
-            const ls=lineSets[i];const ty=y+(h-textHeight(ls,2.9))/2+2.2;
+            const ls=lineSets[i];const ty=y+(h-textHeight(ls,3.0))/2+0.9;
             pdf.text(ls,isCenter?x+widths[i]/2:x+1.5,ty,{align:isCenter?'center':'left',baseline:'top'});
             x+=widths[i];
           }
