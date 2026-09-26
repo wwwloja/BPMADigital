@@ -301,7 +301,7 @@
   }
 
   window.BPMA_CPU={
-    listVisible,get,create,saveState,finalize,clear,reopen,startRevision,cancel,remove,
+    listVisible,get,create,saveState,finalize,clear,reopen,startRevision,remove,
     archivePdf,signedPdfUrl,PDF_RETENTION_DAYS,friendlyError
   };
 })();

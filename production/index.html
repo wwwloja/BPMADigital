@@ -851,9 +851,43 @@ function reportTypeAllowed(type){
   return layerReportEnabled(session.role,key);
 }
 
+function reportServiceDate(r){
+  return String(r?.stats?.dataServico || r?.dados?.serviceIdentity?.dataServico || r?.finalizedAt || r?.updatedAt || r?.createdAt || '').slice(0,10);
+}
+function isCurrentMonthDate(value){
+  const key=String(value||'').slice(0,7);
+  const now=new Date();
+  const current=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+  return key===current;
+}
+function isWithinDays(value,days){
+  const t=Date.parse(value||'');
+  return Number.isFinite(t) && t >= Date.now()-(days*86400000);
+}
+function isPendingReport(r){return ['Rascunho','Reaberto','Em revisão'].includes(r?.status)}
+
 function visibleReports(){
   let rows=getReports().filter(r=>reportTypeAllowed(r.tipo));
-  if(session.role==='cpu'||session.role==='operacional') rows=rows.filter(r=>String(r.authorId)===String(session.id));
+
+  if(session.role==='cpu'||session.role==='operacional'){
+    rows=rows.filter(r=>String(r.authorId)===String(session.id));
+    // Operacional/CPU: mês vigente. CPU pendente de mês anterior continua visível até finalizar.
+    rows=rows.filter(r=>isCurrentMonthDate(reportServiceDate(r)) || (r.tipo==='CPU' && isPendingReport(r)));
+    rows.sort((a,b)=>(b.updatedAt||b.createdAt||'').localeCompare(a.updatedAt||a.createdAt||''));
+    // BO/RFA: somente os 3 últimos do mês vigente. CPU: 3 finalizados do mês + pendências.
+    const out=[];
+    for(const type of ['BO','RFA','CPU']){
+      const typed=rows.filter(r=>r.tipo===type);
+      const pending=typed.filter(isPendingReport);
+      const finals=typed.filter(r=>!isPendingReport(r)).slice(0,3);
+      out.push(...pending,...finals);
+    }
+    return out.sort((a,b)=>(b.updatedAt||b.createdAt||'').localeCompare(a.updatedAt||a.createdAt||''));
+  }
+
+  // Admin/P3/Gestores: histórico operacional completo por até 365 dias.
+  // Estatísticas usam a fonte CPU permanente separadamente em renderStats().
+  rows=rows.filter(r=>r.tipo!=='CPU' || isWithinDays(r.finalizedAt||r.updatedAt||r.createdAt,365) || isPendingReport(r));
   return rows.sort((a,b)=>(b.updatedAt||b.createdAt||'').localeCompare(a.updatedAt||a.createdAt||''));
 }
 function canCreate(type){
@@ -873,10 +907,7 @@ function canDeleteRecord(r){
   const owner=String(r.authorId)===String(session.id);
   return owner && (r.status==='Rascunho'||r.status==='Reaberto'||r.status==='Em revisão');
 }
-function canCancelRecord(r){
-  if(!r || r.tipo!=='CPU' || !['Finalizado','Em revisão'].includes(r.status) || session.role==='gestor')return false;
-  return session.role==='admin'||session.role==='p3'||String(r.authorId)===String(session.id);
-}
+function canCancelRecord(){ return false; }
 function canUseAsModel(r){return !!r && r.tipo==='CPU' && r.status==='Finalizado' && session.role!=='gestor'}
 function canReviseRecord(r){
   if(!r || r.status!=='Finalizado' || session.role==='gestor')return false;
@@ -914,6 +945,7 @@ function sharedBOTodayForCPU(){
 
 function canViewRecord(r){
   if(!r || !reportTypeAllowed(r.tipo)) return false;
+  if(r.tipo==='CPU' && r.status==='Finalizado' && !isWithinDays(r.finalizedAt||r.updatedAt||r.createdAt,365)) return false;
   if(session.role==='admin'||session.role==='p3'||session.role==='gestor') return true;
   if(String(r.authorId)===String(session.id)) return true;
   return isSharedBOTodayForCPU(r);
@@ -1247,7 +1279,6 @@ function reportTable(rows,compact){
         ${canPrintRecent(r)?`<button class="btn primary" data-print-report="${r.id}">Imprimir / Salvar PDF A4</button>`:''}
         ${cpuPdfAvailable(r)?`<button class="btn" data-cpu-pdf="${r.id}" title="PDF temporário arquivado por 365 dias">PDF arquivado</button>`:''}
         ${canUseAsModel(r)?`<button class="btn" data-model-cpu="${r.id}">Usar como modelo</button>`:''}
-        ${canCancelRecord(r)?`<button class="btn danger" data-cancel-cpu="${r.id}">Cancelar relatório</button>`:''}
         ${canDeleteRecord(r)?`<button class="btn danger" data-delete="${r.id}">Excluir</button>`:''}
       </div></td></tr>`).join('')}
   </tbody></table></div>`;
@@ -1283,7 +1314,8 @@ function renderManager(){
   </div>`;
 }
 function renderStats(){
-  const allCpu=visibleReports().filter(r=>r.tipo==='CPU');
+  // Estatísticas CPU são permanentes e não obedecem ao limite visual de 365 dias.
+  const allCpu=remoteCPUCache.filter(r=>r.tipo==='CPU');
 
   const units=[...new Set(allCpu.map(r=>r.unidade).filter(Boolean))].sort();
 
@@ -1845,13 +1877,32 @@ function showDraftChoice(type,drafts){
   dlg.addEventListener('cancel',e=>{e.preventDefault();closeDraftChoice()});
   dlg.showModal();
 }
+async function discardDraftRecord(r){
+  if(!r || r.status!=='Rascunho') return;
+  if(r.tipo==='CPU'){
+    await window.BPMA_CPU.remove(r.id);
+    remoteCPUCache=remoteCPUCache.filter(x=>String(x.id)!==String(r.id));
+  }else if(r.tipo==='RFA'){
+    await window.BPMA_RFA.remove(r.id);
+    remoteRFACache=remoteRFACache.filter(x=>String(x.id)!==String(r.id));
+  }else if(r.tipo==='BO'){
+    await window.BPMA_BO.remove(r.id);
+    remoteBOCache=remoteBOCache.filter(x=>String(x.id)!==String(r.id));
+  }
+}
 async function createReport(type){
   if(!canCreate(type)) return;
   const drafts=ownDrafts(type);
-  if(drafts.length){
-    showDraftChoice(type,drafts);
-    return;
+  const abandoned=drafts.filter(r=>r.status==='Rascunho');
+  const activeRevision=drafts.filter(r=>r.status!=='Rascunho');
+
+  // Regra 3.9.18: ao iniciar um novo relatório, rascunhos anteriores do mesmo tipo são descartados.
+  if(abandoned.length){
+    try{ for(const r of abandoned) await discardDraftRecord(r); }
+    catch(err){ alert(`Não foi possível substituir o rascunho anterior: ${err.message||err}`); return; }
   }
+  // Revisão/reabertura não é rascunho abandonado: nunca apagar automaticamente.
+  if(activeRevision.length){ showDraftChoice(type,activeRevision); return; }
   openNewReport(type,false);
 }
 function openReport(id){
@@ -1930,13 +1981,6 @@ async function reopenReport(id){
 
 }
 
-async function cancelCpuReport(id){
-  const r=getReports().find(x=>String(x.id)===String(id)); if(!r||!canCancelRecord(r))return;
-  const reason=prompt(`Cancelar ${r.numero}?\n\nO registro será preservado para auditoria e deixará de contar nas estatísticas.\nInforme o motivo:`,'');
-  if(reason===null)return; if(!String(reason).trim()){alert('Informe o motivo do cancelamento.');return}
-  try{const updated=await window.BPMA_CPU.cancel(r.id,reason);upsertRemoteCPU(updated);showPage(location.hash.replace('#','')||'banco')}
-  catch(err){alert(window.BPMA_CPU?.friendlyError?.(err)||err.message||'Não foi possível cancelar o relatório CPU.')}
-}
 function useCpuAsModel(id){
   const r=getReports().find(x=>String(x.id)===String(id)); if(!r||!canUseAsModel(r))return;
   location.href=`relatorios/cpu.html?new=1&model=${encodeURIComponent(r.id)}`;
@@ -1995,7 +2039,6 @@ function bindPage(page){
   document.querySelectorAll('[data-print-report]').forEach(b=>b.onclick=()=>printReport(b.dataset.printReport));
   document.querySelectorAll('[data-cpu-pdf]').forEach(b=>b.onclick=()=>openArchivedCpuPdf(b.dataset.cpuPdf));
   document.querySelectorAll('[data-model-cpu]').forEach(b=>b.onclick=()=>useCpuAsModel(b.dataset.modelCpu));
-  document.querySelectorAll('[data-cancel-cpu]').forEach(b=>b.onclick=()=>cancelCpuReport(b.dataset.cancelCpu));
   document.querySelectorAll('[data-reopen]').forEach(b=>b.onclick=()=>reopenReport(b.dataset.reopen));
   document.querySelectorAll('[data-delete]').forEach(b=>b.onclick=()=>deleteReport(b.dataset.delete));
 

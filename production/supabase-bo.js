@@ -15,7 +15,16 @@
     return `BO-${day}-${time}-${rand}`;
   }
 
-  async function listVisible(){ return store().list(TYPE); }
+  async function listVisible(){
+    const rows=await store().list(TYPE);
+    const now=new Date();
+    const month=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+    const finals=rows.filter(r=>r.status==='Finalizado').sort((a,b)=>String(b.finalizedAt||b.updatedAt||'').localeCompare(String(a.finalizedAt||a.updatedAt||'')));
+    const keepFinalIds=new Set(finals.filter(r=>String(r.finalizedAt||r.updatedAt||r.createdAt||'').slice(0,7)===month).slice(0,3).map(r=>String(r.id)));
+    const purge=finals.filter(r=>!keepFinalIds.has(String(r.id)));
+    for(const r of purge){ try{ await store().remove(r.id); }catch{} }
+    return rows.filter(r=>r.status!=='Finalizado' || keepFinalIds.has(String(r.id)));
+  }
   async function get(id){
     const row=await store().get(id);
     return row?.tipo===TYPE?row:null;

@@ -1,4 +1,4 @@
-const CACHE='bpma-digital-3.9.17-cpu-responsivo';
+const CACHE='bpma-digital-3.9.18-retencao-historico';
 const SHELL=[
   '/',
   '/index.html',
