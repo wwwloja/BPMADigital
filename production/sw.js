@@ -1,4 +1,4 @@
-const CACHE='bpma-digital-4.0.35-pdf-formatacao-modelo';
+const CACHE='bpma-digital-4.0.39-pdf-formatacao-modelo';
 const SHELL=[
   '/',
   '/index.html',
@@ -11,6 +11,11 @@ const SHELL=[
   '/supabase-config.js',
   '/supabase-auth.js',
   '/supabase-users.js',
+  '/cpu-details.js',
+  '/cpu-structure.js',
+  '/cpu-structure.css',
+  '/stats37.js',
+  '/final-admin.js',
   '/local-report-store.js',
   '/supabase-bo.js',
   '/supabase-rfa.js',

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>BPMA Digital — CPU · 4.0.35</title>
+<title>BPMA Digital — CPU · 4.0.39</title>
 <meta name="theme-color" content="#064e3b">
 <link rel="manifest" href="../manifest.webmanifest">
 <link rel="icon" type="image/png" href="https://png.pngtree.com/png-vector/20240531/ourlarge/pngtree-crested-caracara-bird-png-image_12588698.png">
@@ -1942,6 +1942,7 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
   .ufr-wrap .ufr-field input{width:38px!important;min-width:38px!important;min-height:16px!important;height:16px!important;padding:0 2px!important;font-size:7pt!important}
 }
 </style>
+<link rel="stylesheet" href="../cpu-structure.css?v=4.0.39">
 </head>
 <body>
 <!-- Barra de ações CPU: markup estático para permanecer visível no desktop mesmo antes da inicialização dos dados. -->
@@ -1968,7 +1969,7 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
   </div>
   <div class="right-slot"><img src="../assets/pmpb.jpg" alt="Brasão PMPB"></div>
 </header>
-<div class="title-row"><h1>Relatório de Serviço CPU</h1><span class="status">Relatório completo · Prévia final</span></div>
+<div class="title-row"><h1>Relatório de Serviço CPU</h1><span class="status">Relatório completo · Versão 4.0.39</span></div>
 
 
 
@@ -1989,8 +1990,6 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
       <div class="field s3"><label>Término - Hora</label><input type="time" name="fimHora"></div>
       <div class="field s12"><label>Área de policiamento</label><input name="areaPoliciamento" placeholder="Ex.: Região Metropolitana de João Pessoa"></div>
     </div>
-    
-    <div class="note">Prévia isolada do Bloco 1. Os ajustes aprovados serão aplicados no BPMA Digital principal.</div>
   </div>
 </section>
 
@@ -2041,9 +2040,6 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
     <div class="row-actions no-print">
       <button type="button" class="btn-mini" id="addEquipe">+ Adicionar VTR/equipe</button>
     </div>
-
-    
-    <div class="note">Prévia isolada do Bloco 2. A impressão mantém o mesmo padrão visual e é ajustada para folha A4.</div>
   </div>
 </section>
 
@@ -2535,7 +2531,9 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
     if(!b) return;
     const tr=b.closest('tr');
     if(recursosBody.rows.length===1){
-      qa('input,textarea',tr).forEach(el=>el.value=el.type==='number'?'0':'');
+      qa('input,textarea',tr).forEach(el=>{if(el.type==='checkbox'||el.type==='radio')el.checked=false;else el.value=el.type==='number'?'0':'';});
+      tr.querySelectorAll('textarea').forEach(el=>{delete el.dataset.items38;delete el.dataset.gu38;delete el.dataset.guSource38;});
+      delete tr.dataset.gu37;syncUfrField(tr,true);
       growAll(tr);
     }else tr.remove();
     updateTotals();
@@ -2612,13 +2610,13 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
     if(/licença|licenca|licenciamento/.test(v))return 'Licenciamento Ambiental'; return 'Outros';
   }
   function upgradeLegacyRows(){
-    $$('#ativBody tr').forEach(row=>{
+    qa('#ativBody tr').forEach(row=>{
       if(row.querySelector('.atividade-tipo'))return;
       const cell=row.cells?.[0], old=cell?.querySelector('textarea,input')?.value||''; if(!cell)return;
       cell.innerHTML='<div class="combo-stack"><select class="atividade-tipo"><option value="">Selecione</option><option>Operação</option><option>Fiscalização</option><option>Patrulhamento</option><option>Apoio</option><option>Unidade de Conservação</option><option>Ação educativa</option><option>Outros</option></select><input class="atividade-outro" placeholder="Outra ação" hidden></div>';
       const type=guessAtividade(old); cell.querySelector('.atividade-tipo').value=type; syncAtividadeCombo(row); if(type==='Outros')cell.querySelector('.atividade-outro').value=old;
     });
-    $$('#procBody tr').forEach(row=>{
+    qa('#procBody tr').forEach(row=>{
       if(row.querySelector('.natureza-cat'))return;
       const natCell=row.cells?.[1], concCell=row.cells?.[2]; if(!natCell||!concCell)return;
       const oldNat=natCell.querySelector('textarea,input')?.value||'', oldConc=concCell.querySelector('textarea')?.value||'';
@@ -2696,7 +2694,9 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
 
   function clearOrRemove(tbody,tr){
     if(tbody.rows.length===1){
-      qa('input,textarea',tr).forEach(el=>el.value=el.type==='number'?'0':'');
+      qa('input,textarea',tr).forEach(el=>{if(el.type==='checkbox'||el.type==='radio')el.checked=false;else el.value=el.type==='number'?'0':'';});
+      tr.querySelectorAll('textarea').forEach(el=>{delete el.dataset.items38;delete el.dataset.gu38;delete el.dataset.guSource38;});
+      delete tr.dataset.gu37;syncUfrField(tr,true);
       qa('select',tr).forEach(el=>el.selectedIndex=0);
       growAll(tr);
     }else tr.remove();
@@ -2725,6 +2725,7 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
     });
   });
 
+  window.BPMA_CPU_FORM={upgradeLegacyRows,syncAtividadeCombo,syncNaturezaCombo,syncUfrField,growAll};
   window.addEventListener('afterprint',()=>growAll());
 })();
 </script>
@@ -2734,11 +2735,14 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
 <script src="../supabase-config.js"></script>
 <script src="../supabase-auth.js"></script>
 <script src="../security.js"></script>
-<script src="../print-helper.js?v=4.0.35"></script>
+<script src="../cpu-structure.js?v=4.0.39"></script>
+<script src="../cpu-details.js?v=4.0.39"></script>
+<script src="../print-helper.js?v=4.0.39"></script>
 <script src="../supabase-cpu.js"></script>
 
 <script id="bpma-cpu-35-integration">
 (async function(){
+  const {upgradeLegacyRows,syncAtividadeCombo,syncNaturezaCombo,syncUfrField}=window.BPMA_CPU_FORM;
   const REPORT_TYPE="CPU";
   const DYNAMIC_IDS=["recursosBody","ativBody","procBody","animalBody"];
   const SESSION_KEY='bpma_local_session_v1';
@@ -2768,7 +2772,7 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
   let signatureHasInk=false;
 
   function controls(){
-    return $$('input:not([type="file"]), select, textarea').filter(el=>!el.closest('.bpma-system-toolbar'));
+    return $$('input:not([type="file"]), select, textarea').filter(el=>!el.closest('.bpma-system-toolbar,.bpma-data-tools'));
   }
 
   function setCoordinatorSignature(src){
@@ -2890,30 +2894,21 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
   });
 
   function captureState(){
-    const dynamic={};
-    DYNAMIC_IDS.forEach(id=>{
-      const el=document.getElementById(id);
-      if(el) dynamic[id]=el.innerHTML;
-    });
-    const values=controls().map(el=>({
-      tag:el.tagName,
-      type:el.type||'',
-      value:el.value,
-      checked:!!el.checked
-    }));
-    return {dynamic,values,coordinatorSignature};
+    return {...window.BPMA_CPU_STRUCTURE.capture(),coordinatorSignature,detail38:window.BPMA_CPU_DETAIL.capture38()};
   }
 
   function restoreState(state){
     if(!state || typeof state!=='object') return true;
     let compatible=true;
+    const modern=state.schema===39;
+    if(modern)window.BPMA_CPU_STRUCTURE.restore(state);
     const warn=(step,err)=>{
       compatible=false;
       console.warn(`CPU: falha de compatibilidade ao restaurar ${step}:`,err);
     };
 
     try{
-      const dynamic=state.dynamic && typeof state.dynamic==='object' ? state.dynamic : {};
+      const dynamic=!modern && state.dynamic && typeof state.dynamic==='object' ? state.dynamic : {};
       DYNAMIC_IDS.forEach(id=>{
         const el=document.getElementById(id);
         if(el && typeof dynamic[id]==='string') el.innerHTML=dynamic[id];
@@ -2922,7 +2917,7 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
 
     try{
       const list=controls();
-      const savedValues=Array.isArray(state.values) ? state.values : [];
+      const savedValues=!modern && Array.isArray(state.values) ? state.values : [];
       savedValues.forEach((v,i)=>{
         const el=list[i];
         if(!el || !v || typeof v!=='object') return;
@@ -2931,7 +2926,7 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
       });
     }catch(err){warn('campos salvos',err)}
 
-    try{upgradeLegacyRows()}catch(err){warn('estrutura antiga',err)}
+    try{window.BPMA_CPU_STRUCTURE.repair(state);upgradeLegacyRows()}catch(err){warn('estrutura antiga',err)}
     try{setCoordinatorSignature(state.coordinatorSignature||'')}catch(err){warn('assinatura',err)}
     try{$$('#ativBody tr').forEach(row=>{try{syncAtividadeCombo(row)}catch(err){warn('atividades',err)}})}catch(err){warn('atividades',err)}
     try{$$('#procBody tr').forEach(row=>{try{syncNaturezaCombo(row,true);syncUfrField(row,false)}catch(err){warn('ações ambientais',err)}})}catch(err){warn('ações ambientais',err)}
@@ -2955,6 +2950,7 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
         });
       }
     }catch(err){warn('fotos',err)}
+    try{window.BPMA_CPU_DETAIL.restore(state.detail36);window.BPMA_CPU_DETAIL.restore37(state.detail37);window.BPMA_CPU_DETAIL.restore38(state.detail38)}catch(err){warn('detalhamento',err)}
     return compatible;
   }
 
@@ -3054,7 +3050,7 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
   }
 
   function rowHasContent(row){
-    return $$('input,textarea,select',row).some(el=>{
+    return $$('input,textarea,select',row).filter(el=>!el.closest('.bpma-data-tools')).some(el=>{
       if(el.type==='checkbox' || el.type==='radio') return !!el.checked;
       if(el.tagName==='SELECT') return !!String(el.value||'').trim();
       if(el.type==='number') return numValue(el)>0;
@@ -3081,7 +3077,7 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
 
   function extractCPUStats(){
     const stats={
-      version:3,
+      version:4,
       dataServico:$('[name="inicioData"]')?.value || String(record?.updatedAt||'').slice(0,10),
       recursos:{
         vtrEquipes:0,efetivoDia:0,ordinarioDia:0,porDia:0,
@@ -3148,7 +3144,7 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
 
     // 4B. Armas, munições, arma branca e drogas
     const objRows=$$('#tblObjetosPreview tbody tr');
-    stats.ordemPublica.armasFogo=numValue(objRows[0]?.querySelector('input'));
+    stats.ordemPublica.armasFogo=numValue(objRows[0]?.querySelector('td:last-child input'));
     stats.ordemPublica.municoes=numValue(objRows[1]?.querySelector('input'));
     stats.ordemPublica.armasBrancas=numValue(objRows[2]?.querySelector('input'));
     const drug=parseDrug(objRows[3]?.querySelector('input')?.value);
@@ -3204,6 +3200,8 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
     stats.complementares.tat=$('[name="tat"]')?.value.trim()?1:0;
     stats.complementares.descompressoes=$('[name="descompressoes"]')?.value.trim()?1:0;
 
+    stats.detalhamento=window.BPMA_CPU_DETAIL.stats();
+    window.BPMA_CPU_DETAIL.applyStats(stats);
     return stats;
   }
 
@@ -3252,6 +3250,7 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
     saving=true;
     setAutosaveState('Salvando…');
     try{
+      if(status==='Finalizado'&&!window.BPMA_CPU_STRUCTURE.validate())return false;
       const state=captureState();
       const stats=extractCPUStats();
       const officialDate=record?.dados?.serviceIdentity?.dataServico;
@@ -3343,6 +3342,7 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
         alert('Campos limpos. Nenhum rascunho foi criado.');
         return;
       }
+      if(status==='Finalizado'&&!window.BPMA_CPU_STRUCTURE.validate())return false;
       const state=captureState();
       const stats=extractCPUStats();
       record=await window.BPMA_CPU.clear(record.id,state,stats);
@@ -3576,10 +3576,10 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
   setReadonly();
 
   document.addEventListener('input',e=>{
-    if(e.target.matches('input,textarea,select')) queueSave();
+    if(e.target.matches('input,textarea,select')&&!e.target.closest('.bpma-data-tools,.bpma-system-toolbar')) queueSave();
   },true);
   document.addEventListener('change',e=>{
-    if(e.target.matches('input,textarea,select')) queueSave();
+    if(e.target.matches('input,textarea,select')&&!e.target.closest('.bpma-data-tools,.bpma-system-toolbar')) queueSave();
   },true);
   document.addEventListener('click',e=>{
     if(e.target.closest('#addEquipe,#addProc,#addAnimal,#addAtividade,[data-del-proc],[data-del-animal]'))queueSave();
@@ -3616,7 +3616,7 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
 
     const controls=[...document.querySelectorAll(
       '.wrap input:not([type="file"]):not([type="hidden"]), .wrap select, .wrap textarea'
-    )].filter(el=>!el.closest('.no-print') && !el.closest('.bpma-system-toolbar'));
+    )].filter(el=>!el.closest('.no-print') && !el.closest('.bpma-system-toolbar,.bpma-data-tools'));
 
     controls.forEach(el=>{
       const mirror=document.createElement('div');

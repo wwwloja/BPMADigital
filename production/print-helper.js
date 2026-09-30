@@ -1,5 +1,5 @@
 (() => {
-  const PDF_LIB='https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
+  const PDF_LIB=new URL('vendor/html2pdf.bundle.min.js',document.currentScript.src).href;
   const A4_W_MM=210;
   const A4_H_MM=297;
   const MARGIN_MM=7;
@@ -918,8 +918,8 @@
   function cpuPdfCellText(cell){
     if(!cell)return '';
     const clone=cell.cloneNode(true);
-    clone.querySelectorAll('.no-print,button,[role="button"],.bpma-print-value,.bpma-print-source,.bpma-print-mirror,[data-print-mirror]').forEach(el=>el.remove());
-    const originals=Array.from(cell.querySelectorAll('input,select,textarea'));
+    clone.querySelectorAll('.no-print,button,[role="button"],.bpma-print-value,.bpma-print-mirror,[data-print-mirror]').forEach(el=>el.remove());
+    const originals=Array.from(cell.querySelectorAll('input,select,textarea')).filter(el=>!el.closest('.no-print'));
     const copies=Array.from(clone.querySelectorAll('input,select,textarea'));
     copies.forEach((el,idx)=>{
       const span=clone.ownerDocument.createElement('span');
@@ -1071,7 +1071,7 @@
       const pageBottom=PAGE_H-M-FOOTER_H;
       const bodyFont=8.4;
 
-      const setText=(size=bodyFont,style='normal',color=TEXT)=>{pdf.setFont('times',style);pdf.setFontSize(size);pdf.setTextColor(...color)};
+      const setText=(size=bodyFont,style='normal',color=TEXT)=>{pdf.setFont('times',style);pdf.setFontSize(size);pdf.setLineHeightFactor?.(1.05);pdf.setTextColor(...color)};
       const addPage=()=>{pdf.addPage('a4','portrait');pageNo++;y=M;setText()};
       const ensure=(h=8)=>{if(pageNo===0)addPage();if(y+h>pageBottom)addPage()};
       const wrap=(txt,max)=>{const value=cpuPdfNormalizeText(txt);const width=Math.max(3,max);if(!value)return [' '];return value.split(/\n/).flatMap(part=>{const lines=pdf.splitTextToSize(part||' ',width);return lines&&lines.length?lines:[' ']})};
@@ -1101,7 +1101,7 @@
       };
 
       const drawSubTitle=(title)=>{
-        ensure(6.5+7);
+        ensure(30);
         pdf.setFillColor(...DARK_GREEN);pdf.rect(M,y,W,6.3,'F');
         setText(8.6,'bold',[255,255,255]);pdf.text(cpuPdfNormalizeText(title).toUpperCase(),PAGE_W/2,y+4.25,{align:'center'});
         y+=6.3;
@@ -1124,10 +1124,12 @@
         const iData=fieldValue('inicioData'),iHora=fieldValue('inicioHora'),fData=fieldValue('fimData'),fHora=fieldValue('fimHora'),area=fieldValue('areaPoliciamento');
 
         // Linha principal: mesma identidade visual; proporções inspiradas no modelo institucional.
-        ensure(11);let x=M;
+        setText(8.2);
         const widths=[.28,.30,.42].map(v=>W*v);
-        [['Identificação do serviço',id],['OPM responsável',opm],['Coordenador de policiamento',coord]].forEach((it,i)=>{drawLabeledCell(x,y,widths[i],11,it[0],it[1]);x+=widths[i]});
-        y+=11;
+        const mainH=Math.max(11,...[id,opm,coord].map((v,i)=>wrap(v,widths[i]-3.4).length*3.1+8));
+        ensure(Math.min(mainH,15));let x=M;
+        if(mainH>100){drawTable('__identificacao',{headers:['Identificação do serviço','OPM responsável','Coordenador de policiamento'],rows:[[id,opm,coord]],fractions:[.28,.30,.42]})}
+        else{ensure(mainH);[['Identificação do serviço',id],['OPM responsável',opm],['Coordenador de policiamento',coord]].forEach((it,i)=>{drawLabeledCell(x,y,widths[i],mainH,it[0],it[1]);x+=widths[i]});y+=mainH}
 
         // Início e término agrupados em dois blocos, sem alterar as cores do PDF.
         ensure(14);
@@ -1142,8 +1144,9 @@
         drawLabeledCell(M+half,y,q,9,'Data',fData,{labelSize:6.4,valueSize:8});
         drawLabeledCell(M+half+q,y,q,9,'Hora',fHora,{labelSize:6.4,valueSize:8});
         y+=9;
-        drawLabeledCell(M,y,W,9,'Área de policiamento',area,{labelSize:6.5,valueSize:8.1});
-        y+=11;
+        setText(8.1);const areaH=Math.max(9,wrap(area,W-3.4).length*3.1+8);
+        if(areaH>80){drawTable('__area',{headers:['Área de policiamento'],rows:[[area]]})}
+        else{ensure(areaH);drawLabeledCell(M,y,W,areaH,'Área de policiamento',area,{labelSize:6.5,valueSize:8.1});y+=areaH+2}
       };
 
       const numericCols={
@@ -1154,18 +1157,19 @@
       };
 
       const drawTable=(tableId,opts2={})=>{
-        const table=document.getElementById(tableId);if(!table)return;
-        const headers=cpuPdfHeaders(table);const rows=cpuPdfTableRows(table);
+        const table=document.getElementById(tableId);if(!table&&!opts2.rows)return;
+        const headers=opts2.headers||cpuPdfHeaders(table);const rows=opts2.rows||cpuPdfTableRows(table);
         const n=Math.max(headers.length,...rows.map(r=>r.length),1);
-        let fr=CPU_VECTOR_WIDTHS[tableId]||Array(n).fill(1/n);
+        let fr=opts2.fractions||CPU_VECTOR_WIDTHS[tableId]||Array(n).fill(1/n);
         if(fr.length<n)fr=[...fr,...Array(n-fr.length).fill(.08)];
         const total=fr.slice(0,n).reduce((a,b)=>a+b,0)||1;fr=fr.slice(0,n).map(v=>v/total);
         const widths=fr.map(v=>W*v);
 
         const drawHeaderRow=()=>{
+          setText(6.7,'bold',[38,68,58]);
           const headerLines=Array.from({length:n},(_,i)=>wrap(headers[i]||'',widths[i]-2.8));
           const h=Math.max(8.2,...headerLines.map(ls=>textHeight(ls,2.9)+5.0));
-          ensure(h+5);let x=M;
+          ensure(h+8);let x=M;
           for(let i=0;i<n;i++){
             pdf.setFillColor(...PALE);pdf.setDrawColor(...BORDER);pdf.setLineWidth(.18);pdf.rect(x,y,widths[i],h,'FD');
             setText(6.7,'bold',[38,68,58]);
@@ -1229,21 +1233,29 @@
         if(headers.length)drawHeaderRow();
         for(const row of rows){
           const cells=Array.from({length:n},(_,i)=>row[i]||'');
+          setText(7.5,'normal',[17,17,17]);
           const lineSets=cells.map((t,i)=>wrap(t,widths[i]-3));
           const isTotal=cells.some(t=>/^TOTAL\b/i.test(cpuPdfNormalizeText(t)));
-          const h=Math.max(7.4,...lineSets.map(ls=>textHeight(ls,3.0)+4.8));
-          if(y+h>pageBottom){addPage();if(opts2.repeatTitle)drawSubTitle(opts2.repeatTitle);if(headers.length)drawHeaderRow()}
-          let x=M;
-          for(let i=0;i<n;i++){
-            pdf.setDrawColor(...BORDER);pdf.setLineWidth(.18);
-            if(isTotal){pdf.setFillColor(...TOTAL_FILL);pdf.rect(x,y,widths[i],h,'FD')}else{pdf.setFillColor(255,255,255);pdf.rect(x,y,widths[i],h,'S')}
-            const isNum=numericCols[tableId]?.has(i);const isCenter=centerCols[tableId]?.has(i)||isNum;
-            setText(isTotal?7.7:7.5,isTotal?'bold':'normal',[17,17,17]);
-            const ls=lineSets[i];const ty=y+(h-textHeight(ls,3.0))/2+0.9;
-            pdf.text(ls,isCenter?x+widths[i]/2:x+1.5,ty,{align:isCenter?'center':'left',baseline:'top'});
-            x+=widths[i];
+          const length=Math.max(...lineSets.map(ls=>ls.length),1);
+          let offset=0;
+          while(offset<length){
+            let room=Math.floor((pageBottom-y-4.8)/3.0);
+            if(room<1){addPage();if(opts2.repeatTitle)drawSubTitle(opts2.repeatTitle);if(headers.length)drawHeaderRow();room=Math.floor((pageBottom-y-4.8)/3.0)}
+            const take=Math.max(1,Math.min(length-offset,room));
+            const chunk=lineSets.map(ls=>ls.slice(offset,offset+take));
+            const h=Math.max(7.4,take*3.0+4.8);
+            let x=M;
+            for(let i=0;i<n;i++){
+              pdf.setDrawColor(...BORDER);pdf.setLineWidth(.18);
+              if(isTotal){pdf.setFillColor(...TOTAL_FILL);pdf.rect(x,y,widths[i],h,'FD')}else{pdf.setFillColor(255,255,255);pdf.rect(x,y,widths[i],h,'S')}
+              const isNum=numericCols[tableId]?.has(i);const isCenter=centerCols[tableId]?.has(i)||isNum;
+              setText(isTotal?7.7:7.5,isTotal?'bold':'normal',[17,17,17]);
+              const ls=chunk[i];const ty=y+(h-textHeight(ls,3.0))/2+0.9;
+              if(ls.length)pdf.text(ls,isCenter?x+widths[i]/2:x+1.5,ty,{align:isCenter?'center':'left',baseline:'top'});
+              x+=widths[i];
+            }
+            y+=h;offset+=take;
           }
-          y+=h;
         }
         y+=2.3;
       };
@@ -1256,7 +1268,11 @@
         const widths=[W*.18,W*.38,W*.44];
         const headers=['DATA','OBSERVAÇÃO','PASSAGEM'];
         const vals=[date,obs,pass];
-        const lines=vals.map((v,i)=>wrap(v||'',widths[i]-3));
+        let lines=vals.map((v,i)=>wrap(v||'',widths[i]-3));
+        if(Math.max(...lines.map(x=>x.length))*3.05>140){
+          drawTable('__passagem',{headers,rows:[vals],fractions:[.18,.38,.44],repeatTitle:'Passagem de serviço — continuação'});
+          lines=[[''],[''],['']];
+        }
         const signatureReserve=signatureData?17:10;
         const bodyH=Math.max(signatureData?29:20,
           textHeight(lines[0],3.05)+5.5,

@@ -113,6 +113,7 @@
 
   window.BPMA_USERS={
     list,create,update,setActive,archive,
+    resetFinal:password=>invoke('reset-final',{password,confirmation:'ZERAR USUARIOS E AUDITORIA'}),
     loadLayerSettings,syncLayerSettingsToLocal,saveLayerSettings,
     friendlyError
   };
