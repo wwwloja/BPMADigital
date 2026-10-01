@@ -1,6 +1,8 @@
 (()=>{
   // Cria uma cópia leve SOMENTE para upload. Nunca altera o File/dataURL usado no relatório/PDF.
-  async function optimizeForStorage(file,{maxSide=1600,quality=.78}={}){
+  async function optimizeForStorage(file,{maxSide=1600,quality=.78,documentImage=false}={}){
+    if(window.BPMA50?.isEconomy?.()===false)return file;
+    if(documentImage){maxSide=2200;quality=.88;}
     if(!(file instanceof Blob)||!String(file.type||'').startsWith('image/')) return file;
     let bitmap;
     try{bitmap=await createImageBitmap(file)}catch{return file}
@@ -17,5 +19,18 @@
       return new File([blob],base+'.webp',{type:'image/webp',lastModified:Date.now()});
     }finally{try{bitmap.close()}catch{}}
   }
-  window.BPMA_STORAGE_IMAGE={optimizeForStorage};
+  const recent=new Map();
+  async function optimizeDataURL(value,documentImage=false){
+    if(!/^data:image\/(jpeg|png|webp);base64,/i.test(value)||value.length<120000)return value;
+    const key=(documentImage?'doc:':'img:')+value;if(recent.has(key))return recent.get(key);
+    try{const original=await (await fetch(value)).blob();const small=await optimizeForStorage(original,{documentImage});if(small===original)return value;const result=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=reject;reader.readAsDataURL(small)});if(recent.size>=8)recent.delete(recent.keys().next().value);recent.set(key,result);return result;}catch{return value;}
+  }
+  async function optimizeTree(value,path=''){
+    if(window.BPMA50?.isEconomy?.()===false)return value;
+    if(typeof value==='string')return optimizeDataURL(value,/signature|assinatura|document|anexo/i.test(path));
+    if(Array.isArray(value)){const out=[];for(let i=0;i<value.length;i++)out.push(await optimizeTree(value[i],path+'/'+i));return out;}
+    if(value&&typeof value==='object'){const out={};for(const [key,item] of Object.entries(value))out[key]=await optimizeTree(item,path+'/'+key);return out;}
+    return value;
+  }
+  window.BPMA_STORAGE_IMAGE={optimizeForStorage,optimizeTree};
 })();

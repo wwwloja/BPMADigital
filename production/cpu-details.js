@@ -1,4 +1,4 @@
-/* BPMA Digital 4.0.39: autocomplete nos campos originais; painel flutuante não impresso. */
+/* BPMA Digital 5.0: autocomplete nos campos originais; painel flutuante não impresso. */
 (() => {
 'use strict';
 const catalog={
@@ -179,7 +179,7 @@ function restore38(data){
  if(Array.isArray(data))data.forEach(x=>{const f=locate(x);if(f){f.dataset.items38=JSON.stringify(x.items||[]);f.dataset.gu38=x.gu||'';f.dataset.guSource38=x.guSource||'';}});
  enhance();
 }
-function capture(){return [];} // A partir de 4.0.39 o detalhe completo usa capture38.
+function capture(){return [];} // A partir de 5.0 o detalhe completo usa capture38.
 function capture37(){return {};}
 function restore(data){
  document.querySelectorAll('[data-detail36]').forEach(f=>{delete f.dataset.detail36;delete f.dataset.detailText36});

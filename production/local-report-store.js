@@ -1,6 +1,6 @@
 (() => {
   const DB_NAME='bpma-digital-local-reports';
-  const DB_VERSION=3; // 4.0 final: limpeza única dos dados locais antes da operação real
+  const DB_VERSION=3; // Versão do esquema IndexedDB; preserva registros existentes.
   const STORE='reports';
   let dbPromise=null;
 
@@ -15,8 +15,8 @@
           store=db.createObjectStore(STORE,{keyPath:'id'});
         }else{
           store=req.transaction.objectStore(STORE);
-          // Migração 4.0 final: inicia a operação real sem BO/RFA/rascunhos locais anteriores.
-          store.clear();
+          // Atualiza os índices sem excluir relatórios.
+          // Preserva os relatórios existentes nas atualizações.
         }
         if(!store.indexNames.contains('tipo')) store.createIndex('tipo','tipo',{unique:false});
         if(!store.indexNames.contains('authorId')) store.createIndex('authorId','authorId',{unique:false});

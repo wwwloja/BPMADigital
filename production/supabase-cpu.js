@@ -33,7 +33,7 @@
       requestBody=rawBody;
     }else if(body!==null){
       headers['Content-Type']='application/json';
-      requestBody=JSON.stringify(body);
+      requestBody=JSON.stringify(window.BPMA_STORAGE_IMAGE?await window.BPMA_STORAGE_IMAGE.optimizeTree(body):body);
     }
     if(prefer) headers.Prefer=prefer;
 
@@ -113,9 +113,10 @@
     const rows=await request(
       '/rest/v1/reports?tipo=eq.CPU&select=id,tipo,numero,status,unidade,author_id,dados,stats,created_at,updated_at,finalized_at&order=updated_at.desc'
     );
-    return Array.isArray(rows)?rows.map(normalize):[];
+    return Array.isArray(rows)?rows.map(normalize).filter(r=>!r.dados?.trash50):[];
   }
 
+  async function listTrash(){const rows=await request('/rest/v1/reports?tipo=eq.CPU&dados->trash50=not.is.null&select=*&order=updated_at.desc');return (rows||[]).map(normalize);}
   async function get(id){
     const rows=await request(
       `/rest/v1/reports?id=eq.${encodeURIComponent(id)}&tipo=eq.CPU&select=id,tipo,numero,status,unidade,author_id,dados,stats,created_at,updated_at,finalized_at`
@@ -370,6 +371,6 @@
 
   window.BPMA_CPU={
     listVisible,get,create,saveState,saveCorrection,finalize,clear,reopen,startRevision,cancelRevision,remove,
-    archivePdf,signedPdfUrl,PDF_RETENTION_DAYS,friendlyError
+    listTrash,archivePdf,signedPdfUrl,PDF_RETENTION_DAYS,friendlyError
   };
 })();

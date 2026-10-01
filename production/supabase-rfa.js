@@ -21,15 +21,9 @@
   }
 
   async function listVisible(){
-    const rows=await store().list(TYPE);
-    const now=new Date();
-    const month=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
-    const finals=rows.filter(r=>r.status==='Finalizado').sort((a,b)=>String(b.finalizedAt||b.updatedAt||'').localeCompare(String(a.finalizedAt||a.updatedAt||'')));
-    const keepFinalIds=new Set(finals.filter(r=>String(r.finalizedAt||r.updatedAt||r.createdAt||'').slice(0,7)===month).slice(0,3).map(r=>String(r.id)));
-    const purge=finals.filter(r=>!keepFinalIds.has(String(r.id)));
-    for(const r of purge){ try{ await store().remove(r.id); }catch{} }
-    return rows.filter(r=>r.status!=='Finalizado' || keepFinalIds.has(String(r.id)));
+    return (await store().list(TYPE)).filter(r=>!r.dados?.trash50);
   }
+
   async function get(id){
     const row=await store().get(id);
     return row?.tipo===TYPE?row:null;
@@ -50,6 +44,7 @@
 
   async function saveState(record,state,numero){
     const current=(await get(record?.id))||record;
+    if(current?.dados?.trash50)throw new Error('Relatório na lixeira. Restaure antes de editar.');
     if(!current?.id) throw new Error('RFA local não encontrado.');
     const dados={...(current.dados||{}),state,prefilledFromTemplate:false,meta:{...(current.dados?.meta||{}),localOnly:true}};
     return store().put({...current,numero:numero||current.numero,state,dados,prefilledFromTemplate:false});
@@ -57,6 +52,7 @@
 
   async function finalize(record,state,numero){
     const current=(await get(record?.id))||record;
+    if(current?.dados?.trash50)throw new Error('Relatório na lixeira. Restaure antes de editar.');
     if(!current?.id) throw new Error('RFA local não encontrado.');
     const now=new Date().toISOString();
     const previous=Number(current.dados?.version?.number)||0;
@@ -68,12 +64,14 @@
 
   async function clear(id){
     const current=await get(id);
+    if(current?.dados?.trash50)throw new Error('Relatório na lixeira. Restaure antes de editar.');
     if(!current) throw new Error('RFA local não encontrado.');
     return store().put({...current,state:null,dados:{...(current.dados||{}),state:null}});
   }
 
   async function startRevision(id){
     const current=await get(id);
+    if(current?.dados?.trash50)throw new Error('Relatório na lixeira. Restaure antes de editar.');
     if(!current) throw new Error('RFA local não encontrado.');
     if(current.status!=='Finalizado')return current;
     const oldVersion=current.dados?.version;

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>BPMA Digital — CPU · 4.0.39</title>
+<title>BPMA Digital — CPU · 5.0</title>
 <meta name="theme-color" content="#064e3b">
 <link rel="manifest" href="../manifest.webmanifest">
 <link rel="icon" type="image/png" href="https://png.pngtree.com/png-vector/20240531/ourlarge/pngtree-crested-caracara-bird-png-image_12588698.png">
@@ -1942,7 +1942,7 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
   .ufr-wrap .ufr-field input{width:38px!important;min-width:38px!important;min-height:16px!important;height:16px!important;padding:0 2px!important;font-size:7pt!important}
 }
 </style>
-<link rel="stylesheet" href="../cpu-structure.css?v=4.0.39">
+<link rel="stylesheet" href="../cpu-structure.css?v=5.0">
 </head>
 <body>
 <!-- Barra de ações CPU: markup estático para permanecer visível no desktop mesmo antes da inicialização dos dados. -->
@@ -1969,7 +1969,7 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
   </div>
   <div class="right-slot"><img src="../assets/pmpb.jpg" alt="Brasão PMPB"></div>
 </header>
-<div class="title-row"><h1>Relatório de Serviço CPU</h1><span class="status">Relatório completo · Versão 4.0.39</span></div>
+<div class="title-row"><h1>Relatório de Serviço CPU</h1><span class="status">Relatório completo · Versão 5.0</span></div>
 
 
 
@@ -2735,9 +2735,11 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
 <script src="../supabase-config.js"></script>
 <script src="../supabase-auth.js"></script>
 <script src="../security.js"></script>
-<script src="../cpu-structure.js?v=4.0.39"></script>
-<script src="../cpu-details.js?v=4.0.39"></script>
-<script src="../print-helper.js?v=4.0.39"></script>
+<script src="../cpu-structure.js?v=5.0"></script>
+<script src="../cpu-details.js?v=5.0"></script>
+<script src="../print-helper.js?v=5.0"></script>
+<script src="../upgrade50.js?v=5.0"></script>
+<script src="../storage-image-opt.js?v=5.0"></script>
 <script src="../supabase-cpu.js"></script>
 
 <script id="bpma-cpu-35-integration">
@@ -3499,6 +3501,7 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
 
   try{
     const auth=await window.BPMA_AUTH.restore();
+    try{await window.BPMA50.load()}catch{}
     if(!auth) throw new Error('Sessão expirada.');
     window.BPMA_SECURITY?.start?.({minutes:30,redirect:'../index.html?reason=inactivity'});
     record=newMode ? makeUnsavedRecord() : await window.BPMA_CPU.get(recordId);
