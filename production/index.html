@@ -603,9 +603,9 @@ th,td{padding:10px;border-bottom:1px solid #edf1ef;text-align:left;white-space:n
 </style>
 <link rel="stylesheet" href="home-app.css">
 <link rel="stylesheet" href="app-shell.css">
-<link rel="stylesheet" href="icons-duotone.css?v=5.1.1">
-<script src="icons-duotone.js?v=5.1.1"></script>
-<script src="home-app.js?v=5.1.1"></script>
+<link rel="stylesheet" href="icons-outline.css?v=5.1.2">
+<script src="icons-outline.js?v=5.1.2"></script>
+<script src="home-app.js?v=5.1.2"></script>
 
 <style id="bpma-4011-visual">
 /* BPMA Digital 5.0 · refinamento visual aprovado */
@@ -717,7 +717,7 @@ th,td{padding:10px;border-bottom:1px solid #edf1ef;text-align:left;white-space:n
     </div>
     <div class="userbox"><b id="sideUserName">Usuário</b><small id="sideUserRole">Perfil</small><small id="sideUserUnit">Unidade</small></div>
     <nav class="nav" id="nav"></nav>
-    <div class="side-bottom"><button class="logout" id="ownPasswordBtn">Trocar minha senha</button><button class="logout" id="logoutBtn">Sair</button></div>
+    <div class="side-bottom"><button class="account-link" id="ownPasswordBtn">Trocar minha senha</button><button class="logout" id="logoutBtn">Sair</button></div>
   </aside>
   <main class="main">
     <div class="mobile-head"><b>BPMA Digital</b><button id="menuBtn">☰ Menu</button></div>
@@ -745,21 +745,21 @@ th,td{padding:10px;border-bottom:1px solid #edf1ef;text-align:left;white-space:n
 
 <dialog id="recovery51" class="reset-dialog"><div class="dlg-body"><h3>Recuperar senha sem e-mail</h3><p>Solicite um código ao Admin após confirmar sua identidade. Válido por 15 minutos.</p><label>Matrícula<input id="recoverMat51" autocomplete="username"></label><label>Código<input id="recoverCode51" autocomplete="off"></label><label>Nova senha<input id="recoverPass51" type="password" autocomplete="new-password"></label><label>Confirmar senha<input id="recoverConfirm51" type="password" autocomplete="new-password"></label><p id="recoverMsg51" role="status"></p><button class="btn" id="recoverCancel51">Cancelar</button><button class="btn primary" id="recoverSubmit51">Definir senha</button></div></dialog>
 <dialog id="ownPassword51" class="reset-dialog"><div class="dlg-body"><h3>Trocar minha senha</h3><label>Senha atual<input id="ownCurrent51" type="password" autocomplete="current-password"></label><label>Nova senha<input id="ownNew51" type="password" autocomplete="new-password"></label><label>Confirmar senha<input id="ownConfirm51" type="password" autocomplete="new-password"></label><p id="ownMsg51" role="status"></p><button class="btn" id="ownCancel51">Cancelar</button><button class="btn primary" id="ownSubmit51">Salvar</button></div></dialog>
-<script src="supabase-config.js?v=5.1.1"></script>
-<script src="supabase-auth.js?v=5.1.1"></script>
-<script src="supabase-users.js?v=5.1.1"></script>
-<script src="cpu-details.js?v=5.1.1"></script>
-<script src="upgrade50.js?v=5.1.1"></script>
-<script src="stats37.js?v=5.1.1"></script>
+<script src="supabase-config.js?v=5.1.2"></script>
+<script src="supabase-auth.js?v=5.1.2"></script>
+<script src="supabase-users.js?v=5.1.2"></script>
+<script src="cpu-details.js?v=5.1.2"></script>
+<script src="upgrade50.js?v=5.1.2"></script>
+<script src="stats37.js?v=5.1.2"></script>
 
-<script src="local-report-store.js?v=5.1.1"></script>
-<script src="supabase-bo.js?v=5.1.1"></script>
-<script src="supabase-rfa.js?v=5.1.1"></script>
-<script src="supabase-cpu.js?v=5.1.1"></script>
-<script src="supabase-system.js?v=5.1.1"></script>
-<script src="security.js?v=5.1.1"></script>
-<script src="pwa.js?v=5.1.1"></script>
-<script src="print-helper.js?v=5.1.1"></script>
+<script src="local-report-store.js?v=5.1.2"></script>
+<script src="supabase-bo.js?v=5.1.2"></script>
+<script src="supabase-rfa.js?v=5.1.2"></script>
+<script src="supabase-cpu.js?v=5.1.2"></script>
+<script src="supabase-system.js?v=5.1.2"></script>
+<script src="security.js?v=5.1.2"></script>
+<script src="pwa.js?v=5.1.2"></script>
+<script src="print-helper.js?v=5.1.2"></script>
 <script>
 const USERS_KEY='bpma_local_users_v1';
 const SESSION_KEY='bpma_local_session_v1';
@@ -2405,6 +2405,7 @@ async function handleRecoveryCallback(){
 }
 
 
+ ownPasswordBtn.innerHTML=BPMA_ICONS.render('key')+'<span>Trocar minha senha</span>';
  ownPasswordBtn.onclick=()=>ownPassword51.showModal();
  ownCancel51.onclick=()=>ownPassword51.close();recoverCancel51.onclick=()=>recovery51.close();
  ownSubmit51.onclick=async()=>{if(ownNew51.value!==ownConfirm51.value){ownMsg51.textContent='As senhas não coincidem.';return;}ownSubmit51.disabled=true;try{await BPMA_AUTH.updatePassword(ownNew51.value,ownCurrent51.value);ownCurrent51.value='';ownNew51.value='';ownConfirm51.value='';ownMsg51.textContent='Senha alterada.'}catch(e){ownMsg51.textContent=e.message}finally{ownSubmit51.disabled=false}};

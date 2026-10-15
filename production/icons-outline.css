@@ -1,0 +1,13 @@
+svg.bpma-outline{display:inline-block;flex-shrink:0;overflow:visible;vertical-align:middle;fill:none!important;stroke:currentColor!important;stroke-width:1.65!important;stroke-linecap:round;stroke-linejoin:round}
+svg.bpma-outline *{fill:none!important;stroke:inherit;stroke-width:inherit}
+.home-icon{width:50px!important;height:50px!important;background:transparent!important;color:#245a46!important;border-radius:0!important}
+.home-icon svg.bpma-outline{width:36px!important;height:36px!important}
+.home-bo .home-icon{color:#e3efe8!important}
+.stats37-card>svg.bpma-outline{width:40px;height:40px;padding:3px;background:transparent;box-sizing:content-box}
+.home-tools-grid svg.bpma-outline{width:24px;height:24px}
+.account-link{display:flex;align-items:center;gap:8px;width:100%;min-height:40px;margin-bottom:8px;padding:8px 9px;border:0;background:transparent;color:#d2e1d9;text-align:left;font:inherit;font-size:12px;font-weight:400;cursor:pointer;border-radius:6px}
+.account-link svg.bpma-outline{width:15px;height:15px}
+.account-link:hover{color:#fff;text-decoration:underline;text-underline-offset:3px}
+.account-link:focus-visible{outline:2px solid #c8ac5b;outline-offset:2px}
+@media(max-width:760px){.account-link{min-height:44px}}
+@media(max-width:600px){.home-icon{width:46px!important;height:46px!important}.home-icon svg.bpma-outline{width:32px!important;height:32px!important}.stats37-card>svg.bpma-outline{width:32px;height:32px;padding:2px}}
