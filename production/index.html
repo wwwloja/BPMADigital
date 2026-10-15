@@ -603,7 +603,9 @@ th,td{padding:10px;border-bottom:1px solid #edf1ef;text-align:left;white-space:n
 </style>
 <link rel="stylesheet" href="home-app.css">
 <link rel="stylesheet" href="app-shell.css">
-<script src="home-app.js?v=5.1"></script>
+<link rel="stylesheet" href="icons-duotone.css?v=5.1.1">
+<script src="icons-duotone.js?v=5.1.1"></script>
+<script src="home-app.js?v=5.1.1"></script>
 
 <style id="bpma-4011-visual">
 /* BPMA Digital 5.0 · refinamento visual aprovado */
@@ -743,21 +745,21 @@ th,td{padding:10px;border-bottom:1px solid #edf1ef;text-align:left;white-space:n
 
 <dialog id="recovery51" class="reset-dialog"><div class="dlg-body"><h3>Recuperar senha sem e-mail</h3><p>Solicite um código ao Admin após confirmar sua identidade. Válido por 15 minutos.</p><label>Matrícula<input id="recoverMat51" autocomplete="username"></label><label>Código<input id="recoverCode51" autocomplete="off"></label><label>Nova senha<input id="recoverPass51" type="password" autocomplete="new-password"></label><label>Confirmar senha<input id="recoverConfirm51" type="password" autocomplete="new-password"></label><p id="recoverMsg51" role="status"></p><button class="btn" id="recoverCancel51">Cancelar</button><button class="btn primary" id="recoverSubmit51">Definir senha</button></div></dialog>
 <dialog id="ownPassword51" class="reset-dialog"><div class="dlg-body"><h3>Trocar minha senha</h3><label>Senha atual<input id="ownCurrent51" type="password" autocomplete="current-password"></label><label>Nova senha<input id="ownNew51" type="password" autocomplete="new-password"></label><label>Confirmar senha<input id="ownConfirm51" type="password" autocomplete="new-password"></label><p id="ownMsg51" role="status"></p><button class="btn" id="ownCancel51">Cancelar</button><button class="btn primary" id="ownSubmit51">Salvar</button></div></dialog>
-<script src="supabase-config.js?v=5.1"></script>
-<script src="supabase-auth.js?v=5.1"></script>
-<script src="supabase-users.js?v=5.1"></script>
-<script src="cpu-details.js?v=5.1"></script>
-<script src="upgrade50.js?v=5.1"></script>
-<script src="stats37.js?v=5.1"></script>
+<script src="supabase-config.js?v=5.1.1"></script>
+<script src="supabase-auth.js?v=5.1.1"></script>
+<script src="supabase-users.js?v=5.1.1"></script>
+<script src="cpu-details.js?v=5.1.1"></script>
+<script src="upgrade50.js?v=5.1.1"></script>
+<script src="stats37.js?v=5.1.1"></script>
 
-<script src="local-report-store.js?v=5.1"></script>
-<script src="supabase-bo.js?v=5.1"></script>
-<script src="supabase-rfa.js?v=5.1"></script>
-<script src="supabase-cpu.js?v=5.1"></script>
-<script src="supabase-system.js?v=5.1"></script>
-<script src="security.js?v=5.1"></script>
-<script src="pwa.js?v=5.1"></script>
-<script src="print-helper.js?v=5.1"></script>
+<script src="local-report-store.js?v=5.1.1"></script>
+<script src="supabase-bo.js?v=5.1.1"></script>
+<script src="supabase-rfa.js?v=5.1.1"></script>
+<script src="supabase-cpu.js?v=5.1.1"></script>
+<script src="supabase-system.js?v=5.1.1"></script>
+<script src="security.js?v=5.1.1"></script>
+<script src="pwa.js?v=5.1.1"></script>
+<script src="print-helper.js?v=5.1.1"></script>
 <script>
 const USERS_KEY='bpma_local_users_v1';
 const SESSION_KEY='bpma_local_session_v1';
@@ -1662,7 +1664,7 @@ function renderSupabaseUserRows(users){
       <td>
         <div class="user-table-actions">${u.orphan&&!u.deleted_at?`<button class="btn" data-repair-user="${u.id}">Recuperar perfil inativo</button>`:''}${u.ativo&&!u.deleted_at&&!u.is_test&&!u.orphan?`<button class="btn" data-recovery-user="${u.id}">Gerar código</button>`:''}
           ${!u.deleted_at&&!u.orphan&&!u.is_test?`<button class="btn" data-edit-sb-user="${u.id}">Editar</button>`:''}
-          ${self||u.deleted_at||u.orphan?'':`<button class="btn${pending?' primary':''}" data-toggle-sb-user="${u.id}">${pending?'Aprovar':(u.ativo?'Desativar':'Ativar')}</button>`}
+          ${self||u.deleted_at||u.orphan||u.ativo?'':`<button class="btn${pending?' primary':''}" data-toggle-sb-user="${u.id}">${pending?'Aprovar':'Ativar'}</button>`}
           ${self||u.deleted_at||u.is_test?'':`<button class="btn danger" data-archive-sb-user="${u.id}">${pending?'Excluir solicitação':'Excluir acesso'}</button>`}
         </div>
       </td>
@@ -1679,7 +1681,7 @@ async function refreshSupabaseUsers(){
     supabaseUsersCache=await window.BPMA_USERS.list();
     tbody.innerHTML=renderSupabaseUserRows(filteredUsers51());
     bindSupabaseUserRowActions();
-    if(msg){const pend=supabaseUsersCache.filter(u=>u.cadastro_pendente===true).length;msg.textContent=`${supabaseUsersCache.length} usuário(s) no cadastro${pend?` · ${pend} pendente(s) de aprovação`:''}.`;msg.className='note'}
+    if(msg){const pend=supabaseUsersCache.filter(u=>u.cadastro_pendente===true&&!u.deleted_at).length;msg.textContent=`${supabaseUsersCache.filter(u=>!u.deleted_at).length} usuário(s) no cadastro atual${pend?` · ${pend} pendente(s) de aprovação`:''}.`;msg.className='note'}
   }catch(err){
     tbody.innerHTML=`<tr><td colspan="7" class="empty">Não foi possível carregar os usuários.</td></tr>`;
     if(msg){
@@ -1690,8 +1692,18 @@ async function refreshSupabaseUsers(){
 }
 
 function filteredUsers51(){
-  const q=(document.getElementById('userSearch51')?.value||'').toLowerCase(),f=document.getElementById('userStatus51')?.value||'';
-  return supabaseUsersCache.filter(u=>[u.nome,u.matricula,u.unidade].join(' ').toLowerCase().includes(q)&&(!f||(f==='deleted'?!!u.deleted_at:f==='orphan'?u.orphan:f==='pending'?u.cadastro_pendente&&!u.deleted_at:f==='active'?u.ativo&&!u.deleted_at:!u.ativo&&!u.deleted_at&&!u.cadastro_pendente)));
+ const q=(document.getElementById('userSearch51')?.value||'').toLocaleLowerCase('pt-BR');
+ const f=document.getElementById('userStatus51')?.value||'';
+ return supabaseUsersCache.filter(u=>{
+  if(![u.nome,u.matricula,u.unidade].join(' ').toLocaleLowerCase('pt-BR').includes(q))return false;
+  if(f==='deleted')return !!u.deleted_at;
+  if(u.deleted_at)return false;
+  if(!f)return true;
+  if(f==='orphan')return !!u.orphan;
+  if(f==='pending')return !!u.cadastro_pendente;
+  if(f==='active')return !!u.ativo&&!u.orphan;
+  return !u.ativo&&!u.cadastro_pendente&&!u.orphan;
+ });
 }
 function bindSupabaseUserRowActions(){
   document.querySelectorAll('[data-repair-user]').forEach(b=>b.onclick=async()=>{try{await BPMA_USERS.repairProfile(b.dataset.repairUser);await refreshSupabaseUsers()}catch(e){alert(e.message)}});
@@ -1758,8 +1770,9 @@ async function toggleSupabaseUser(id){
   const u=supabaseUsersCache.find(x=>String(x.id)===String(id));
   if(!u)return;
   const pending=u.cadastro_pendente===true;
-  const next=pending?true:!u.ativo;
-  const action=pending?'Aprovar cadastro de':(next?'Ativar o acesso de':'Desativar o acesso de');
+  if(u.ativo||u.deleted_at)return;
+  const next=true;
+  const action=pending?'Aprovar cadastro de':'Ativar o acesso de';
   if(!confirm(`${action} ${u.nome||u.usuario}?`))return;
   userManagementBusy=true;
   try{
@@ -1820,7 +1833,7 @@ function renderUsers(){
   </div>
 
   <div class="panel">
-    <h3>Todos os usuários do BPMA Digital</h3><input id="userSearch51" placeholder="Buscar nome, matrícula ou unidade"><select id="userStatus51"><option value="">Todos</option><option value="pending">Pendentes</option><option value="active">Ativos</option><option value="blocked">Bloqueados</option><option value="deleted">Excluídos</option><option value="orphan">Sem vínculo</option></select>
+    <h3>Usuários do BPMA Digital</h3><input id="userSearch51" placeholder="Buscar nome, matrícula ou unidade"><select id="userStatus51"><option value="">Cadastros atuais</option><option value="pending">Pendentes</option><option value="active">Ativos</option><option value="blocked">Bloqueados</option><option value="deleted">Ver excluídos</option><option value="orphan">Sem perfil / vínculo</option></select>
     <div class="table-wrap">
       <table>
         <thead><tr><th>Matrícula</th><th>Militar</th><th>Perfil</th><th>Unidade</th><th>Status</th><th>Último acesso</th><th>Ações</th></tr></thead>

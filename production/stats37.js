@@ -4,20 +4,7 @@
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmt=n=>new Intl.NumberFormat('pt-BR',{maximumFractionDigits:3}).format(Number(n)||0);
 const positive=n=>Math.max(0,Number(n)||0);
-const art={
- shotgun:'<path d="M5 10h35v10H25l-3 5 4 13H15l-5-17H5z"/><path d="M7 14h31M30 10V7h5v3M24 20v8h-9M19 21q0 5 4 5M15 28l5 1m-4 4 5 1M9 10V8h4v2"/>',
- cuffs:'<g transform="rotate(-18 13 29)"><ellipse cx="13" cy="29" rx="9" ry="11"/><ellipse cx="13" cy="29" rx="5" ry="7"/><path d="M9 17v-4h8v5"/><circle cx="13" cy="16" r=".8"/></g><g transform="rotate(18 35 29)"><ellipse cx="35" cy="29" rx="9" ry="11"/><ellipse cx="35" cy="29" rx="5" ry="7"/><path d="M31 18v-5h8v4"/><circle cx="35" cy="16" r=".8"/></g><path d="M16 12l4-5q3-3 5 1l2 4m-5-4 3-2q4-1 5 3l2 4"/>',
- coins:'<ellipse cx="18" cy="12" rx="12" ry="5"/><path d="M6 12v7c0 7 24 7 24 0v-7M6 20v7c0 4 10 6 16 4M6 28v7c0 4 9 6 16 4"/><circle cx="33" cy="30" r="11"/><path d="M36 25h-5q-4 0-3 4 1 2 5 2 5 0 4 4-1 2-7 1m3-14v17"/>',
- bird:'<path d="M9 26q-3-12 10-13l7 1q0-10 7-10 6 1 5 7l6 3-7 2q0 13-17 15L5 36l5-10z"/><path d="M15 25q9-1 13-9M23 31l-1 8m7-10 2 9m-12 1h7m2-1h7"/><circle cx="34" cy="9" r="1"/>',
- paw:'<path d="M13 26q2-7 8-7 5 0 8 7l5 7q1 6-5 6-5-3-8-3-4 0-8 3-7 0-5-6z"/><ellipse cx="9" cy="17" rx="4" ry="6" transform="rotate(-25 9 17)"/><ellipse cx="18" cy="10" rx="4" ry="6"/><ellipse cx="28" cy="10" rx="4" ry="6"/><ellipse cx="37" cy="18" rx="4" ry="6" transform="rotate(25 37 18)"/>',
- car:'<path d="M7 25l5-11h23l5 11v12H7zM7 25h33M16 15l-3 9h21l-3-9M8 37v4h7v-4m17 0v4h7v-4"/><path d="M11 30h6m13 0h6m-16 4h8"/>',
- leaf:'<path d="M8 36Q2 8 39 5Q44 39 14 38M8 41L31 17M17 32l-1-10m8 2 9-1"/>',
- file:'<path d="M10 4h20l9 9v29H10zM30 4v10h9M16 21h17m-17 7h17m-17 7h12"/>',
- people:'<circle cx="17" cy="13" r="6"/><path d="M5 39v-9q1-10 12-10t12 10v9M30 8q10-1 10 7t-9 6m2 4q10 0 10 10v4"/>',
- material:'<path d="M6 15l16-9 17 9v24H6zM6 15l16 9 17-9M22 24v15M14 10l17 10v9M6 31l16 8 17-8"/>',
- balance:'<path d="M23 5v35M14 41h18M8 13h31M9 13l-6 17h13L9 13zm28 0-6 17h13l-7-17zM3 30q6 8 13 0m15 0q6 8 13 0"/>'
-};
-function icon(key){return `<svg viewBox="0 0 48 48" width="38" height="38" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${art[key]||art.file}</svg>`;}
+function icon(key){return window.BPMA_ICONS.render(key);}
 function sum(rows,path){return rows.reduce((n,r)=>{let v=r.stats;for(const k of path.split('.'))v=v?.[k];return n+positive(v)},0)}
 function filteredDetails(rows,key,filters={}){
  return rows.flatMap(r=>(r.stats?.detalhamento?.[key]||[]).map(x=>({...x,report:r})));

@@ -1,0 +1,14 @@
+/* Cores explícitas preservam legibilidade em cartões claros e menus escuros. */
+svg.bpma-duotone{display:inline-block;flex-shrink:0;overflow:visible;vertical-align:middle}
+svg.bpma-duotone [data-fill="green"]{fill:#10553f!important;stroke:none!important}
+svg.bpma-duotone [data-fill="gold"]{fill:#c59d40!important;stroke:none!important}
+svg.bpma-duotone [data-fill="white"]{fill:#fff!important;stroke:none!important}
+svg.bpma-duotone [data-line="gold"]{fill:none!important;stroke:#c59d40!important;stroke-width:2.6!important}
+.sidebar svg.bpma-duotone [data-fill="green"],.app-home-emphasis svg.bpma-duotone [data-fill="green"]{fill:#fff!important}
+.home-icon{background:#eef6f0!important;border-radius:18px!important}
+.stats37-card>svg.bpma-duotone{width:48px;height:48px;padding:6px;background:#eef6f0;border-radius:14px;box-sizing:content-box}
+.home-tools-grid svg.bpma-duotone{width:25px;height:25px}
+@media(max-width:600px){.stats37-card>svg.bpma-duotone{width:34px;height:34px;padding:5px}.home-icon{border-radius:14px!important}}
+.home-icon{width:56px!important;height:56px!important}
+.home-icon svg.bpma-duotone{width:38px!important;height:38px!important}
+@media(max-width:600px){.home-icon{width:50px!important;height:50px!important}.home-icon svg.bpma-duotone{width:34px!important;height:34px!important}}

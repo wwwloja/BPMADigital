@@ -1,8 +1,5 @@
 /* Apresentação da tela inicial. As permissões e ações continuam no index.html. */
-function homeIcon(name){
-  const paths={bo:'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z M14 2v6h6 M8 13h8 M8 17h5',rfa:'M20 4c-9-2-16 2-16 9a7 7 0 0 0 7 7c7 0 11-7 9-16Z M4 20 15 9',cpu:'M8 4H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-3 M8 2h8v4H8z M7 12h3 M14 12h3 M7 17h3 M14 17h3',term:'M12 3v18 M3 9h18 M3 15h18 M7 3l-2 18 M19 3l-2 18',arrow:'M5 12h14 M13 6l6 6-6 6',grid:'M3 3h7v7H3z M14 3h7v7h-7z M3 14h7v7H3z M14 14h7v7h-7z',user:'M20 21a8 8 0 0 0-16 0 M12 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8',chart:'M4 3v18h17 M8 16v-4 M13 16V7 M18 16v-7',folder:'M3 7V5a2 2 0 0 1 2-2h5l2 3h7a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z'};
-  return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${paths[name]||paths.grid}"/></svg>`;
-}
+function homeIcon(name){return window.BPMA_ICONS.render(name);}
 function termLink(className='btn app-term-link'){
   if(!session || !['cpu','operacional'].includes(session.role)) return '';
   return `<a class="${className}" href="${escAttr(TERM_FORM_URL)}" target="_blank" rel="noopener noreferrer">${homeIcon('term')}<span>Número de Termo ↗</span></a>`;
