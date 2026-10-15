@@ -84,7 +84,7 @@
 
   function isTestUser(session){
     const u=String(session?.user||session?.usuario||'').trim().toLowerCase();
-    return u==='testecpu' || u==='testeop';
+    return u==='teste001' || u==='testecpu' || u==='testeop';
   }
 
   function numberForNewCPU(test=false){

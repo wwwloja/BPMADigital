@@ -113,7 +113,10 @@
 
   window.BPMA_USERS={
     list,create,update,setActive,archive,
-    resetFinal:password=>invoke('reset-final',{password,confirmation:'ZERAR USUARIOS E AUDITORIA'}),
+    repairProfile:id=>invoke('repair-profile',{id}),
+    recoveryCode:id=>invoke('recovery-code',{id}),
+    configureTest:role=>invoke('test-account',{role}),
+    cleanAudit:(before,confirmation='')=>invoke('audit-clean',{before,confirmation}),
     loadLayerSettings,syncLayerSettingsToLocal,saveLayerSettings,
     friendlyError
   };

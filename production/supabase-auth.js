@@ -68,24 +68,17 @@
     return `${matricula}@bpma.local`;
   }
 
-  async function signIn(identifier,password){
-    const raw=String(identifier||'').trim();
-    const email=authEmail(raw);
-    try{
-      const data=await request('/auth/v1/token?grant_type=password',{method:'POST',body:{email,password}});
-      return saveSession(data);
-    }catch(firstErr){
-      if(raw.includes('@')) throw firstErr;
-      // Compatibilidade com contas antigas cujo Auth ainda usa o e-mail real.
-      const {url,key}=config();
-      const response=await fetch(url+'/functions/v1/login-by-matricula',{method:'POST',headers:{apikey:key,'Content-Type':'application/json'},body:JSON.stringify({matricula:normalizeMatricula(raw),password})});
-      const text=await response.text(); let data={}; try{data=text?JSON.parse(text):{}}catch{}
-      if(!response.ok||!data?.access_token) throw firstErr;
-      return saveSession(data);
-    }
+  async function edge(name,body){
+    return request('/functions/v1/'+name,{method:'POST',body});
   }
-
-
+  async function signIn(identifier,password){
+    const raw=String(identifier||'').trim().toUpperCase();
+    if(!/^[A-Z0-9_-]{3,32}$/.test(raw))throw new Error('Informe a matrícula, sem e-mail.');
+    return saveSession(await edge('login-by-matricula',{matricula:raw,password}));
+  }
+  async function recoverWithCode(matricula,code,password){
+    return edge('recover-password',{matricula,code,password});
+  }
   async function requestRegistration(payload={}){
     const password=String(payload.password||'');
     const nome=String(payload.nome||'').trim().toUpperCase();
@@ -158,13 +151,15 @@
     return request(path,{method:'POST',body:{email}});
   }
 
-  async function updatePassword(password){
+  async function updatePassword(password,currentPassword){
+    if(!currentPassword)throw new Error('Informe a senha atual.');
+    if(password.length<8||new TextEncoder().encode(password).length>72)throw new Error('Senha: mínimo 8 caracteres e máximo 72 bytes.');
     let saved=await restore();
     if(!saved?.access_token) throw new Error('Sessão expirada. Entre novamente.');
-    return request('/auth/v1/user',{
-      method:'PUT',
+    return request('/functions/v1/change-password',{
+      method:'POST',
       token:saved.access_token,
-      body:{password}
+      body:{password,current_password:currentPassword}
     });
   }
 
@@ -210,5 +205,5 @@
     return err?.message || 'Não foi possível entrar.';
   }
 
-  window.BPMA_AUTH={signIn,requestRegistration,restore,profile,signOut,refresh,loadSession,clearSession,sendRecovery,updatePassword,consumeRecoveryFromUrl,friendlyError,friendlyRegistrationError};
+  window.BPMA_AUTH={version:'5.1',signIn,requestRegistration,recoverWithCode,restore,profile,signOut,refresh,loadSession,clearSession,sendRecovery,updatePassword,consumeRecoveryFromUrl,friendlyError,friendlyRegistrationError};
 })();

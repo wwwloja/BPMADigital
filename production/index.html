@@ -588,10 +588,22 @@ th,td{padding:10px;border-bottom:1px solid #edf1ef;text-align:left;white-space:n
 @media(max-width:1100px){.stats-kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.stats-donut-wrap{grid-template-columns:160px minmax(0,1fr)}.stats-donut{width:150px;height:150px}.stats-donut::after{inset:36px}}
 @media(max-width:760px){.stats-kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.stats-kpi-card{grid-template-columns:46px minmax(0,1fr);gap:9px;min-height:100px;padding:12px}.stats-kpi-icon{width:46px;height:46px;border-radius:14px}.stats-kpi-icon svg{width:25px;height:25px}.stats-kpi-copy b{font-size:24px}.stats-main-grid,.stats-bottom-grid{grid-template-columns:1fr}.stats-donut-wrap{grid-template-columns:140px minmax(0,1fr)}.stats-donut{width:132px;height:132px}.stats-donut::after{inset:31px}.stats-visual-card{padding:13px}.stats-hbar{grid-template-columns:105px 1fr 34px;gap:6px}}
 @media(max-width:480px){.stats-kpi-grid{grid-template-columns:1fr 1fr}.stats-kpi-card{display:block;min-height:145px}.stats-kpi-icon{margin-bottom:10px}.stats-kpi-copy small{min-height:24px}.stats-donut-wrap{grid-template-columns:1fr}.stats-donut-legend{margin-top:4px}.stats-svg{min-width:560px}}
+
+#userSearch51,#userStatus51,#testRole51{max-width:100%;padding:10px;border:1px solid var(--border);border-radius:8px;margin:4px 0}
+@media(max-width:600px){
+.audit51-table,.audit51-table tbody{display:block;width:100%}
+.audit51-table thead{display:none}
+.audit51-table tbody tr{display:grid;grid-template-columns:1fr 1fr;padding:10px 0;border-bottom:1px solid #dde6e1}
+.audit51-table td{white-space:normal;border:0;padding:4px}
+.audit51-table td:nth-child(3),.audit51-table td:nth-child(5){grid-column:1/-1}
+.audit51-table td:nth-child(3){font-weight:700}
+.audit51-table td:nth-child(4){display:none}
+.audit51-table summary{cursor:pointer;color:#006b5b}
+}
 </style>
 <link rel="stylesheet" href="home-app.css">
 <link rel="stylesheet" href="app-shell.css">
-<script src="home-app.js"></script>
+<script src="home-app.js?v=5.1"></script>
 
 <style id="bpma-4011-visual">
 /* BPMA Digital 5.0 · refinamento visual aprovado */
@@ -703,7 +715,7 @@ th,td{padding:10px;border-bottom:1px solid #edf1ef;text-align:left;white-space:n
     </div>
     <div class="userbox"><b id="sideUserName">Usuário</b><small id="sideUserRole">Perfil</small><small id="sideUserUnit">Unidade</small></div>
     <nav class="nav" id="nav"></nav>
-    <div class="side-bottom"><button class="logout" id="logoutBtn">Sair</button></div>
+    <div class="side-bottom"><button class="logout" id="ownPasswordBtn">Trocar minha senha</button><button class="logout" id="logoutBtn">Sair</button></div>
   </aside>
   <main class="main">
     <div class="mobile-head"><b>BPMA Digital</b><button id="menuBtn">☰ Menu</button></div>
@@ -729,21 +741,23 @@ th,td{padding:10px;border-bottom:1px solid #edf1ef;text-align:left;white-space:n
   </div>
 </dialog>
 
-<script src="supabase-config.js"></script>
-<script src="supabase-auth.js"></script>
-<script src="supabase-users.js"></script>
-<script src="cpu-details.js?v=5.0"></script>
-<script src="upgrade50.js?v=5.0"></script>
-<script src="stats37.js?v=5.0"></script>
-<script src="final-admin.js?v=5.0"></script>
-<script src="local-report-store.js"></script>
-<script src="supabase-bo.js"></script>
-<script src="supabase-rfa.js"></script>
-<script src="supabase-cpu.js"></script>
-<script src="supabase-system.js"></script>
-<script src="security.js"></script>
-<script src="pwa.js"></script>
-<script src="print-helper.js?v=5.0"></script>
+<dialog id="recovery51" class="reset-dialog"><div class="dlg-body"><h3>Recuperar senha sem e-mail</h3><p>Solicite um código ao Admin após confirmar sua identidade. Válido por 15 minutos.</p><label>Matrícula<input id="recoverMat51" autocomplete="username"></label><label>Código<input id="recoverCode51" autocomplete="off"></label><label>Nova senha<input id="recoverPass51" type="password" autocomplete="new-password"></label><label>Confirmar senha<input id="recoverConfirm51" type="password" autocomplete="new-password"></label><p id="recoverMsg51" role="status"></p><button class="btn" id="recoverCancel51">Cancelar</button><button class="btn primary" id="recoverSubmit51">Definir senha</button></div></dialog>
+<dialog id="ownPassword51" class="reset-dialog"><div class="dlg-body"><h3>Trocar minha senha</h3><label>Senha atual<input id="ownCurrent51" type="password" autocomplete="current-password"></label><label>Nova senha<input id="ownNew51" type="password" autocomplete="new-password"></label><label>Confirmar senha<input id="ownConfirm51" type="password" autocomplete="new-password"></label><p id="ownMsg51" role="status"></p><button class="btn" id="ownCancel51">Cancelar</button><button class="btn primary" id="ownSubmit51">Salvar</button></div></dialog>
+<script src="supabase-config.js?v=5.1"></script>
+<script src="supabase-auth.js?v=5.1"></script>
+<script src="supabase-users.js?v=5.1"></script>
+<script src="cpu-details.js?v=5.1"></script>
+<script src="upgrade50.js?v=5.1"></script>
+<script src="stats37.js?v=5.1"></script>
+
+<script src="local-report-store.js?v=5.1"></script>
+<script src="supabase-bo.js?v=5.1"></script>
+<script src="supabase-rfa.js?v=5.1"></script>
+<script src="supabase-cpu.js?v=5.1"></script>
+<script src="supabase-system.js?v=5.1"></script>
+<script src="security.js?v=5.1"></script>
+<script src="pwa.js?v=5.1"></script>
+<script src="print-helper.js?v=5.1"></script>
 <script>
 const USERS_KEY='bpma_local_users_v1';
 const SESSION_KEY='bpma_local_session_v1';
@@ -754,7 +768,7 @@ const TERM_FORM_URL='https://docs.google.com/forms/d/e/1FAIpQLSf73Crd__ZtJIxeo3C
 const roleLabels={admin:'Admin',p3:'BPMA/P3',gestor:'Gestores',cpu:'CPU',operacional:'Operacional'};
 const permissions={
   admin:['dashboard','bo','rfa','cpu','banco','painel','estatisticas','auditoria','usuarios','config'],
-  p3:['dashboard','bo','rfa','cpu','banco','estatisticas','auditoria'],
+  p3:['dashboard','bo','rfa','cpu','banco','estatisticas'],
   gestor:['dashboard','bo','rfa','cpu','estatisticas'],
   cpu:['dashboard','bo','rfa','cpu'],
   operacional:['dashboard','bo','rfa']
@@ -824,7 +838,7 @@ let userManagementBusy=false;
 let bankFilters={q:'',tipo:'',status:'',unidade:'',mes:'',page:1,perPage:10};
 let statsFilters={inicio:'',fim:'',unidade:'',status:'Finalizado'};
 let statsView='resumo';
-let auditFilters={inicio:'',fim:'',action:''};
+let auditFilters={inicio:new Date().toLocaleDateString('sv-SE',{timeZone:'America/Sao_Paulo'}).slice(0,7)+'-01',fim:'',action:'',user:''};
 let auditCache=[];
 
 function getUsers(){let u=JSON.parse(localStorage.getItem(USERS_KEY)||'null');if(!u){u=defaults;localStorage.setItem(USERS_KEY,JSON.stringify(u))}return u}
@@ -1230,7 +1244,7 @@ function renderPage(page){
       <div class="final-card span4">
         <h4>Conta</h4>
         <p>Usuário: <b>${esc(session.name)}</b><br>Matrícula: ${esc(session.user||'—')}<br>Perfil: ${esc(roleLabels[session.role])}</p>
-        <label style="font-size:10px;font-weight:800">Nova senha</label>
+        <label>Senha atual</label><input id="cfgCurrentPass" type="password" autocomplete="current-password"><label style="font-size:10px;font-weight:800">Nova senha</label>
         <input id="cfgNewPass" type="password" autocomplete="new-password" style="width:100%;padding:9px;border:1px solid var(--border);border-radius:8px;margin:5px 0">
         <input id="cfgConfirmPass" type="password" autocomplete="new-password" placeholder="Confirmar nova senha" style="width:100%;padding:9px;border:1px solid var(--border);border-radius:8px;margin-bottom:8px">
         <button class="btn primary" id="changePasswordBtn">Alterar minha senha</button>
@@ -1520,7 +1534,7 @@ const auditActionLabels={
   user_activate:'Usuário ativado',
   user_deactivate:'Usuário desativado',
   user_archive:'Acesso excluído/arquivado',
-  setting_update:'Configuração alterada'
+  user_approve:'Cadastro aprovado', recovery_code_issued:'Código de recuperação emitido', password_recovered:'Senha recuperada', audit_cleaned:'Auditoria limpa', profile_repaired:'Perfil recuperado', test_account_configured:'Conta de teste configurada', setting_update:'Configuração alterada'
 };
 function renderAudit(){
   return `<div class="panel">
@@ -1534,31 +1548,32 @@ function renderAudit(){
         ${Object.entries(auditActionLabels).map(([k,v])=>`<option value="${k}" ${auditFilters.action===k?'selected':''}>${v}</option>`).join('')}
       </select></div>
       <button class="btn" id="auditRefresh">Atualizar</button>
-      <button class="btn primary" id="auditExport">Exportar CSV</button>
+      <div><label>Usuário (nome ou matrícula)</label><input id="auditUser51" value="${escAttr(auditFilters.user)}"></div><button class="btn" id="auditExport">Exportar eventos carregados</button>
     </div>
-    <div id="auditArea" style="margin-top:12px"><div class="empty">Carregando auditoria...</div></div>
+    <details><summary>Mais opções</summary><label>Apagar auditoria anterior a <input type="date" id="auditBefore51"></label><button class="btn" id="auditClean51">Limpar histórico</button><p>Apaga somente auditoria. Relatórios e usuários são preservados.</p></details><div id="auditArea" style="margin-top:12px"><div class="empty">Carregando auditoria...</div></div>
   </div>`;
 }
 function renderAuditTable(rows){
   if(!rows.length) return '<div class="empty">Nenhum registro encontrado para os filtros.</div>';
-  return `<div class="table-wrap"><table>
+  return `<div class="table-wrap"><table class="audit51-table">
     <thead><tr><th>Data/Hora</th><th>Usuário</th><th>Ação</th><th>Entidade</th><th>Detalhes</th></tr></thead>
     <tbody>${rows.map(r=>`<tr>
       <td>${formatDateTime(r.created_at)}</td>
       <td>${esc(r.actorName||r.actorUser||r.user_id||'Sistema')}</td>
       <td>${esc(auditActionLabels[r.action]||r.action)}</td>
       <td>${esc(r.entity||'—')} ${r.entity_id?`<small>${esc(r.entity_id)}</small>`:''}</td>
-      <td><div class="audit-details">${esc(typeof r.details==='object'?JSON.stringify(r.details):r.details||'—')}</div></td>
+      <td><details><summary>Ver detalhes</summary><small>${esc(r.entity||'')} ${esc(r.entity_id||'')}</small><div class="audit-details">${esc(typeof r.details==='object'?JSON.stringify(r.details):r.details||'—')}</div></details></td>
     </tr>`).join('')}</tbody>
   </table></div>`;
 }
-async function refreshAudit(){
+async function refreshAudit(more=false){
   const area=document.getElementById('auditArea');
   if(!area)return;
-  area.innerHTML='<div class="empty">Carregando auditoria...</div>';
+  if(!more){auditCache=[];area.innerHTML='<div class="empty">Carregando auditoria...</div>';}else document.getElementById('auditMore51')?.setAttribute('disabled','');
   try{
-    auditCache=await window.BPMA_SYSTEM.listAudit(auditFilters);
-    area.innerHTML=renderAuditTable(auditCache);
+    const next=await window.BPMA_SYSTEM.listAudit({...auditFilters,offset:auditCache.length});
+    auditCache.push(...next);area.innerHTML=renderAuditTable(auditCache)+(next.length===20?'<button class="btn" id="auditMore51">Carregar mais</button>':'');
+    document.getElementById('auditMore51')?.addEventListener('click',()=>refreshAudit(true));
   }catch(err){
     area.innerHTML=`<div class="empty">${esc(window.BPMA_SYSTEM.friendlyError(err))}</div>`;
   }
@@ -1634,7 +1649,7 @@ function renderSupabaseUserRows(users){
   return users.map(u=>{
     const self=String(u.id)===String(session.id);
     const pending=u.cadastro_pendente===true;
-    const statusLabel=pending?'Pendente':(u.ativo?'Ativo':'Inativo');
+    const statusLabel=u.deleted_at?'Excluído':u.orphan?'Sem vínculo':pending?'Pendente':(u.ativo?'Ativo':'Bloqueado');
     const statusClass=pending?'pendente':(u.ativo?'ativo':'inativo');
     const details=[u.graduacao||'',u.matricula?`Mat. ${u.matricula}`:''].filter(Boolean).join(' · ');
     return `<tr>
@@ -1645,10 +1660,10 @@ function renderSupabaseUserRows(users){
       <td><span class="status ${statusClass}">${statusLabel}</span></td>
       <td>${u.last_sign_in_at?formatDateTime(u.last_sign_in_at):'—'}</td>
       <td>
-        <div class="user-table-actions">
-          <button class="btn" data-edit-sb-user="${u.id}">Editar</button>
-          ${self?'':`<button class="btn${pending?' primary':''}" data-toggle-sb-user="${u.id}">${pending?'Aprovar':(u.ativo?'Desativar':'Ativar')}</button>`}
-          ${self?'':`<button class="btn danger" data-archive-sb-user="${u.id}">${pending?'Excluir solicitação':'Excluir acesso'}</button>`}
+        <div class="user-table-actions">${u.orphan&&!u.deleted_at?`<button class="btn" data-repair-user="${u.id}">Recuperar perfil inativo</button>`:''}${u.ativo&&!u.deleted_at&&!u.is_test&&!u.orphan?`<button class="btn" data-recovery-user="${u.id}">Gerar código</button>`:''}
+          ${!u.deleted_at&&!u.orphan&&!u.is_test?`<button class="btn" data-edit-sb-user="${u.id}">Editar</button>`:''}
+          ${self||u.deleted_at||u.orphan?'':`<button class="btn${pending?' primary':''}" data-toggle-sb-user="${u.id}">${pending?'Aprovar':(u.ativo?'Desativar':'Ativar')}</button>`}
+          ${self||u.deleted_at||u.is_test?'':`<button class="btn danger" data-archive-sb-user="${u.id}">${pending?'Excluir solicitação':'Excluir acesso'}</button>`}
         </div>
       </td>
     </tr>`;
@@ -1662,7 +1677,7 @@ async function refreshSupabaseUsers(){
   tbody.innerHTML=`<tr><td colspan="7" class="supabase-user-loading">Carregando usuários do Supabase...</td></tr>`;
   try{
     supabaseUsersCache=await window.BPMA_USERS.list();
-    tbody.innerHTML=renderSupabaseUserRows(supabaseUsersCache);
+    tbody.innerHTML=renderSupabaseUserRows(filteredUsers51());
     bindSupabaseUserRowActions();
     if(msg){const pend=supabaseUsersCache.filter(u=>u.cadastro_pendente===true).length;msg.textContent=`${supabaseUsersCache.length} usuário(s) no cadastro${pend?` · ${pend} pendente(s) de aprovação`:''}.`;msg.className='note'}
   }catch(err){
@@ -1674,7 +1689,16 @@ async function refreshSupabaseUsers(){
   }
 }
 
+function filteredUsers51(){
+  const q=(document.getElementById('userSearch51')?.value||'').toLowerCase(),f=document.getElementById('userStatus51')?.value||'';
+  return supabaseUsersCache.filter(u=>[u.nome,u.matricula,u.unidade].join(' ').toLowerCase().includes(q)&&(!f||(f==='deleted'?!!u.deleted_at:f==='orphan'?u.orphan:f==='pending'?u.cadastro_pendente&&!u.deleted_at:f==='active'?u.ativo&&!u.deleted_at:!u.ativo&&!u.deleted_at&&!u.cadastro_pendente)));
+}
 function bindSupabaseUserRowActions(){
+  document.querySelectorAll('[data-repair-user]').forEach(b=>b.onclick=async()=>{try{await BPMA_USERS.repairProfile(b.dataset.repairUser);await refreshSupabaseUsers()}catch(e){alert(e.message)}});
+  document.querySelectorAll('[data-recovery-user]').forEach(b=>b.onclick=async()=>{
+    if(!confirm('Confirme que verificou a identidade do militar antes de entregar o código.'))return;
+    b.disabled=true;try{const r=await BPMA_USERS.recoveryCode(b.dataset.recoveryUser);prompt('Código de uso único, válido por 15 minutos. Entregue ao militar:',r.code)}catch(e){alert(e.message)}finally{b.disabled=false}
+  });
   document.querySelectorAll('[data-edit-sb-user]').forEach(b=>b.onclick=()=>openSupabaseUserEditor(b.dataset.editSbUser));
   document.querySelectorAll('[data-toggle-sb-user]').forEach(b=>b.onclick=()=>toggleSupabaseUser(b.dataset.toggleSbUser));
   document.querySelectorAll('[data-archive-sb-user]').forEach(b=>b.onclick=()=>archiveSupabaseUser(b.dataset.archiveSbUser));
@@ -1752,8 +1776,8 @@ async function archiveSupabaseUser(id){
   if(!u)return;
   const pending=u.cadastro_pendente===true;
   const message=pending
-    ? `Excluir a solicitação de cadastro de ${u.nome||u.usuario}?\n\nA conta pendente será removida e esse e-mail poderá solicitar um novo cadastro.`
-    : `Excluir o acesso de ${u.nome||u.usuario}?\n\nO perfil será arquivado e os relatórios associados permanecerão preservados.`;
+    ? `Excluir a solicitação de cadastro de ${u.nome||u.usuario} (matrícula ${u.matricula})?\n\nA conta pendente será removida e essa matrícula poderá solicitar novo cadastro, sujeito à aprovação do Admin.`
+    : `Excluir o acesso de ${u.nome||u.usuario} (matrícula ${u.matricula})?\n\nO perfil será arquivado e os relatórios associados permanecerão preservados.`;
   if(!confirm(message))return;
   userManagementBusy=true;
   try{
@@ -1768,7 +1792,7 @@ function renderUsers(){
   return `<div class="panel">
     <h3>Gestão de Usuários — Supabase</h3>
     <div class="user-mini-note" style="margin-bottom:12px">
-      As contas criadas aqui são usuários reais do Supabase Auth. A senha inicial pode ser alterada posteriormente pelo Admin.
+      As contas criadas aqui são usuários reais do Supabase Auth. O militar troca sua senha ou utiliza um código de recuperação gerado pelo Admin.
     </div>
     <div class="user-admin-grid">
       <div class="f s6"><label>Matrícula</label><input id="uMatricula" inputmode="numeric" placeholder="Matrícula"></div>
@@ -1796,7 +1820,7 @@ function renderUsers(){
   </div>
 
   <div class="panel">
-    <h3>Usuários do BPMA Digital</h3>
+    <h3>Todos os usuários do BPMA Digital</h3><input id="userSearch51" placeholder="Buscar nome, matrícula ou unidade"><select id="userStatus51"><option value="">Todos</option><option value="pending">Pendentes</option><option value="active">Ativos</option><option value="blocked">Bloqueados</option><option value="deleted">Excluídos</option><option value="orphan">Sem vínculo</option></select>
     <div class="table-wrap">
       <table>
         <thead><tr><th>Matrícula</th><th>Militar</th><th>Perfil</th><th>Unidade</th><th>Status</th><th>Último acesso</th><th>Ações</th></tr></thead>
@@ -1805,7 +1829,7 @@ function renderUsers(){
     </div>
   </div>
 
-  ${window.BPMA_FINAL_ADMIN.panel()}
+  <div class="panel"><h3>Conta de teste</h3><p>Usuário: <b>TESTE001</b> · Senha: <b>senha123</b></p><p>Dados de teste não entram nas estatísticas oficiais.</p><label>Perfil <select id="testRole51"><option value="cpu">CPU</option><option value="operacional">Operacional</option><option value="p3">P3</option><option value="gestor">Gestor</option></select></label><button class="btn" id="testSetup51">Preparar / atualizar conta de teste</button><p id="testMsg51" role="status"></p></div>
   ${renderLayerReportControls()}
 
   <dialog id="userEditDialog" class="user-dialog">
@@ -1817,7 +1841,7 @@ function renderUsers(){
       <input type="hidden" id="editUserId">
       <div class="user-admin-grid">
         <div class="f s6"><label>Matrícula</label><input id="editMatricula" inputmode="numeric"></div>
-        <div class="f s6"><label>Nova senha (opcional)</label><input id="editPassword" type="password" placeholder="Deixe vazio para manter"></div>
+        <input id="editPassword" type="hidden" value="">
         <div class="f"><label>Posto / Graduação</label><input id="editGraduacao"></div>
         <div class="f s6"><label>Nome de guerra</label><input id="editName"></div>
         <div class="f s6"><label>Telefone / WhatsApp</label><input id="editTelefone" type="tel"></div>
@@ -2142,13 +2166,15 @@ function bindPage(page){
   }
 
   if(page==='auditoria'){
+    document.getElementById('auditUser51').onchange=e=>auditFilters.user=e.target.value;
+    document.getElementById('auditClean51').onclick=async()=>{const before=document.getElementById('auditBefore51').value;if(!before)return alert('Escolha a data.');try{const preview=await BPMA_USERS.cleanAudit(before);if(!confirm(`Apagar somente ${preview.count} eventos de auditoria anteriores a ${before}? Relatórios e usuários não serão alterados.`))return;if(prompt('Digite APAGAR SOMENTE AUDITORIA')!=='APAGAR SOMENTE AUDITORIA')return;await BPMA_USERS.cleanAudit(before,'APAGAR SOMENTE AUDITORIA');await refreshAudit();}catch(e){alert(e.message)}};
     const ai=document.getElementById('auditInicio');
     const af=document.getElementById('auditFim');
     const aa=document.getElementById('auditAction');
     if(ai) ai.onchange=()=>{auditFilters.inicio=ai.value};
     if(af) af.onchange=()=>{auditFilters.fim=af.value};
     if(aa) aa.onchange=()=>{auditFilters.action=aa.value};
-    document.getElementById('auditRefresh')?.addEventListener('click',refreshAudit);
+    document.getElementById('auditRefresh')?.addEventListener('click',()=>refreshAudit());
     document.getElementById('auditExport')?.addEventListener('click',exportAuditCSV);
     refreshAudit();
   }
@@ -2161,7 +2187,7 @@ function bindPage(page){
       if(p1.length<8){msg.textContent='A senha deve ter pelo menos 8 caracteres.';return}
       if(p1!==p2){msg.textContent='As senhas não coincidem.';return}
       try{
-        await window.BPMA_AUTH.updatePassword(p1);
+        await window.BPMA_AUTH.updatePassword(p1,document.getElementById('cfgCurrentPass')?.value);
         document.getElementById('cfgNewPass').value='';
         document.getElementById('cfgConfirmPass').value='';
         msg.textContent='Senha alterada com sucesso.';
@@ -2177,6 +2203,8 @@ function bindPage(page){
 
 
   if(page==='usuarios'){
+    for(const id of ['userSearch51','userStatus51'])document.getElementById(id)?.addEventListener('input',()=>{document.getElementById('supabaseUsersBody').innerHTML=renderSupabaseUserRows(filteredUsers51());bindSupabaseUserRowActions()});
+    document.getElementById('testSetup51').onclick=async e=>{e.target.disabled=true;try{await BPMA_USERS.configureTest(document.getElementById('testRole51').value);document.getElementById('testMsg51').textContent='Conta TESTE001 preparada.';await refreshSupabaseUsers()}catch(err){document.getElementById('testMsg51').textContent=err.message}finally{e.target.disabled=false}};
     const createBtn=document.getElementById('createSupabaseUserBtn');
     if(createBtn) createBtn.onclick=async()=>{
       if(userManagementBusy)return;
@@ -2303,6 +2331,7 @@ function escAttr(s){return esc(s).replace(/`/g,'&#096;')}
     submitBtn.textContent='Enviando...';
     setMsg('Enviando solicitação...');
     try{
+      if(typeof window.BPMA_AUTH?.requestRegistration!=='function')throw new Error('Atualização de acesso incompleta. Recarregue o aplicativo e confira os arquivos publicados.');
       await window.BPMA_AUTH.requestRegistration(payload);
       loginUser.value=payload.matricula;
       field('signupPass').value='';field('signupPass2').value='';
@@ -2317,7 +2346,8 @@ function escAttr(s){return esc(s).replace(/`/g,'&#096;')}
 })();
 
 forgotPassBtn.onclick=()=>{
-  loginMsg.textContent='Para recuperar o acesso, informe sua matrícula ao Administrador. O Admin pode definir uma nova senha sem envio de e-mail.';
+  recovery51.showModal();
+  loginMsg.textContent='Para recuperar o acesso, informe sua matrícula ao Administrador. O Admin gera um código temporário. Informe o código e escolha sua nova senha.';
   loginMsg.className='login-msg success';
 };
 
@@ -2360,6 +2390,12 @@ async function handleRecoveryCallback(){
     return false;
   }
 }
+
+
+ ownPasswordBtn.onclick=()=>ownPassword51.showModal();
+ ownCancel51.onclick=()=>ownPassword51.close();recoverCancel51.onclick=()=>recovery51.close();
+ ownSubmit51.onclick=async()=>{if(ownNew51.value!==ownConfirm51.value){ownMsg51.textContent='As senhas não coincidem.';return;}ownSubmit51.disabled=true;try{await BPMA_AUTH.updatePassword(ownNew51.value,ownCurrent51.value);ownCurrent51.value='';ownNew51.value='';ownConfirm51.value='';ownMsg51.textContent='Senha alterada.'}catch(e){ownMsg51.textContent=e.message}finally{ownSubmit51.disabled=false}};
+ recoverSubmit51.onclick=async()=>{if(recoverPass51.value!==recoverConfirm51.value){recoverMsg51.textContent='As senhas não coincidem.';return;}recoverSubmit51.disabled=true;try{await BPMA_AUTH.recoverWithCode(recoverMat51.value,recoverCode51.value,recoverPass51.value);recoverCode51.value='';recoverPass51.value='';recoverConfirm51.value='';recoverMsg51.textContent='Senha definida. Entre com matrícula e nova senha.'}catch(e){recoverMsg51.textContent=e.message}finally{recoverSubmit51.disabled=false}};
 
 loginBtn.onclick=login;
 loginUser.addEventListener('keydown',e=>{if(e.key==='Enter')loginPass.focus()});

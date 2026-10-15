@@ -31,10 +31,11 @@
   }
 
   async function listAudit(filters={}){
-    const qs=['select=id,user_id,action,entity,entity_id,details,created_at','order=created_at.desc','limit=500'];
+    const qs=['select=id,user_id,action,entity,entity_id,details,created_at','order=created_at.desc,id.desc','limit=20',`offset=${Math.max(0,Number(filters.offset)||0)}`];
     if(filters.inicio) qs.push(`created_at=gte.${encodeURIComponent(filters.inicio+'T00:00:00-03:00')}`);
     if(filters.fim) qs.push(`created_at=lte.${encodeURIComponent(filters.fim+'T23:59:59-03:00')}`);
     if(filters.action) qs.push(`action=eq.${encodeURIComponent(filters.action)}`);
+    if(filters.user){const people=await rest('/rest/v1/profiles?select=id&or='+encodeURIComponent(`(nome.ilike.*${String(filters.user).replace(/[^a-zA-Z0-9À-ÿ _-]/g,'')}*,matricula.ilike.*${String(filters.user).replace(/[^a-zA-Z0-9_-]/g,'')}*)`));if(!people?.length)return [];qs.push('user_id=in.('+people.map(p=>p.id).join(',')+')');}
     const rows=await rest('/rest/v1/audit_logs?'+qs.join('&'));
     const ids=[...new Set((rows||[]).map(r=>r.user_id).filter(Boolean))];
     let profiles=[];
