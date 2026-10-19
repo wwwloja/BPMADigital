@@ -1,4 +1,4 @@
-const CACHE='bpma-digital-5.1.3-outline-users';
+const CACHE='bpma-digital-5.1.3.1-outline-users';
 const SHELL=[
   '/',
   '/index.html',
@@ -16,7 +16,7 @@ const SHELL=[
   '/cpu-details.js?v=5.1.3',
   '/cpu-structure.js?v=5.1.3',
   '/cpu-structure.css',
-  '/stats37.js?v=5.1.3',
+  '/stats37.js?v=5.1.3.1',
   '/upgrade50.js?v=5.1.3',
   '/upgrade50.css',
   '/local-report-store.js?v=5.1.3',
