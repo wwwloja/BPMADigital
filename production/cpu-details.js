@@ -199,7 +199,7 @@ function stats(){
  if(vehicle)[1,2].forEach(i=>data.veiculos.push(...itemData(original(vehicle.cells[i],'textarea')[0]).map(x=>({...x,situacao:i===1?'Apreendido':'Recuperado'}))));
  rows('procBody').forEach(row=>{
   const field=original(row.cells[0],'textarea')[0],gu=findGu(field),cat=original(row,'.natureza-cat')[0]?.value||'',conclusion=original(row.cells[2],'textarea')[0]?.value.trim();
-  if(cat||conclusion||field?.value.trim())data.acoes.push({vtr:gu?.vtr||'Não vinculada',autuante:gu?.autuante||'Não vinculado',turno:'',natureza:cat||'Não informada'});
+  if(cat||conclusion||field?.value.trim())data.acoes.push({vtr:gu?.vtr||'Não vinculada',autuante:gu?.autuante||field?.value.trim()||'Não vinculado',turno:'',natureza:cat||'Não informada',procAdm:!!row.querySelector('[data-proc-adm]')?.checked,numeroAI:row.querySelector('[data-proc-adm]')?.checked?row.querySelector('.ai-numero')?.value.trim()||'':'',autuado:row.querySelector('[data-proc-adm]')?.checked?row.querySelector('.ai-autuado')?.value.trim()||'':'',ufrPb:row.querySelector('[data-proc-adm]')?.checked?qty(row.querySelector('.ufr-pb')?.value):0});
   itemData(original(row.cells[3],'textarea')[0]).forEach(x=>{
    if(x.tipo==='Animais'&&!animals.some(a=>a.id===x.vinculo&&a.quantidade>0))data.animais.push({...x,origem:'Apreensão em ação ambiental',destino:'Ver ação ambiental'});
    if(x.tipo==='Veículos'&&!x.jaContado)data.veiculos.push({...x,situacao:'Apreendido em ação ambiental'});

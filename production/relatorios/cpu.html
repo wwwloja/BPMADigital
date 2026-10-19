@@ -1943,6 +1943,13 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
 }
 </style>
 <link rel="stylesheet" href="../cpu-structure.css?v=5.0">
+<style>
+/* 5.1.3 — preservar a tabela e o campo livre da conclusão. */
+#procBody .ufr-wrap{flex-wrap:wrap}
+#procBody .ufr-wrap .ai51-label{display:grid;gap:3px;flex:1 1 100%;white-space:normal}
+#procBody .ai51-label input{width:100%!important;min-width:0!important;box-sizing:border-box;font-weight:normal}
+@media print{#procBody .ufr-wrap:not([hidden]){display:flex!important;flex-wrap:wrap!important;width:100%!important}#procBody .ufr-wrap[hidden]{display:none!important}#procBody .ai51-label{font-size:7pt!important}#procBody .ai51-label .bpma-print-value{white-space:pre-wrap;overflow-wrap:anywhere}}
+</style>
 </head>
 <body>
 <!-- Barra de ações CPU: markup estático para permanecer visível no desktop mesmo antes da inicialização dos dados. -->
@@ -2254,7 +2261,7 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
             <tr>
               <td><textarea rows="2" aria-label="VTR ou guarnição autuante" placeholder="VTR/GU e autuante"></textarea></td>
               <td><div class="combo-stack"><select class="natureza-cat" aria-label="Categoria ambiental"><option value="">Natureza</option><option>Fauna</option><option>Flora</option><option>Poluição</option><option>Mineração</option><option>Pesca</option><option>Recursos Hídricos</option><option>Unidade de Conservação</option><option>Queimada/Incêndio</option><option>Licenciamento Ambiental</option><option>Outros</option></select><select class="natureza-sub" aria-label="Subnatureza"><option value="">Subnatureza</option></select><input class="natureza-outro" placeholder="Outra natureza" hidden></div></td>
-              <td><div class="desfechos" aria-label="Desfechos"><label><input type="checkbox" value="TCO"> TCO</label><label><input type="checkbox" value="APF"> APF</label><label><input type="checkbox" value="Procedimento administrativo" data-proc-adm> Proc. adm.</label><label><input type="checkbox" value="Apreensão"> Apreensão</label></div><div class="ufr-wrap" hidden><label>UFR-PB aplicadas</label><div class="ufr-field"><input class="ufr-pb" type="text" inputmode="numeric" maxlength="6" pattern="[0-9]{0,6}" placeholder="0" aria-label="Quantidade de UFR-PB aplicadas"><span class="ufr-unit">UFR-PB</span></div></div><textarea rows="2" aria-label="Conclusão do procedimento" placeholder="Resultado, nº do termo/auto, providências adotadas..."></textarea></td>
+              <td><div class="desfechos" aria-label="Desfechos"><label><input type="checkbox" value="TCO"> TCO</label><label><input type="checkbox" value="APF"> APF</label><label><input type="checkbox" value="Procedimento administrativo" data-proc-adm> Proc. adm.</label><label><input type="checkbox" value="Apreensão"> Apreensão</label></div><div class="ufr-wrap" hidden><label>UFR-PB aplicadas</label><div class="ufr-field"><input class="ufr-pb" type="text" inputmode="numeric" maxlength="6" pattern="[0-9]{0,6}" placeholder="0" aria-label="Quantidade de UFR-PB aplicadas"><span class="ufr-unit">UFR-PB</span></div><label class="ai51-label">Nº do AI<input class="ai-numero" type="text" maxlength="60" placeholder="Número do auto" aria-label="Número do Auto de Infração"></label><label class="ai51-label">Nome do autuado<input class="ai-autuado" type="text" maxlength="200" placeholder="Nome completo do autuado" aria-label="Nome do autuado"></label></div><textarea rows="2" aria-label="Conclusão do procedimento" placeholder="Resultado, nº do termo/auto, providências adotadas..."></textarea></td>
               <td><textarea rows="2" aria-label="Itens apreendidos" placeholder="Animais, veículos ou materiais apreendidos"></textarea></td>
               <td class="no-print" style="text-align:center;vertical-align:middle"><button type="button" class="btn-del" data-del-proc>Excluir</button></td>
             </tr>
@@ -2622,7 +2629,7 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
       const oldNat=natCell.querySelector('textarea,input')?.value||'', oldConc=concCell.querySelector('textarea')?.value||'';
       natCell.innerHTML='<div class="combo-stack"><select class="natureza-cat"><option value="">Natureza</option><option>Fauna</option><option>Flora</option><option>Poluição</option><option>Mineração</option><option>Pesca</option><option>Recursos Hídricos</option><option>Unidade de Conservação</option><option>Queimada/Incêndio</option><option>Licenciamento Ambiental</option><option>Outros</option></select><select class="natureza-sub"><option value="">Subnatureza</option></select><input class="natureza-outro" placeholder="Outra natureza" hidden></div>';
       const cat=guessNatureza(oldNat); natCell.querySelector('.natureza-cat').value=cat; syncNaturezaCombo(row,false); if(cat==='Outros')natCell.querySelector('.natureza-outro').value=oldNat;
-      concCell.innerHTML='<div class="desfechos"><label><input type="checkbox" value="TCO"> TCO</label><label><input type="checkbox" value="APF"> APF</label><label><input type="checkbox" value="Procedimento administrativo" data-proc-adm> Proc. adm.</label><label><input type="checkbox" value="Apreensão"> Apreensão</label></div><div class="ufr-wrap" hidden><label>UFR-PB aplicadas</label><div class="ufr-field"><input class="ufr-pb" type="text" inputmode="numeric" maxlength="6" pattern="[0-9]{0,6}" placeholder="0"><span class="ufr-unit">UFR-PB</span></div></div><textarea rows="2" placeholder="Resultado, nº do termo/auto, providências adotadas..."></textarea>';
+      concCell.innerHTML='<div class="desfechos"><label><input type="checkbox" value="TCO"> TCO</label><label><input type="checkbox" value="APF"> APF</label><label><input type="checkbox" value="Procedimento administrativo" data-proc-adm> Proc. adm.</label><label><input type="checkbox" value="Apreensão"> Apreensão</label></div><div class="ufr-wrap" hidden><label>UFR-PB aplicadas</label><div class="ufr-field"><input class="ufr-pb" type="text" inputmode="numeric" maxlength="6" pattern="[0-9]{0,6}" placeholder="0"><span class="ufr-unit">UFR-PB</span></div><label class="ai51-label">Nº do AI<input class="ai-numero" type="text" maxlength="60" placeholder="Número do auto" aria-label="Número do Auto de Infração"></label><label class="ai51-label">Nome do autuado<input class="ai-autuado" type="text" maxlength="200" placeholder="Nome completo do autuado" aria-label="Nome do autuado"></label></div><textarea rows="2" placeholder="Resultado, nº do termo/auto, providências adotadas..."></textarea>';
       concCell.querySelector('textarea').value=oldConc; const lc=oldConc.toLowerCase();
       if(/\btco\b/.test(lc))concCell.querySelector('input[value="TCO"]').checked=true; if(/\bapf\b|auto de prisão|auto de prisao|flagrante/.test(lc))concCell.querySelector('input[value="APF"]').checked=true;
       if(/apreens/.test(lc))concCell.querySelector('input[value="Apreensão"]').checked=true;
@@ -2637,9 +2644,10 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
       wrap=document.createElement('div');
       wrap.className='ufr-wrap';
       wrap.hidden=true;
-      wrap.innerHTML='<label>UFR-PB aplicadas</label><div class="ufr-field"><input class="ufr-pb" type="text" inputmode="numeric" maxlength="6" pattern="[0-9]{0,6}" placeholder="0" aria-label="Quantidade de UFR-PB aplicadas"><span class="ufr-unit">UFR-PB</span></div>';
+      wrap.innerHTML='<label>UFR-PB aplicadas</label><div class="ufr-field"><input class="ufr-pb" type="text" inputmode="numeric" maxlength="6" pattern="[0-9]{0,6}" placeholder="0" aria-label="Quantidade de UFR-PB aplicadas"><span class="ufr-unit">UFR-PB</span></div><label class="ai51-label">Nº do AI<input class="ai-numero" type="text" maxlength="60" placeholder="Número do auto" aria-label="Número do Auto de Infração"></label><label class="ai51-label">Nome do autuado<input class="ai-autuado" type="text" maxlength="200" placeholder="Nome completo do autuado" aria-label="Nome do autuado"></label>';
       conclusion.querySelector('.desfechos')?.insertAdjacentElement('afterend',wrap);
     }
+    if(wrap && !wrap.querySelector('.ai-numero'))wrap.insertAdjacentHTML('beforeend', '<label class="ai51-label">Nº do AI<input class="ai-numero" type="text" maxlength="60" placeholder="Número do auto" aria-label="Número do Auto de Infração"></label><label class="ai51-label">Nome do autuado<input class="ai-autuado" type="text" maxlength="200" placeholder="Nome completo do autuado" aria-label="Nome do autuado"></label>');
     const input=row.querySelector('.ufr-pb');
     if(!wrap)return;
     const on=!!cb?.checked;
@@ -2661,7 +2669,7 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
     return `<tr>
       <td><textarea rows="2" placeholder="VTR/GU e autuante"></textarea></td>
       <td><div class="combo-stack"><select class="natureza-cat"><option value="">Natureza</option><option>Fauna</option><option>Flora</option><option>Poluição</option><option>Mineração</option><option>Pesca</option><option>Recursos Hídricos</option><option>Unidade de Conservação</option><option>Queimada/Incêndio</option><option>Licenciamento Ambiental</option><option>Outros</option></select><select class="natureza-sub"><option value="">Subnatureza</option></select><input class="natureza-outro" placeholder="Outra natureza" hidden></div></td>
-      <td><div class="desfechos"><label><input type="checkbox" value="TCO"> TCO</label><label><input type="checkbox" value="APF"> APF</label><label><input type="checkbox" value="Procedimento administrativo" data-proc-adm> Proc. adm.</label><label><input type="checkbox" value="Apreensão"> Apreensão</label></div><div class="ufr-wrap" hidden><label>UFR-PB aplicadas</label><div class="ufr-field"><input class="ufr-pb" type="text" inputmode="numeric" maxlength="6" pattern="[0-9]{0,6}" placeholder="0"><span class="ufr-unit">UFR-PB</span></div></div><textarea rows="2" placeholder="Resultado, nº do termo/auto, providências adotadas..."></textarea></td>
+      <td><div class="desfechos"><label><input type="checkbox" value="TCO"> TCO</label><label><input type="checkbox" value="APF"> APF</label><label><input type="checkbox" value="Procedimento administrativo" data-proc-adm> Proc. adm.</label><label><input type="checkbox" value="Apreensão"> Apreensão</label></div><div class="ufr-wrap" hidden><label>UFR-PB aplicadas</label><div class="ufr-field"><input class="ufr-pb" type="text" inputmode="numeric" maxlength="6" pattern="[0-9]{0,6}" placeholder="0"><span class="ufr-unit">UFR-PB</span></div><label class="ai51-label">Nº do AI<input class="ai-numero" type="text" maxlength="60" placeholder="Número do auto" aria-label="Número do Auto de Infração"></label><label class="ai51-label">Nome do autuado<input class="ai-autuado" type="text" maxlength="200" placeholder="Nome completo do autuado" aria-label="Nome do autuado"></label></div><textarea rows="2" placeholder="Resultado, nº do termo/auto, providências adotadas..."></textarea></td>
       <td><textarea rows="2" placeholder="Animais, veículos ou materiais apreendidos"></textarea></td>
       <td class="no-print" style="text-align:center;vertical-align:middle"><button type="button" class="btn-del" data-del-proc>Excluir</button></td>
     </tr>`;
@@ -2735,9 +2743,9 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
 <script src="../supabase-config.js"></script>
 <script src="../supabase-auth.js?v=5.1"></script>
 <script src="../security.js"></script>
-<script src="../cpu-structure.js?v=5.0"></script>
-<script src="../cpu-details.js?v=5.0"></script>
-<script src="../print-helper.js?v=5.0"></script>
+<script src="../cpu-structure.js?v=5.1.3"></script>
+<script src="../cpu-details.js?v=5.1.3"></script>
+<script src="../print-helper.js?v=5.1.3"></script>
 <script src="../upgrade50.js?v=5.0"></script>
 <script src="../storage-image-opt.js?v=5.0"></script>
 <script src="../supabase-cpu.js"></script>
@@ -2918,7 +2926,7 @@ body.cpu-signing .bpma-system-toolbar{display:none!important}
     }catch(err){warn('linhas dinâmicas',err)}
 
     try{
-      const list=controls();
+      const list=controls().filter(el=>!el.matches('.ai-numero,.ai-autuado'));
       const savedValues=!modern && Array.isArray(state.values) ? state.values : [];
       savedValues.forEach((v,i)=>{
         const el=list[i];

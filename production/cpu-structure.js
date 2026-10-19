@@ -2,7 +2,7 @@
 (()=>{'use strict';
 const ids=['recursosBody','ativBody','procBody','animalBody'];
 const all=(s,r=document)=>[...r.querySelectorAll(s)];
-const fields=r=>all('input:not([type=file]),select,textarea',r).filter(e=>!e.closest('.bpma-data-tools,.bpma-system-toolbar'));
+const fields=r=>all('input:not([type=file]),select,textarea',r).filter(e=>!e.closest('.bpma-data-tools,.bpma-system-toolbar')).sort((a,b)=>Number(a.matches('.ai-numero,.ai-autuado'))-Number(b.matches('.ai-numero,.ai-autuado')));
 const templates=Object.fromEntries(ids.map(id=>[id,document.getElementById(id).rows[0].cloneNode(true)]));
 const fresh=id=>{const row=templates[id].cloneNode(true);row.dataset.row37=crypto.randomUUID();return row};
 const key=(e,root)=>{if(e.name)return 'name:'+e.name;if(e.id)return 'id:'+e.id;let parts=[];for(let n=e;n&&n!==root;n=n.parentElement)parts.unshift(n.tagName+':'+[...n.parentElement.children].indexOf(n));return parts.join('/')};
